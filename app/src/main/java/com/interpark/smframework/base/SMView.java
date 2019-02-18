@@ -2,6 +2,8 @@ package com.interpark.smframework.base;
 
 import android.app.Notification;
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.Bitmap.Config;
 import android.graphics.Matrix;
 import android.opengl.GLES20;
 import android.os.Build;
@@ -13,9 +15,11 @@ import android.view.MotionEvent;
 import android.view.View;
 
 import com.interpark.smframework.IDirector;
+import com.interpark.smframework.NativeImageProcess.ImageProcessing;
 import com.interpark.smframework.base.animator.AlphaAnimator;
 import com.interpark.smframework.base.animator.Animator;
 import com.interpark.smframework.base.animator.ColorAnimator;
+import com.interpark.smframework.base.sprite.CanvasSprite;
 import com.interpark.smframework.base.types.Action;
 import com.interpark.smframework.base.types.ActionManager;
 import com.interpark.smframework.base.types.Color4F;
@@ -31,6 +35,8 @@ import com.interpark.smframework.util.Vec3;
 import com.interpark.smframework.view.SMButton;
 import com.interpark.smframework.view.ViewConfig;
 
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -1244,7 +1250,7 @@ public class SMView extends Ref {
 //        return mVisibleState;
 //    }
 
-    private void setVisibility(int visibility) {
+    public void setVisibility(int visibility) {
         if (mVisibleState == visibility)
             return;
         mVisibleState = visibility;
@@ -3015,4 +3021,50 @@ public class SMView extends Ref {
         return min + (int)(Math.random() * ((max-min) + 1));
     }
 
+//    private static final String CAPTURE_SCREEN = "_CAPTURE_SCREEN_";
+
+    public Bitmap captureView() {
+        // 현재 뷰 크기로 그린다.
+        String captureKeyName = "CAPTURE_VIEW_" + hashCode();
+        CanvasSprite canvas = CanvasSprite.createCanvasSprite(getDirector(), (int)getContentSize().width, (int)getContentSize().height, captureKeyName);
+        Bitmap bitmap = null;
+
+        float oldScale = getScale();
+        Vec2 oldPos = getPosition();
+        Vec2 oldAnchor = getAnchorPoint();
+
+        Vec2 drawPos = new Vec2(getContentSize().width/2, getContentSize().height/2);
+
+        if (canvas.setRenderTarget(getDirector(), true)) {
+
+            GLES20.glClearColor(0, 0, 0, 0);
+            GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT);
+            GLES20.glEnable(GLES20.GL_BLEND);
+            GLES20.glBlendFunc(GLES20.GL_ONE, GLES20.GL_ONE_MINUS_SRC_ALPHA);
+
+            setPosition(drawPos);
+            setAnchorPoint(new Vec2(0.5f, 0.5f));
+            setScale(1.0f);
+
+            getDirector().pushProjectionMatrix();
+            {
+                transformMatrix(getDirector().getProjectionMatrix());
+                getDirector().updateProjectionMatrix();
+                renderFrame(1);
+            }
+            getDirector().popProjectionMatrix();
+
+            bitmap = Bitmap.createBitmap((int) canvas.getWidth(), (int) canvas.getHeight(), Config.ARGB_8888);
+            ImageProcessing.glGrabPixels(0, 0, bitmap, true);
+
+            canvas.setRenderTarget(getDirector(), false);
+        }
+        canvas.removeTexture();
+
+        setScale(oldScale);
+        setAnchorPoint(oldAnchor);
+        setPosition(oldPos);
+
+        return bitmap;
+    }
 }

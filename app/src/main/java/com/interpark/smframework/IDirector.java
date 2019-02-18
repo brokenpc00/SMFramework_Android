@@ -11,6 +11,7 @@ import com.interpark.smframework.base.SMView;
 import com.interpark.smframework.base.SceneParams;
 import com.interpark.smframework.base.types.ActionManager;
 import com.interpark.smframework.base.types.Scheduler;
+import com.interpark.smframework.shader.ShaderManager;
 import com.interpark.smframework.shader.ShaderManager.ProgramType;
 import com.interpark.smframework.shader.ShaderProgram;
 import com.interpark.smframework.base.sprite.Sprite;
@@ -115,6 +116,8 @@ public interface IDirector {
     public void drawAARect(float x, float y, float width, float height, float round);
     public void drawAARect(float x, float y, float width, float height, float round, float border);
 
+
+    public ShaderManager getShaderManager();
 
     public SpriteSet getSpriteSet();
 

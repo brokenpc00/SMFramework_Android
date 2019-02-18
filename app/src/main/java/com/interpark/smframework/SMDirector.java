@@ -148,6 +148,7 @@ public class SMDirector implements IDirector, GLSurfaceView.Renderer {
     private PrimitiveCircle mPrimCircle;
     private PrimitiveAARect mPrimAARect;
     private ShaderManager mShaderManager;
+    public ShaderManager getShaderManager() {return mShaderManager;}
     private TextureManager mTextureManager;
 
     private float[] mActiveMatrix = null;
@@ -238,6 +239,7 @@ public class SMDirector implements IDirector, GLSurfaceView.Renderer {
         }
 
         _instance = this;
+
     }
 
     private float[] getObtainMatrix() {
@@ -354,6 +356,7 @@ public class SMDirector implements IDirector, GLSurfaceView.Renderer {
         mThreadOwner = Thread.currentThread();
         setTouchEventDispatcherEnable(true);
         _instance = this;
+
     }
 
     private SMView _dimLayer = null;
@@ -364,22 +367,12 @@ public class SMDirector implements IDirector, GLSurfaceView.Renderer {
     public static SideMenu _sideMenu = null;
     private SMView _swipeLayer = null;
 
-
-    @Override
-    public void onSurfaceChanged(final GL10 unused, final int width, final int height) {
-        _instance = this;
-        if (width > 0 && height > 0) {
-
-            mDeviceWidth = width;
-            mDeviceHeight = height;
+    private void beginProjectionMatrix() {
             mWidth = BASE_SCREEN_WIDTH;
-            mHeight = height * BASE_SCREEN_WIDTH / width;
-            mDisplayAdjust = (float)BASE_SCREEN_WIDTH / width;
+        mHeight = mDeviceHeight * BASE_SCREEN_WIDTH / mDeviceWidth;
+        mDisplayAdjust = (float)BASE_SCREEN_WIDTH / mDeviceWidth;
 
-            GLES20.glViewport(0, 0, width, height);
-
-//			float matrix[] = new float[16];
-//			Matrix.orthoM(matrix, 0, 0, mWidth, mHeight, 0, -1000, 1000);
+        GLES20.glViewport(0, 0, mDeviceWidth, mDeviceHeight);
 
             float[] m1 = new float[16];
             float[] m2 = new float[16];
@@ -407,6 +400,21 @@ public class SMDirector implements IDirector, GLSurfaceView.Renderer {
             mMatrixStack.removeAllElements();
             setProjectionMatrix(mFrameBufferMatrix);
             pushProjectionMatrix();
+
+    }
+
+    private void endProjectionMatrix() {
+
+    };
+
+    @Override
+    public void onSurfaceChanged(final GL10 unused, final int width, final int height) {
+        _instance = this;
+        if (width > 0 && height > 0) {
+            mDeviceWidth = width;
+            mDeviceHeight = height;
+
+            beginProjectionMatrix();
 
             startTimer();
             setTouchEventDispatcherEnable(true);
@@ -1630,6 +1638,8 @@ public class SMDirector implements IDirector, GLSurfaceView.Renderer {
         mHeight = mDisplayRawHeight * BASE_SCREEN_WIDTH / mDisplayRawWidth;
 
         mDisplayAdjust = (float)BASE_SCREEN_WIDTH / mDisplayRawWidth;
+
+        beginProjectionMatrix();
     }
 
     @Override

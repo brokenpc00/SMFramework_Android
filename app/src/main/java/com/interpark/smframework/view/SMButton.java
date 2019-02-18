@@ -293,13 +293,25 @@ public class SMButton extends _UIContainerView {
         float dstAlpha = t;
         if (dstView!=null) {
             if (srcColor!=null) {
+                if (srcView==_iconView[0] && srcView instanceof SMImageView) {
+                    // icon인 경우는 background color가 아니다.
+                    SMImageView imageView = (SMImageView)srcView;
+                    imageView.setTintColor(srcColor.a, srcColor.g, srcColor.b, srcColor. a);
+                } else {
                 srcView.setBackgroundColor(srcColor.r, srcColor.g, srcColor.b, srcColor.a);
-                srcAlpha = srcColor.a;
+                }
+                srcAlpha = srcAlpha * srcColor.a;
             }
 
             if (dstColor!=null) {
+
+                if (dstView==_iconView[1] && dstView instanceof SMImageView) {
+                    // icon인 경우는 background color가 아니다.
+                    SMImageView imageView = (SMImageView)dstView;
+                    imageView.setTintColor(dstColor.a, dstColor.g, dstColor.b, dstColor. a);
+                } else {
                 dstView.setBackgroundColor(dstColor.r, dstColor.g, dstColor.b, dstColor.a);
-                dstAlpha = dstColor.a;
+                }
             }
 
             if (srcView!=null) {
@@ -322,7 +334,14 @@ public class SMButton extends _UIContainerView {
             alpha = sc.a*srcAlpha + ds.a*dstAlpha;
             Color4F rc = new Color4F(red, green, blue, alpha);
 
+            if (srcView==_iconView[0] && srcView instanceof SMImageView) {
+                // icon인 경우는 background color가 아니다.
+                SMImageView imageView = (SMImageView)srcView;
+                imageView.setTintColor(rc.r, rc.g, rc.b, rc.a);
+            } else {
             srcView.setBackgroundColor(rc.r, rc.g, rc.b, rc.a);
+            }
+
             srcView.setAlpha(rc.a);
         }
     }
@@ -568,6 +587,7 @@ public class SMButton extends _UIContainerView {
             }
         }
 
+        view.setAnchorPoint(new Vec2(0.5f, 0.5f));
         setStateView(_buttonView, state, view, state==STATE.NORMAL?AppConst.ZOrder.BUTTON_NORMAL:AppConst.ZOrder.BUTTON_PRESSED, _buttonColor);
 
         if (view!=null) {
@@ -678,7 +698,7 @@ public class SMButton extends _UIContainerView {
         registerUpdate(FLAG_TEXT_ICON_POSITION);
     }
 
-    public void setIcon(STATE state, final SMView view) {
+    public void setIcon(STATE state, SMView view) {
 
 //        if (_iconView==null && view!=null) {
 //            _iconView = new SMView[stateToInt(STATE.MAX)];
@@ -727,12 +747,9 @@ public class SMButton extends _UIContainerView {
             return;
         }
 
-        BitmapSprite sprite = BitmapSprite.createFromFile(getDirector(), imageFileName, false, null, 0);
-        if (sprite==null) {
-            return;
-        }
-
-        SMImageView imageView = new SMImageView(getDirector(), sprite);
+        SMImageView imageView = SMImageView.create(getDirector(), imageFileName);
+        imageView.setAnchorPoint(new Vec2(0.5f, 0.5f));
+        imageView.setPosition(getContentSize().width/2, getContentSize().height/2);
         setIcon(state, imageView);
     }
 

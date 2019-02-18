@@ -11,6 +11,7 @@ import com.interpark.smframework.base.sprite.BitmapSprite;
 import com.interpark.smframework.base.sprite.Sprite;
 import com.interpark.smframework.base.texture.BitmapTexture;
 import com.interpark.smframework.base.texture.Texture;
+import com.interpark.smframework.base.types.Color4F;
 import com.interpark.smframework.util.Size;
 import com.interpark.smframework.util.Vec2;
 
@@ -44,8 +45,17 @@ public class SMImageView extends _UIContainerView {
     private float mImageScale = 1f;
     private float mScaleX, mScaleY;
     private final RectF mContentsBounds;
-    private float[] mTintColor;
+    private float[] mTintColor = null;
 
+    public static SMImageView create(IDirector director, String assetName) {
+        SMImageView imageView = new SMImageView(director, assetName);
+        if (imageView!=null) {
+            if (imageView.getContentSize().width==0 && imageView.getContentSize().height==0) {
+                imageView.setContentSize(imageView.getSprite().getWidth(), imageView.getSprite().getHeight());
+            }
+        }
+        return imageView;
+    }
     public static SMImageView create(IDirector director, String assetName, float x, float y, float width, float height) {
         SMImageView view = new SMImageView(director, assetName);
         if (view!=null) {

@@ -1,10 +1,12 @@
 package com.interpark.app.scene;
 
+import android.transition.Scene;
 import android.util.Log;
 import android.view.MotionEvent;
 
 import com.interpark.app.menu.TopMenu;
 import com.interpark.smframework.IDirector;
+import com.interpark.smframework.NativeImageProcess.ImageProcessing;
 import com.interpark.smframework.SideMenu;
 import com.interpark.smframework.base.SMScene;
 import com.interpark.smframework.base.SMTableView;
@@ -63,6 +65,8 @@ public class HellowInterparkScene extends SMScene {
 ////        setPivot(0, getHeight()/2);
 //    }
 
+    protected HellowInterparkScene _mainScene = null;
+
     private SMTableView _tableView;
 
     public class TestClass {
@@ -120,23 +124,69 @@ public class HellowInterparkScene extends SMScene {
 
     static boolean isBack = false;
 
+    private TopMenu _topMenu = null;
+    private SMView _contentView = null;
+
+
     @Override
     protected boolean init() {
         super.init();
 
+        _mainScene = this;
+
         Size s = getContentSize();
 
-        final SMView contentView = SMView.create(getDirector(), 0, 0, s.width, s.height);
-        contentView.setBackgroundColor(AppConst.COLOR._WHITE);
-        addChild(contentView);
+        _contentView = SMView.create(getDirector(), 0, 0, s.width, s.height);
+        _contentView.setBackgroundColor(AppConst.COLOR._WHITE);
+        addChild(_contentView);
 
-        TopMenu topMenu = TopMenu.create(getDirector());
-        contentView.addChild(topMenu);
-
-        topMenu.addMenuType(TopMenuComponentType.MENU);
-        topMenu.generateMenu();
+        
 
         return true;
+    }
+
+    @Override
+    public void onEnter() {
+        super.onEnter();
+        if (_topMenu==null) {
+            _topMenu = TopMenu.create(getDirector());
+            _contentView.addChild(_topMenu);
+
+            _topMenu.addMenuType(TopMenuComponentType.MENU);
+            SceneParams titleParam = new SceneParams();
+            titleParam.putString("MENU_TITLE", "SMFrameWork Lib.");
+            _topMenu.addMenuType(TopMenuComponentType.TITLE, titleParam);
+            _topMenu.generateMenu();
+
+
+            _topMenu._listener = new TopMenu.TopMenuClickListener() {
+                @Override
+                public void onTopMenuClick(TopMenuComponentType type) {
+                    switch (type) {
+                        case MENU:
+                        {
+                            SideMenu.OpenMenu(_mainScene);
+                        }
+                        break;
+                        case BACK:
+                        {
+
+                        }
+                        break;
+                        case HOME:
+                        {
+
+                        }
+                        break;
+                        default:
+                        {
+
+                        }
+                        break;
+                    }
+                }
+            };
+        }
     }
 
     public void openMenu() {

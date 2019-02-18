@@ -18,7 +18,7 @@ public class SMSolidCircleView extends SMShapeView {
 
     @Override
     public void setBackgroundColor(final Color4F color) {
-        bgColor = color;
+        bgColor = new Color4F(color);
     }
 
     @Override

@@ -328,6 +328,8 @@ public class ActionManager extends Ref implements Cloneable {
 
             if (_currentTargetSalvaged && _currentTarget.actions.size()==0) {
                 deleteHashElement(_currentTarget);
+            } else if (_currentTargetSalvaged && _currentTarget.target!=null) {
+                deleteHashElement(_currentTarget);
             }
         }
 

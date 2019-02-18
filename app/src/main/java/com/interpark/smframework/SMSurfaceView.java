@@ -1,6 +1,8 @@
 package com.interpark.smframework;
 
+import android.graphics.PixelFormat;
 import android.opengl.GLSurfaceView;
+import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -14,18 +16,25 @@ public class SMSurfaceView extends GLSurfaceView {
     private SMDirector mDirector;
 
     public SMSurfaceView(FragmentActivity activity) {
-        this(activity, null);
+        this(activity, false);
     }
 
-    public SMSurfaceView(FragmentActivity activity, AttributeSet attrs) {
-        super(activity, attrs);
+    public SMSurfaceView(FragmentActivity activity, boolean transulant) {
+        super(activity, null);
 
-        init(activity);
+        init(activity, transulant);
     }
-    private void init(FragmentActivity activity) {
+    private void init(FragmentActivity activity, boolean transulant) {
+        setEGLContextClientVersion(2);
+        setEGLConfigChooser(8, 8, 8, 8, 0, 0);
+
+        if (transulant) {
+            getHolder().setFormat(PixelFormat.TRANSLUCENT);
+        }
+
+
         mDirector= new SMDirector(activity);
 
-        setEGLContextClientVersion(2);
         setRenderer(mDirector);
         setRenderMode(GLSurfaceView.RENDERMODE_CONTINUOUSLY);
     }
@@ -224,5 +233,9 @@ public class SMSurfaceView extends GLSurfaceView {
 
     public boolean onBackPressed() {
         return mDirector.onBackPressd();
+    }
+
+    public void onSaveInstanceState(Bundle outState) {
+//        getDirector().onSaveInstanceState(outState);
     }
 }
