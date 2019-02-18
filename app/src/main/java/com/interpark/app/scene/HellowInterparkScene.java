@@ -58,52 +58,10 @@ import java.util.ListIterator;
 import java.util.Random;
 
 public class HellowInterparkScene extends SMScene {
-//    public HellowInterparkScene(IDirector director, SceneParams params) {
-//        super(director, params);
-//
-//        // anchor point
-////        setPivot(0, getHeight()/2);
-//    }
 
     protected HellowInterparkScene _mainScene = null;
 
-    private SMTableView _tableView;
-
-    public class TestClass {
-        public TestClass() {
-            a = 0;
-            b = 0;
-            c = 0;
-        }
-        public float a;
-        public float b;
-        public float c;
-    }
-
-    public void testAdd(TestClass tc) {
-        tc.a++;
-        tc.b++;
-        tc.c = tc.a + tc.b;
-    }
-
-    public void testCom(TestClass[] a, int b) {
-
-        if (a==null) {
-            a = new TestClass[3];
-            for (int i=0; i<4; i++) {
-                a[i] = new TestClass();
-                a[i].a = 0;
-                a[i].b = 0;
-                a[i].c = 0;
-            }
-        }
-
-        TestClass c = a[b];
-
-        c.a = 99;
-        c.b = 1;
-        c.c = c.a + c.b;
-    }
+    private SMTableView _tableView = null;
 
     public HellowInterparkScene(IDirector director) {
         super(director);
@@ -126,6 +84,7 @@ public class HellowInterparkScene extends SMScene {
 
     private TopMenu _topMenu = null;
     private SMView _contentView = null;
+    private ArrayList<String> _menuNames = new ArrayList<>();
 
 
     @Override
@@ -140,7 +99,73 @@ public class HellowInterparkScene extends SMScene {
         _contentView.setBackgroundColor(AppConst.COLOR._WHITE);
         addChild(_contentView);
 
-        
+        _menuNames.add("Shapes");
+        _menuNames.add("View");
+        _menuNames.add("Controls");
+
+
+        _tableView = SMTableView.createMultiColumn(getDirector(), SMTableView.Orientation.VERTICAL, 1, 0, AppConst.SIZE.TOP_MENU_HEIGHT, s.width, s.height-AppConst.SIZE.TOP_MENU_HEIGHT);
+        _tableView.cellForRowAtIndexPath = new CellForRowAtIndexPath() {
+            @Override
+            public SMView onFunc(IndexPath indexPath) {
+                int index = indexPath.getIndex();
+                String cellID = "CELL" + index;
+                Size s = getDirector().getWinSize();
+                SMView cell = _tableView.dequeueReusableCellWithIdentifier(cellID);
+                if (cell==null) {
+                    cell = SMView.create(getDirector(), 0, 0, 0, s.width, 300);
+                    cell.setBackgroundColor(new Color4F(1, 1, 1, 1));
+
+                    String str = _menuNames.get(index);
+                    SMLabel title = SMLabel.create(getDirector(), str, 55, 0x22/255.0f, 0x22/255.0f, 0x22/255.0f, 1.0f);
+                    title.setAnchorPoint(new Vec2(0.5f, 0.5f));
+                    title.setPosition(new Vec2(s.width/2, cell.getContentSize().height/2));
+                    cell.addChild(title);
+
+                    SMView line = SMView.create(getDirector(), 0, 20, 298, s.width-40, 2);
+                    line.setBackgroundColor(new Color4F(new Color4B(0xdb, 0xdc, 0xdf, 0xff)));
+                    cell.addChild(line);
+
+                    cell.setOnClickListener(new OnClickListener() {
+                        @Override
+                        public void onClick(SMView view) {
+
+                        }
+                    });
+
+                    cell.setOnStateChangeListener(new OnStateChangeListener() {
+                        @Override
+                        public void onStateChange(SMView view, STATE state) {
+                            Action action = view.getActionByTag(0xfffffe);
+                            if (action!=null) {
+                                action.stop();;
+                            }
+                            if (state==STATE.PRESSED) {
+//                                view.setBackgroundColor(new Color4F(new Color4B(0xee, 0xef, 0xf1, 0xff)));
+                                BGColorTo color = BGColorTo.create(getDirector(), 0.15f, new Color4F(new Color4B(0xee, 0xef, 0xf1, 0xff)));
+                                color.setTag(0xfffffe);
+                                view.runAction(color);
+                            } else {
+//                                view.setBackgroundColor(new Color4F(1, 1, 1, 1));
+                                BGColorTo color = BGColorTo.create(getDirector(), 0.15f, new Color4F(1, 1, 1, 1));
+                                color.setTag(0xfffffe);
+                                view.runAction(color);
+                            }
+                        }
+                    });
+                }
+                return cell;
+            }
+        };
+
+        _tableView.numberOfRowsInSection = new NumberOfRowsInSection() {
+            @Override
+            public int onFunc(int section) {
+                return _menuNames.size();
+            }
+        };
+
+        _contentView.addChild(_tableView);
 
         return true;
     }
