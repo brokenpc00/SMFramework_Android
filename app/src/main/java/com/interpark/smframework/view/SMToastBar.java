@@ -9,12 +9,9 @@ import com.interpark.smframework.util.Rect;
 import com.interpark.smframework.util.Size;
 import com.interpark.smframework.util.Vec2;
 import com.interpark.smframework.util.tweenfunc;
-import com.interpark.smframework.util.tweenfunc.TweenType;
 
-import org.apache.http.cookie.SM;
-
-public class ToastBar extends SMView {
-    public ToastBar(IDirector director) {
+public class SMToastBar extends SMView {
+    public SMToastBar(IDirector director) {
         super(director);
         _label[0] = null;
         _label[1] = null;
@@ -38,11 +35,11 @@ public class ToastBar extends SMView {
 
 
     public interface ToastBarCallback {
-        public void func(ToastBar bar);
+        public void func(SMToastBar bar);
     }
 
-    public static ToastBar create(IDirector director, ToastBarCallback callback) {
-        ToastBar bar = new ToastBar(director);
+    public static SMToastBar create(IDirector director, SMToastBar.ToastBarCallback callback) {
+        SMToastBar bar = new SMToastBar(director);
         bar.initWithCallback(callback);
         return bar;
     }
@@ -70,7 +67,7 @@ public class ToastBar extends SMView {
             _textContainer.setPosition(_contentSize.width/2, _contentSize.height/2);
 
             TransformAction a = TransformAction.create(getDirector());
-            a.toPositoinY(-reqHeight).setTweenFunc(TweenType.Cubic_EaseOut);
+            a.toPositoinY(-reqHeight).setTweenFunc(tweenfunc.TweenType.Cubic_EaseOut);
             a.setTimeValue(SHOW_TIME, 0);
             runAction(a);
         } else {
@@ -110,7 +107,7 @@ public class ToastBar extends SMView {
             // move bar position
             if (getPositionY() != -reqHeight) {
                 TransformAction moveY = TransformAction.create(getDirector());
-                moveY.toPositoinY(-reqHeight).setTweenFunc(TweenType.Back_EaseOut);
+                moveY.toPositoinY(-reqHeight).setTweenFunc(tweenfunc.TweenType.Back_EaseOut);
                 moveY.setTimeValue(MOVE_TIME, 0);
                 runAction(moveY);
             }
@@ -125,7 +122,7 @@ public class ToastBar extends SMView {
         scheduleOnce(_timeout, duration);
 
         TransformAction action = TransformAction.create(getDirector());
-        action.toAlpha(1).toScale(1).setTweenFunc(TweenType.Back_EaseOut);
+        action.toAlpha(1).toScale(1).setTweenFunc(tweenfunc.TweenType.Back_EaseOut);
         action.setTimeValue(0.2f, 0.1f);
         _label[_labelIndex].setAlpha(0.0f);
         _label[_labelIndex].setScale(0.8f);
@@ -159,7 +156,7 @@ public class ToastBar extends SMView {
 //        setScissorEnable();
     }
 
-    protected boolean initWithCallback(ToastBarCallback callback) {
+    protected boolean initWithCallback(SMToastBar.ToastBarCallback callback) {
         _callback = callback;
 
         Size s = getDirector().getWinSize();
@@ -180,7 +177,7 @@ public class ToastBar extends SMView {
         stopAllActions();
 
         TransformAction moveY = TransformAction.create(getDirector());
-        moveY.toPositoinY(0).setTweenFunc(TweenType.Cubic_EaseOut).runFuncOnFinish(new TransformAction.TransformFunc() {
+        moveY.toPositoinY(0).setTweenFunc(tweenfunc.TweenType.Cubic_EaseOut).runFuncOnFinish(new TransformAction.TransformFunc() {
             @Override
             public void func(SMView target, int tag) {
                 onHideComplete(target, tag);
@@ -212,7 +209,6 @@ public class ToastBar extends SMView {
     private SMLabel[] _label = new SMLabel[2];
     private Color4F _bgColor = new Color4F(0, 0, 0, 0);
     private SMView _textContainer = null;
-    private ToastBarCallback _callback = null;
+    private SMToastBar.ToastBarCallback _callback = null;
     private Rect _clipRect = new Rect(0, 0, 0, 0);
-
 }

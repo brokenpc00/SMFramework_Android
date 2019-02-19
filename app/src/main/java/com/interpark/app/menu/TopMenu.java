@@ -23,7 +23,7 @@ import com.interpark.smframework.view.SMImageView;
 import com.interpark.smframework.view.SMLabel;
 import com.interpark.smframework.view.SMRoundLine;
 import com.interpark.smframework.view.SMSolidCircleView;
-import com.interpark.smframework.view.ToastBar;
+import com.interpark.smframework.view.SMToastBar;
 
 import org.apache.http.cookie.SM;
 
@@ -124,7 +124,7 @@ public class TopMenu extends SMView {
 
     }
 
-    private void onToastHiddenComplete(ToastBar toat) {
+    private void onToastHiddenComplete(SMToastBar toat) {
 
     }
 

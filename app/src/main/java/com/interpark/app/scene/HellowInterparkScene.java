@@ -114,7 +114,7 @@ public class HellowInterparkScene extends SMScene {
                 SMView cell = _tableView.dequeueReusableCellWithIdentifier(cellID);
                 if (cell==null) {
                     cell = SMView.create(getDirector(), 0, 0, 0, s.width, 300);
-                    cell.setBackgroundColor(new Color4F(1, 1, 0, 1));
+                    cell.setBackgroundColor(new Color4F(1, 1, 1, 1));
 
                     String str = _menuNames.get(index);
                     SMLabel title = SMLabel.create(getDirector(), str, 55, 0x22/255.0f, 0x22/255.0f, 0x22/255.0f, 1.0f);
