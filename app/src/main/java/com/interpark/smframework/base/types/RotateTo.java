@@ -60,7 +60,7 @@ public class RotateTo extends ActionInterval {
         super.startWithTarget(target);
 
         if (_is3D) {
-            _startAngle = _target.getRotation();
+            _startAngle = _target.getRotation3D();
         } else {
             _startAngle.x = _target.getRotationSkewX();
             _startAngle.y = _target.getRotationSkewY();

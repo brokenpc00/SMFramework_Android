@@ -60,7 +60,7 @@ public class IndexPath {
         return _index <= rhs._index && _section == rhs._section;
     }
 
-    public boolean greateequal(final IndexPath rhs) {
+    public boolean greaterequal(final IndexPath rhs) {
         return _index >= rhs._index && _section == rhs._section;
     }
 
@@ -68,7 +68,7 @@ public class IndexPath {
         return _index < rhs._index && _section == rhs._section;
     }
 
-    public boolean greatethan(final IndexPath rhs) {
+    public boolean greaterthan(final IndexPath rhs) {
         return _index > rhs._index && _section == rhs._section;
     }
 

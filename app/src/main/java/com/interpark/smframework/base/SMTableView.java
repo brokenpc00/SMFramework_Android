@@ -3108,7 +3108,7 @@ public class SMTableView extends BaseTableView {
         public Cursor insertItem(final IndexPath indexPath, final int type, final float estimateSize) {
             Cursor cursor = new Cursor(markInsertItem(indexPath));
 
-            if (indexPath.greatethan(_lastIndexPath)) {
+            if (indexPath.greaterthan(_lastIndexPath)) {
                 _lastIndexPath.set(indexPath);
             }
 

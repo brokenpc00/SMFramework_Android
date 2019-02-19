@@ -29,15 +29,19 @@ public class SMSolidRoundRectView extends SMShapeView {
     }
 
     @Override
+    public void setBackgroundColor(final Color4F color) {
+        roundColor.set(color);
+    }
+
+    @Override
     public void setBackgroundColor(float r, float g, float b, float a) {
-//        super.setBackgroundColor(1, 1, 1, 0);
         roundColor = new Color4F(r, g, b, a);
     }
 
     protected PrimitiveAARect bgShape = null;
 
-    private float mRound;
-    private Color4F roundColor = new Color4F(0, 0, 0, 1);
+    protected float mRound;
+    protected Color4F roundColor = new Color4F(0, 0, 0, 1);
 
     @Override
     protected void render(float a) {

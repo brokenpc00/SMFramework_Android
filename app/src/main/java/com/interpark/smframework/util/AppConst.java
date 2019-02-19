@@ -44,6 +44,9 @@ public class AppConst {
         public static final float EDGE_SWIPE_TOP = 100.0f;
         public static final float LEFT_SIDE_MENU_WIDTH = 550.0f;
         public static final float TOP_MENU_HEIGHT = 130.0f;
+        public static final float DOT_DIAMETER = 20.0f;
+        public static final float LINE_DIAMETER = 5.0f;
+        public static final float TOP_MENU_BUTTONE_SIZE = 120.0f;
     }
 
     public static class TAG {

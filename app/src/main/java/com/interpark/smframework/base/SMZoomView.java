@@ -141,10 +141,6 @@ public class SMZoomView extends _UIContainerView {
             zoomView.registerUpdate(FLAG_ZOOM_UPDATE);
         }
 
-        private float interpolation(float from, float to, float t) {
-            return from + (to - from) * t;
-        }
-
         private Vec2 _fromPan = new Vec2(0, 0);
         private Vec2 _toPan = new Vec2(0, 0);
         private float _fromZoom = 1.0f;

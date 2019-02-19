@@ -22,6 +22,7 @@ import com.interpark.smframework.base.animator.ColorAnimator;
 import com.interpark.smframework.base.sprite.CanvasSprite;
 import com.interpark.smframework.base.types.Action;
 import com.interpark.smframework.base.types.ActionManager;
+import com.interpark.smframework.base.types.BGColorTo;
 import com.interpark.smframework.base.types.Color4F;
 import com.interpark.smframework.base.types.Ref;
 import com.interpark.smframework.base.types.Scheduler;
@@ -50,7 +51,12 @@ public class SMView extends Ref {
     protected static Matrix sMatrix = new Matrix();
 
     // 부모뷰
-    protected SMView mParent = null;
+    protected SMView _parent = null;
+
+    public static final long FLAGS_TRANSFORM_DIRTY = 1;
+    public static final long FLAGS_CONTENT_SIZE_DIRTY = 1 << 1;
+    public static final long FLAGS_RENDER_AS_3D = 1 << 3;
+    public static final long FLAGS_DIRTY_MASK = FLAGS_TRANSFORM_DIRTY | FLAGS_CONTENT_SIZE_DIRTY;
 
     // 자식뷰
     protected ArrayList<SMView> _children = new ArrayList<>();
@@ -76,8 +82,8 @@ public class SMView extends Ref {
         }
 
         _setLocalZOrder(zOrder);
-        if (mParent!=null) {
-            mParent.reorderChild(this, zOrder);
+        if (_parent!=null) {
+            _parent.reorderChild(this, zOrder);
         }
 
 //            _eventDispatcher.setDirtyForNode(this);
@@ -284,6 +290,9 @@ public class SMView extends Ref {
 
     public STATE mPressState = STATE.NORMAL;
 
+    public static float interpolation(float from, float to, float t) {
+        return from + (to - from) * t;
+    }
 
 
     protected void onStateChangePressToNormal(MotionEvent event) {}
@@ -554,12 +563,12 @@ public class SMView extends Ref {
     }
 
     public SMView getParent() {
-        return mParent;
+        return _parent;
     }
 
     public Vec3 getPosition3D() {return new Vec3(_position.x, _position.y, _positionZ);}
 
-    public Vec2 getPosition() {return _position;}
+    public Vec2 getPosition() {return new Vec2(_position);}
 
     public float getPositionX() {return _position.x;}
 
@@ -585,6 +594,22 @@ public class SMView extends Ref {
 
     public float getZ() {
         return _positionZ;
+    }
+
+    public Vec2 getWolrdPosition() {
+        return getWolrdPosition(getPosition());
+    }
+
+    public Vec2 getWolrdPosition(final Vec2 localPos) {
+        Vec2 pos = new Vec2(localPos);
+
+        SMView parent = getParent();
+        while (parent!=null) {
+            pos.addLocal(parent.getAnchorPointInPoints());
+            parent = parent.getParent();
+        }
+
+        return new Vec2(pos);
     }
 
 //    public float getWidth() {
@@ -637,7 +662,8 @@ public class SMView extends Ref {
 
     public float getRotationSkewY() {return _rotationZ_Y;}
 
-    public Vec3 getRotation() {return new Vec3(_rotationX, _rotationY, _rotationZ_X);}
+    public float getRotation() {return _rotationZ_X;}
+    public Vec3 getRotation3D() {return new Vec3(_rotationX, _rotationY, _rotationZ_X);}
 
     public void setRotationSkewX(float rotationX) {
         if (_rotationZ_X==rotationX) {
@@ -656,7 +682,10 @@ public class SMView extends Ref {
     }
 
     public void setRotation(float rotate) {
-        setRotationZ(rotate, true);
+        setRotation(rotate, true);
+    }
+    public void setRotation(float rotate, boolean immediate) {
+        setRotationZ(rotate, immediate);
     }
 
     public void setRotationX(float rotate) {
@@ -938,11 +967,11 @@ public class SMView extends Ref {
 
 
     public Vec2 getAnchorPointInPoints() {
-        return _anchorPointInPoints;
+        return new Vec2(_anchorPointInPoints);
     }
 
     public Vec2 getAnchorPoint() {
-        return _anchorPoint;
+        return new Vec2(_anchorPoint);
     }
 
     public void setAnchorPoint(float anchorX, float anchorY) {
@@ -1122,52 +1151,100 @@ public class SMView extends Ref {
         }
     }
 
+//    public float getScreenX() {
+//        float x = 0;
+//        if (_parent != null) {
+//            x = _parent.getScreenX();
+//            return x + _parent.getScale()*_position.x;
+//        }
+//        return x + _position.x;
+//    }
+//
+//
+//    public float getScreenY() {
+//        float y = 0;
+//        if (_parent != null) {
+//            y = _parent.getScreenY();
+//            return y + _parent.getScale()*_position.y;
+//        }
+//        return y + _position.y;
+//    }
+
+    public float getOriginX() {
+        return _position.x - _anchorPointInPoints.x;
+    }
+
+    public float getOriginY() {
+        return _position.y - _anchorPointInPoints.y;
+    }
+
     public float getScreenX() {
+
         float x = 0;
-        if (mParent != null) {
-            x = mParent.getScreenX();
-            return x + mParent.getScale()*_position.x;
+        if (_parent!=null) {
+            x = _parent.getScreenX();
+            return x + getOriginX()*_parent.getScale();
         }
-        return x + _position.x;
+
+        return x + getOriginX();
+    }
+
+    public float getScreenX(float posX) {
+        float x = 0;
+        if (_parent != null) {
+            x = _parent.getScreenX();
+            return x + _parent.getScale()*posX;
+        }
+        return x + posX;
     }
 
     public float getScreenY() {
         float y = 0;
-        if (mParent != null) {
-            y = mParent.getScreenY();
-            return y + mParent.getScale()*_position.y;
+        if (_parent!=null) {
+            y = _parent.getScreenY();
+            return y + getOriginY()*_parent.getScale();
         }
-        return y + _position.y;
+
+        return y + getOriginY();
+    }
+
+    public float getScreenY(float posY) {
+        float y = 0;
+        if (_parent != null) {
+            y = _parent.getScreenY();
+            return y + _parent.getScale()*posY;
+        }
+        return y + posY;
     }
 
     public float getScreenScale() {
         float scale = 1;
-        if (mParent != null) {
-            scale = mParent.getScreenScale();
+        if (_parent != null) {
+            scale = _parent.getScreenScale();
         }
         return scale * _scale;
     }
 
     public float getScreenAngleX() {
         float angleX = 0;
-        if (mParent != null) {
-            angleX = mParent.getScreenAngleX();
+        if (_parent != null) {
+            angleX = _parent.getScreenAngleX();
         }
         return angleX + _rotationX;
     }
 
     public float getScreenAngleY() {
         float angleY = 0;
-        if (mParent != null) {
-            angleY = mParent.getScreenAngleY();
+        if (_parent != null) {
+            angleY = _parent.getScreenAngleY();
         }
         return angleY + _rotationY;
     }
 
     public float getScreenAngleZ() {
         float angleX = 0;
-        if (mParent != null) {
-            angleX = mParent.getScreenAngleZ();
+        if (_parent != null) {
+            angleX = _parent.getScreenAngleZ();
         }
         return angleX + _rotationZ_X;
     }
@@ -1204,7 +1281,6 @@ public class SMView extends Ref {
 
             // 현재 x, y, z를 입력하고
             android.opengl.Matrix.translateM(matrix, 0, x, y, z);
-
             // scale
             if (_scale!=1.0f) {
                 android.opengl.Matrix.scaleM(matrix, 0, _scale, _scale, 1);
@@ -1223,10 +1299,12 @@ public class SMView extends Ref {
 
 
 //            if (!_anchorPointInPoints.equals(Vec2.ZERO)) {
-//                matrix[12] += matrix[0] * -_anchorPointInPoints.x + matrix[4]*-_anchorPointInPoints.y;
-//                matrix[13] += matrix[1] * -_anchorPointInPoints.x + matrix[5]*-_anchorPointInPoints.y;
-//                matrix[14] += matrix[2] * -_anchorPointInPoints.x + matrix[6]*-_anchorPointInPoints.y;
+//                matrix[12] += matrix[0] * -_anchorPointInPoints.x + matrix[4]*-_anchorPointInPoints.y + matrix[8]*-_anchorPointInPoints.z;
+//                matrix[13] += matrix[1] * -_anchorPointInPoints.x + matrix[5]*-_anchorPointInPoints.y + matrix[9]*-_anchorPointInPoints.z;
+//                matrix[14] += matrix[2] * -_anchorPointInPoints.x + matrix[6]*-_anchorPointInPoints.y + matrix[10]*-_anchorPointInPoints.z;
+//                // m[12 + mi] += m[mi] * x + m[4 + mi] * y + m[8 + mi] * z;
 //            }
+            // 아래와 동일함.
 
             // anchor point를 적용한 길이 x -> 0~width, y -> 1~height
             android.opengl.Matrix.translateM(matrix, 0, -_anchorPointInPoints.x, -_anchorPointInPoints.y, 0);
@@ -1250,7 +1328,7 @@ public class SMView extends Ref {
 //        return mVisibleState;
 //    }
 
-    public void setVisibility(int visibility) {
+    private void setVisibility(int visibility) {
         if (mVisibleState == visibility)
             return;
         mVisibleState = visibility;
@@ -1417,14 +1495,14 @@ public class SMView extends Ref {
             if (current.mVisibleState != VISIBLE) {
                 return false;
             }
-            SMView parent = current.mParent;
+            SMView parent = current._parent;
             if (parent == null) {
                 return false;
             }
             if (parent instanceof SMScene) {
                 return true;
             }
-            current = current.mParent;
+            current = current._parent;
         } while (current != null);
 
         return false;
@@ -1628,7 +1706,7 @@ public class SMView extends Ref {
             child.setName(name);
         }
 
-        child.mParent = this;
+        child._parent = this;
 
         child.updateOrderOfArrival();
 
@@ -1691,8 +1769,8 @@ public class SMView extends Ref {
     }
 
     public void removeFromParentAndCleanup(boolean cleanup) {
-        if (mParent!=null) {
-            mParent.removeChild(this, cleanup);
+        if (_parent!=null) {
+            _parent.removeChild(this, cleanup);
         }
     }
 
@@ -1772,7 +1850,7 @@ public class SMView extends Ref {
             child.cleanup();
         }
 
-        child.mParent = null;
+        child._parent = null;
         _children.remove(childIndex);
         child.onRemoveFromParent(this);
 
@@ -1806,7 +1884,7 @@ public class SMView extends Ref {
             }
 
             child.onRemoveFromParent(this);
-            child.mParent = null;
+            child._parent = null;
 
         }
 
@@ -2487,6 +2565,35 @@ public class SMView extends Ref {
             onUpdateOnVisit();
         }
 
+        if (_isCalledScissorEnabled) {
+            final float scale = getScreenScale();
+            float x, y, w, h;
+
+            float screenX=0, screenY=0;
+
+            Size scissorSize = new Size(0, 0);
+            if (_scissorRect!=null) {
+                x = getScreenX(_scissorRect.origin.x);
+                y = getScreenY(_scissorRect.origin.y);
+                w = _scissorRect.size.width * scale;
+                h = _scissorRect.size.height * scale;
+            } else {
+                x = getScreenX();
+                y = _director.getHeight() - getScreenY() - _contentSize.height*scale;
+                w = _contentSize.width * scale;
+                h = _contentSize.height * scale;
+            }
+
+            _targetScissorRect.setRect(x, y, w, h);
+
+
+            if (!intersectRectInWindow(_targetScissorRect, _director.getWinSize())) {
+                // scissor에 해당. 그리지 않음.
+                return;
+            }
+
+        }
+
         render(a);
 
 //        visit(_director.getProjectionMatrix(), a);
@@ -2500,6 +2607,49 @@ public class SMView extends Ref {
         }
     }
 
+    public boolean intersectRectInWindow(Rect rect, final Size winSize) {
+        float dw = winSize.width;
+        float dh = winSize.height;
+        float sw = rect.size.width;
+        float sh = rect.size.height;
+        float x = rect.origin.x;
+        float y = rect.origin.y;
+
+        if (x+sw <= 0 || x >= dw || y+sh <= 0 || y >= dh || sw <= 0 || sh <= 0) {
+            // 화면 밖은 리턴
+            return false;
+        }
+
+        float sx = 0;
+        float sy = 0;
+        float width = sw;
+        float height = sh;
+        if (x < 0) {
+            sx = -x;
+            width -= sx;
+        }
+        if (y < 0) {
+            sy = -y;
+            height -= sy;
+        }
+        if (x + sw > dw) {
+            width -= x + sw - dw;
+        }
+        if (y + sh > dh) {
+            height -= y + sh - dh;
+        }
+
+        if (x < 0) {
+            x = 0;
+        }
+        if (y < 0) {
+            y = 0;
+        }
+
+        rect.setRect(x, y, width, height);
+
+        return true;
+    }
 
     protected void renderChildren(float a) {
         if (_children != null) {
@@ -2685,6 +2835,21 @@ public class SMView extends Ref {
         return new Color4F(mBgColor[0], mBgColor[1], mBgColor[2], mBgColor[3]);
     }
 
+    public void setBackgroundColor(final Color4F color, final float changeDurationTime) {
+        Action action = getActionByTag(AppConst.TAG.ACTION_BG_COLOR);
+        if (action!=null) {
+            stopAction(action);
+        }
+
+        if (changeDurationTime>0) {
+            action = BGColorTo.create(getDirector(), changeDurationTime, color);
+            action.setTag(AppConst.TAG.ACTION_BG_COLOR);
+            runAction(action);
+        } else {
+            setBackgroundColor(color);
+        }
+    }
+
     public void setBackgroundColor(final Color4F color) {
         setBackgroundColor(color.r, color.g, color.b, color.a, true);
     }
@@ -2757,7 +2922,7 @@ public class SMView extends Ref {
 
     private Vec2 _lastTouchLocation = new Vec2(0, 0);
 
-    public Vec2 getLastTouchLocation() {return _lastTouchLocation;}
+    public Vec2 getLastTouchLocation() {return new Vec2(_lastTouchLocation);}
 
     protected Scheduler _scheduler = null;
     public Scheduler getScheduler() {return _scheduler;}
@@ -2988,24 +3153,32 @@ public class SMView extends Ref {
 
     private boolean _scissorEnable = false;
 
-    public void setScissorEnable(boolean enable) {_scissorEnable = enable;}
+    private boolean _isCalledScissorEnabled = false;
+    public void setScissorEnable(boolean enable) {
+        _isCalledScissorEnabled = true;
+        _scissorEnable = enable;
+    }
 
 
     // clip to bounds
     // child가 view를 벗어나는 부분은 그리지 않는다. (자른다)
     public void enableScissorTest(boolean enable) {
         if (enable) {
-            final float scale = getScreenScale();
-            final int w = (int)(scale*_contentSize.width);
-            final int h = (int)(scale*_contentSize.height);
-
-            final int x = (int)(getScreenX() - _anchorPointInPoints.x*scale);
-            final int y = (int)((_director.getHeight()-getScreenY()-scale*(_contentSize.height)) + _anchorPointInPoints.y*scale);
 
             _director.enableScissorTest(true);
-            GLES20.glScissor(x, y, w, h);
+            GLES20.glScissor((int)_targetScissorRect.origin.x, (int)_targetScissorRect.origin.y, (int)_targetScissorRect.size.width, (int)_targetScissorRect.size.height);
         } else {
             _director.enableScissorTest(false);
+        }
+    }
+
+    private Rect _targetScissorRect = new Rect();
+    private Rect _scissorRect = null;
+    public void setScissorRect(final Rect rect) {
+        if (_scissorRect==null) {
+            _scissorRect = new Rect(rect);
+        } else {
+            _scissorRect.setRect(rect);
         }
     }
 

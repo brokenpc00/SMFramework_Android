@@ -19,11 +19,7 @@ public class Color4F implements Cloneable {
     }
 
     public Color4F(Color4F color) {
-        r = color.r;
-        g = color.g;
-        b = color.b;
-        a = color.a;
-        checkValue();
+        set(color);
     }
 
     public Color4F(Color4B color) {
@@ -32,6 +28,13 @@ public class Color4F implements Cloneable {
         b = ((float)color.b/255.0f);
         a = ((float)color.a/255.0f);
         checkValue();
+    }
+
+    public void set(Color4F color) {
+        r = color.r;
+        g = color.g;
+        b = color.b;
+        a = color.a;
     }
 
     public void checkValue() {
@@ -88,6 +91,10 @@ public class Color4F implements Cloneable {
 
     public Color4F divide(float t) {
         return new Color4F(r / t, g / t, b / t, a / t);
+    }
+
+    public boolean equals(Color4F color) {
+        return  (r==color.r && g==color.g && b==color.b);
     }
 
     public float r = 1.0f;

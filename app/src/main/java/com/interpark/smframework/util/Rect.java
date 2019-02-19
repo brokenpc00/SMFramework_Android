@@ -1,6 +1,12 @@
 package com.interpark.smframework.util;
 
 public class Rect implements Cloneable {
+    public Rect() {
+        origin.x = 0;
+        origin.y = 0;
+        size.width = 0;
+        size.height = 0;
+    }
     public Rect(float x, float y, float width, float height) {
         origin.x = x;
         origin.y = y;
@@ -170,6 +176,6 @@ public class Rect implements Cloneable {
 
     public static final Rect ZERO = new Rect(0, 0, 0, 0);
 
-    public Vec2 origin;
-    public Size size;
+    public Vec2 origin = new Vec2(0, 0);
+    public Size size = new Size(0, 0);
 }
