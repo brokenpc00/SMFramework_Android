@@ -9,6 +9,7 @@ import com.interpark.smframework.IDirector;
 import com.interpark.smframework.SideMenu;
 import com.interpark.smframework.base.SMView;
 import com.interpark.smframework.base.sprite.BitmapSprite;
+import com.interpark.smframework.base.types.Action;
 import com.interpark.smframework.base.types.Color4B;
 import com.interpark.smframework.base.types.Color4F;
 import com.interpark.smframework.base.types.DelayBaseAction;
@@ -22,6 +23,8 @@ import com.interpark.smframework.view.SMLabel;
 import com.interpark.smframework.view.SMRoundLine;
 import com.interpark.smframework.view.SMSolidCircleView;
 import com.interpark.smframework.view.SMToastBar;
+
+import java.util.ArrayList;
 
 public class MenuBar extends SMView {
     public MenuBar(IDirector director) {
@@ -146,7 +149,7 @@ public class MenuBar extends SMView {
 
     public interface MenuBarListener {
         public boolean onMenuBarClick(SMView view);
-//        public void onMenuBarTouch();
+        public void onMenuBarTouch();
     }
 
     public static DotPosition[] sDotMenu = new DotPosition[4];
@@ -280,30 +283,59 @@ public class MenuBar extends SMView {
     protected SMToastBar _toast = null;
     protected boolean _newAlarm = false;
 
-    protected void applyColorSet(final ColorSet colorSet) {
-
-    }
-
-    private void updateTextPosition(boolean dropdown) {
-
-    }
-
-    private void onToastHiddenComplete(SMToastBar toast) {
-
-    }
-
-    private void showAlarmBadge() {
-        showAlaramBadge(false);
-    }
-    private void showAlaramBadge(boolean effect) {
-
-    }
-
     public void setMenuButtonType(MenuType menuButtonType, boolean immediate) {
         setMenuButtonType(menuButtonType, immediate, false);
     }
     public void setMenuButtonType(MenuType menuButtonType, boolean immediate, boolean swipe) {
+        if (_menuButtonType==menuButtonType) return;
 
+        DotPosition[] to = null;
+
+        switch (menuButtonType) {
+            case MENU: to = sDotMenu; _mainButton.setTag(menuTypeToInt(MenuType.MENU)); break;
+            case CLOSE: to = sDotClose; _mainButton.setTag(menuTypeToInt(MenuType.CLOSE)); break;
+            case BACK: to = sDotBack; _mainButton.setTag(menuTypeToInt(MenuType.BACK)); break;
+            case DOT: to = sDotDot; _mainButton.setTag(menuTypeToInt(MenuType.DOT)); break;
+            case CLOSE2: to = sDotClose; _mainButton.setTag(menuTypeToInt(MenuType.CLOSE)); break;
+            default:
+            {
+                return;
+    }
+    }
+
+        Action action = getActionByTag(AppConst.TAG.ACTION_MENUBAR_MENU);
+        if (action!=null) {
+            // action is _menuTransform
+            stopAction(action);
+    }
+
+        if (_menuButtonType==MenuType.NONE || immediate) {
+            for (int i=0; i<4; i++) {
+                SMRoundLine l = _menuLine[i];
+                l.setLineWidth(to[i].diameter);
+                l.line(to[i].from.add(MenuButtonCenter), to[i].to.add(MenuButtonCenter));
+
+                if (menuButtonType==MenuType.MENU) {
+                    _menuLine[i].setVisible(false);
+                    _menuCircle[i].setVisible(true);
+                    showAlarmBadge();
+                } else {
+                    _menuLine[i].setVisible(true);
+                    _menuCircle[i].setVisible(false);
+                }
+            }
+    }
+
+        float angle = 0;
+        switch (menuButtonType) {
+            case CLOSE: angle=180;break;
+            case CLOSE2: angle=90;break;
+            case BACK: angle=315;break;//180, 90, 45
+            default: angle=0; break;
+    }
+
+        _buttonContainer.setRotation(angle);
+        _menuButtonType = menuButtonType;
     }
 
     public MenuType getMenuButtonType() {return _menuButtonType;}
@@ -335,17 +367,17 @@ public class MenuBar extends SMView {
 
     }
 
-    public void setOneButton(MenuType buttonId, boolean immediate) {
-        setOneButton(buttonId, immediate, false);
+    public void setOneButton(MenuType buttonType, boolean immediate) {
+        setOneButton(buttonType, immediate, false);
     }
-    public void setOneButton(MenuType buttonId, boolean immediate, boolean swipe) {
+    public void setOneButton(MenuType buttonType, boolean immediate, boolean swipe) {
 
     }
 
-    public void setTwoButton(MenuType buttonId1, MenuType buttonId2, boolean immediate) {
-        setTwoButton(buttonId1, buttonId2, immediate, false);
+    public void setTwoButton(MenuType buttonType1, MenuType buttonType2, boolean immediate) {
+        setTwoButton(buttonType1, buttonType2, immediate, false);
     }
-    public void setTwoButton(MenuType buttonId1, MenuType buttonId2, boolean immediate, boolean swipe) {
+    public void setTwoButton(MenuType buttonType1, MenuType buttonType2, boolean immediate, boolean swipe) {
 
     }
 
@@ -374,6 +406,15 @@ public class MenuBar extends SMView {
 
     @Override
     public int dispatchTouchEvent(MotionEvent event) {
+        super.dispatchTouchEvent(event);
+
+        int action = event.getAction();
+        if (action==MotionEvent.ACTION_DOWN) {
+            if (_listener!=null) {
+                _listener.onMenuBarTouch();
+            }
+        }
+
         return TOUCH_TRUE;
     }
 
@@ -386,6 +427,64 @@ public class MenuBar extends SMView {
     }
 
     public SMView getOverlapChild() {return _overlapChild;}
+
+    @Override
+    public boolean containsPoint(float x, float y) {
+        return true;
+    }
+
+    public MenuBarListener getMenuBarListener() {return _listener;}
+
+    public SMView getButtonByType(MenuType type) {
+        return null;
+    }
+
+    public ArrayList<MenuType> getButtonTypes() {
+        return null;
+    }
+
+    public void onSwipeStart() {
+
+    }
+
+    public void onSwipeUpdate(float t) {
+
+    }
+
+    public void onSwipeComplete() {
+
+    }
+
+    public void onSwipeCancel() {
+
+    }
+
+    public void showToast(final String message, final Color4F color, float duration) {
+
+    }
+
+    protected void applyColorSet(final ColorSet colorSet) {
+
+    }
+
+    private void updateTextPosition(boolean dropdown) {
+
+    }
+
+    private void onToastHiddenComplete(SMToastBar toast) {
+
+    }
+
+    private void showAlarmBadge() {
+        showAlaramBadge(false);
+    }
+    private void showAlaramBadge(boolean effect) {
+
+    }
+
+
+
+
 
 
 

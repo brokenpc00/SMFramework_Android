@@ -53,6 +53,12 @@ public class AppConst {
 
     public static class TAG {
         public static final int USER =  0x10000;
+        public static final int ACTION_MENUBAR_MENU = (USER+1);
+        public static final int ACTION_MENUBAR_COLOR = (USER+2);
+        public static final int ACTION_MENUBAR_TEXT = (USER+3);
+        public static final int ACTION_MENUBAR_BUTTON = (USER+4);
+        public static final int ACTION_MENUBAR_DROPDOWN = (USER+5);
+
         public static final int SYSTEM = 0x10000;
         public static final int ACTION_VIEW_SHOW = (SYSTEM + 1);
         public static final int ACTION_VIEW_HIDE = (SYSTEM + 2);
