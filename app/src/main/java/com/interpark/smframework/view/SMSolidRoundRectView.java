@@ -14,6 +14,12 @@ public class SMSolidRoundRectView extends SMShapeView {
         mRound = 0.0f;
     }
 
+    public static SMSolidRoundRectView create(IDirector director) {
+        SMSolidRoundRectView view = new SMSolidRoundRectView(director);
+        view.init();
+        return view;
+    }
+
     public SMSolidRoundRectView (IDirector director, float round) {
         this (director);
         mRound = round;

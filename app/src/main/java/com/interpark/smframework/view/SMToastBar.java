@@ -50,7 +50,7 @@ public class SMToastBar extends SMView {
         _labelIndex = (_labelIndex+1)%2;
 
         if (_label[_labelIndex] == null) {
-            SMLabel l = SMLabel.create(getDirector(), message, FONT_SIZE, 0, 0, 0, 1);
+            SMLabel l = SMLabel.create(getDirector(), message, FONT_SIZE, new Color4F(0, 0, 0, 1));
             l.setAnchorPoint(new Vec2(0.5f, 0.5f));
             _textContainer.addChild(l);
             _label[_labelIndex] = l;
@@ -153,7 +153,9 @@ public class SMToastBar extends SMView {
     public void renderFrame(float alpha) {
         if (!_visible) return;
 
-//        setScissorEnable();
+        setScissorRect(new Rect(0, 0, _contentSize.width, -getPositionY()));
+
+        super.renderFrame(alpha);
     }
 
     protected boolean initWithCallback(SMToastBar.ToastBarCallback callback) {

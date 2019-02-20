@@ -179,8 +179,8 @@ public class SideMenu extends SMView {
             cell.addChild(cell._contentView);
 
             //(IDirector director, String text, float fontSize, float textColorR, float textColorG, float textColorB, float textColorA) {
-            cell._title = SMLabel.create(getDirector(), cellID, 45, 0, 0, 1, 1);
-            cell._title.setAnchorPoint(new Vec2(0.5f, 0.5f));
+            cell._title = SMLabel.create(getDirector(), cellID, 45, new Color4F(0, 0, 1, 1));
+            cell._title.setAnchorPoint(Vec2.MIDDLE);
             cell._title.setPosition(new Vec2(s.width/2, 75));
             cell._contentView.addChild(cell._title);
         }

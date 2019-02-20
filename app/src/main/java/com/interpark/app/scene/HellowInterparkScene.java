@@ -114,16 +114,16 @@ public class HellowInterparkScene extends SMScene {
                 SMView cell = _tableView.dequeueReusableCellWithIdentifier(cellID);
                 if (cell==null) {
                     cell = SMView.create(getDirector(), 0, 0, 0, s.width, 300);
-                    cell.setBackgroundColor(new Color4F(1, 1, 1, 1));
+                    cell.setBackgroundColor(Color4F.WHITE);
 
                     String str = _menuNames.get(index);
-                    SMLabel title = SMLabel.create(getDirector(), str, 55, 0x22/255.0f, 0x22/255.0f, 0x22/255.0f, 1.0f);
-                    title.setAnchorPoint(new Vec2(0.5f, 0.5f));
+                    SMLabel title = SMLabel.create(getDirector(), str, 55, MakeColor4F(0x222222, 1.0f));
+                    title.setAnchorPoint(Vec2.MIDDLE);
                     title.setPosition(new Vec2(s.width/2, cell.getContentSize().height/2));
                     cell.addChild(title);
 
                     SMRoundLine line = SMRoundLine.create(getDirector());
-                    line.setBackgroundColor(new Color4F(new Color4B(0xdb, 0xdc, 0xdf, 0xff)));
+                    line.setBackgroundColor(MakeColor4F(0xdbdcdf, 1.0f));
                     line.setLineWidth(2);
                     line.line(20, 298, s.width-20, 298);
                     line.setLengthScale(1);
@@ -170,12 +170,12 @@ public class HellowInterparkScene extends SMScene {
                             }
                             if (state==STATE.PRESSED) {
 //                                view.setBackgroundColor(new Color4F(new Color4B(0xee, 0xef, 0xf1, 0xff)));
-                                BGColorTo color = BGColorTo.create(getDirector(), 0.15f, new Color4F(new Color4B(0xee, 0xef, 0xf1, 0xff)));
+                                BGColorTo color = BGColorTo.create(getDirector(), 0.15f, MakeColor4F(0xeeeff1, 1.0f));
                                 color.setTag(0xfffffe);
                                 view.runAction(color);
                             } else {
-//                                view.setBackgroundColor(new Color4F(1, 1, 1, 1));
-                                BGColorTo color = BGColorTo.create(getDirector(), 0.15f, new Color4F(1, 1, 1, 1));
+//                                view.setBackgroundColor(Color4F.WHITE);
+                                BGColorTo color = BGColorTo.create(getDirector(), 0.15f, Color4F.WHITE);
                                 color.setTag(0xfffffe);
                                 view.runAction(color);
                             }
@@ -195,7 +195,7 @@ public class HellowInterparkScene extends SMScene {
 //        _tableView.setScissorEnable(true);
 //        _tableView.setScissorRect(new Rect(50, 50, s.width-100, _tableView.getContentSize().height-100));
 //
-//        _tableView.setAnchorPoint(new Vec2(0.5f, 0.5f));
+//        _tableView.setAnchorPoint(Vec2.MIDDLE);
 //        _tableView.setPosition(new Vec2(s.width/2, s.height/2+AppConst.SIZE.TOP_MENU_HEIGHT/2));
         _contentView.addChild(_tableView);
 

@@ -200,4 +200,10 @@ public final class Vec2 implements Cloneable {
             this.y += newV.y;
         }
     }
+
+    public static Vec2 MIDDLE = new Vec2(0.5f, 0.5f);
+    public static Vec2 LEFT_TOP = new Vec2(0.0f, 0.0f);
+    public static Vec2 LEFT_BOTTOM = new Vec2(0.0f, 1.0f);
+    public static Vec2 RIGHT_TOP = new Vec2(1.0f, 0.0f);
+    public static Vec2 RIGHT_BOTTOM = new Vec2(1.0f, 1.0f);
 }

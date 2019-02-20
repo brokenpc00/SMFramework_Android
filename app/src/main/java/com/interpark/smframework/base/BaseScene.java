@@ -7,7 +7,7 @@ import com.interpark.smframework.util.Vec2;
 public class BaseScene extends SMView {
     public BaseScene(IDirector director) {
         super(director);
-        setAnchorPoint(new Vec2(0.5f, 0.5f));
+        setAnchorPoint(Vec2.MIDDLE);
 
     }
 

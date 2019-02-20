@@ -177,7 +177,7 @@ public class SMScene extends SMView implements BackPressable {
         super(director);
 //        setAnchorPoint(new Vec2(0.0f, 0.0f));
 //        setPosition(0, 0);
-        setAnchorPoint(new Vec2(0.5f, 0.5f));
+        setAnchorPoint(Vec2.MIDDLE);
         setPosition(new Vec2(director.getWinSize().width/2, director.getWinSize().height/2));
         setContentSize(director.getWidth(), director.getHeight());
         _sceneParam = null;
@@ -187,7 +187,7 @@ public class SMScene extends SMView implements BackPressable {
         super(director);
 //        setAnchorPoint(new Vec2(0.0f, 0.0f));
 //        setPosition(0, 0);
-        setAnchorPoint(new Vec2(0.5f, 0.5f));
+        setAnchorPoint(Vec2.MIDDLE);
         setPosition(new Vec2(director.getWinSize().width/2, director.getWinSize().height/2));
         setContentSize(director.getWidth(), director.getHeight());
 //        setBounds(0, 0, director.getWidth(), director.getHeight());

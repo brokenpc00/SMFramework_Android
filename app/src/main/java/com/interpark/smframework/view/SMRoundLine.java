@@ -88,6 +88,8 @@ public class SMRoundLine extends SMSolidRoundRectView {
 
     public Vec2 getFromPosition() {return new Vec2(_x1, _y1);}
 
+    public Vec2 getToPosition() {return new Vec2(_x2, _y2);}
+
     @Override
     protected void render(float a) {
         if (_dirty) {

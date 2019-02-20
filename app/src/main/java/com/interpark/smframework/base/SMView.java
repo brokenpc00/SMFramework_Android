@@ -23,6 +23,7 @@ import com.interpark.smframework.base.sprite.CanvasSprite;
 import com.interpark.smframework.base.types.Action;
 import com.interpark.smframework.base.types.ActionManager;
 import com.interpark.smframework.base.types.BGColorTo;
+import com.interpark.smframework.base.types.Color4B;
 import com.interpark.smframework.base.types.Color4F;
 import com.interpark.smframework.base.types.Ref;
 import com.interpark.smframework.base.types.Scheduler;
@@ -289,11 +290,6 @@ public class SMView extends Ref {
 
 
     public STATE mPressState = STATE.NORMAL;
-
-    public static float interpolation(float from, float to, float t) {
-        return from + (to - from) * t;
-    }
-
 
     protected void onStateChangePressToNormal(MotionEvent event) {}
     protected void onStateChangeNormalToPress(MotionEvent event) {}
@@ -2471,39 +2467,7 @@ public class SMView extends Ref {
         onSmoothUpdate(flags, dt);
     }
 
-    public static InterpolateRet smoothInterpolate(float from, float to, float tolerance) {
-        return smoothInterpolate(from, to, tolerance, SMOOTH_DIVIDER);
-    }
 
-    public static InterpolateRet smoothInterpolate(float from, float to, float tolerance, float smoothDivider) {
-        if (from != to) {
-            from = from + (to-from) / smoothDivider;
-            if (Math.abs(from-to) < tolerance) {
-                from = to;
-                return new InterpolateRet(false, from);
-            }
-            return new InterpolateRet(true, from);
-        }
-        return new InterpolateRet(false, from);
-    }
-
-    public static boolean smoothInterpolateRotate(float from, float to, float tolerance) {
-        if (from != to) {
-            float diff = getShortestAngle(from, to);
-            if (Math.abs(diff) < tolerance) {
-                from = to;
-                return false; // done
-            }
-            from += diff / SMOOTH_DIVIDER;
-            return true; // still need update
-        }
-        return false;
-
-    }
-
-    public static final float getShortestAngle(float from, float to) {
-        return ((((to - from) % 360) + 540) % 360) - 180;
-    }
 
     public boolean isVisibleAnimation() {
         return (mShowAnimator != null && mShowAnimator.hasStarted()) || (mHideAnimator != null && mHideAnimator.hasStarted());
@@ -2512,16 +2476,6 @@ public class SMView extends Ref {
     public void update(float dt) {}
 
     private SMView _internal_current_update_child_ = null;
-
-    public static void sortNodes(ArrayList<SMView> nodes) {
-        Collections.sort(nodes, new Comparator<SMView>(){
-            @Override
-            public int compare(SMView a, SMView b) {
-                return a._localZOrder < b._localZOrder ? -1 : (a._localZOrder > b._localZOrder) ? 1 : 0;
-//                return a._localZOrder > b._localZOrder ? -1 : (a._localZOrder < b._localZOrder) ? 1 : 0;
-            }
-        });
-    }
 
     public void sortAllChildren() {
         if (_reorderChildDirty) {
@@ -3182,18 +3136,6 @@ public class SMView extends Ref {
         }
     }
 
-    public static int getRandomColorB() {
-        return randomInt(0, 255);
-    }
-
-    public static float getRandomColorF() {
-        return (float)randomInt(0, 255)/255.0f;
-    }
-
-    public static int randomInt(int min, int max) {
-        return min + (int)(Math.random() * ((max-min) + 1));
-    }
-
 //    private static final String CAPTURE_SCREEN = "_CAPTURE_SCREEN_";
 
     public Bitmap captureView() {
@@ -3216,7 +3158,7 @@ public class SMView extends Ref {
             GLES20.glBlendFunc(GLES20.GL_ONE, GLES20.GL_ONE_MINUS_SRC_ALPHA);
 
             setPosition(drawPos);
-            setAnchorPoint(new Vec2(0.5f, 0.5f));
+            setAnchorPoint(Vec2.MIDDLE);
             setScale(1.0f);
 
             getDirector().pushProjectionMatrix();
@@ -3239,5 +3181,204 @@ public class SMView extends Ref {
         setPosition(oldPos);
 
         return bitmap;
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    // static utility method
+    public static float interpolation(float from, float to, float t) {
+        return from + (to - from) * t;
+    }
+
+
+    public static InterpolateRet smoothInterpolate(float from, float to, float tolerance) {
+        return smoothInterpolate(from, to, tolerance, SMOOTH_DIVIDER);
+    }
+
+    public static InterpolateRet smoothInterpolate(float from, float to, float tolerance, float smoothDivider) {
+        if (from != to) {
+            from = from + (to-from) / smoothDivider;
+            if (Math.abs(from-to) < tolerance) {
+                from = to;
+                return new InterpolateRet(false, from);
+            }
+            return new InterpolateRet(true, from);
+        }
+        return new InterpolateRet(false, from);
+    }
+
+    public static boolean smoothInterpolateRotate(float from, float to, float tolerance) {
+        if (from != to) {
+            float diff = getShortestAngle(from, to);
+            if (Math.abs(diff) < tolerance) {
+                from = to;
+                return false; // done
+            }
+            from += diff / SMOOTH_DIVIDER;
+            return true; // still need update
+        }
+        return false;
+
+    }
+
+    public static final float getShortestAngle(float from, float to) {
+        return ((((to - from) % 360) + 540) % 360) - 180;
+    }
+
+    public static void sortNodes(ArrayList<SMView> nodes) {
+        Collections.sort(nodes, new Comparator<SMView>(){
+            @Override
+            public int compare(SMView a, SMView b) {
+                return a._localZOrder < b._localZOrder ? -1 : (a._localZOrder > b._localZOrder) ? 1 : 0;
+//                return a._localZOrder > b._localZOrder ? -1 : (a._localZOrder < b._localZOrder) ? 1 : 0;
+            }
+        });
+    }
+
+    public static int getRandomColorB() {
+        return randomInt(0, 255);
+    }
+
+    public static float getRandomColorF() {
+        return (float)randomInt(0, 255)/255.0f;
+    }
+
+    public static int randomInt(int min, int max) {
+        return min + (int)(Math.random() * ((max-min) + 1));
+    }
+
+
+    public static float getDecelateInterpolation(float t) {
+        return (float)(1.0 - (1.0 - t) * (1.0 - t));
+    }
+
+    public static float getDecelateInterpolation(float t, float fractor) {
+        return (float)(1.0 - Math.pow((1.0 - t), 2 * fractor));
+    }
+
+    public static Color4F interpolateColor4F(final Color4F from, final Color4F to, float t) {
+        float a = interpolation(from.a, to.a, t);
+        float r = interpolation(from.r, to.r, t);
+        float g = interpolation(from.g, to.g, t);
+        float b = interpolation(from.b, to.b, t);
+
+        return new Color4F(r, g, b, a);
+    }
+
+    public static Color4B interpolateColor4B(final Color4B from, final Color4B to, float t) {
+        int r = (int)interpolation(from.r, to.r, t);
+        int g = (int)interpolation(from.g, to.g, t);
+        int b = (int)interpolation(from.b, to.b, t);
+        int a = (int)interpolation(from.a, to.a, t);
+
+        return new Color4B(r, g, b, a);
+    }
+
+    public static Color4F interpolateColor4F(int from, int to, float t) {
+        float a = interpolation((from&0xFF000000)>>24, (to&0xFF000000)>>24, t) / 255.0f;
+        float r = interpolation((from&0x00FF0000)>>16, (to&0x00FF0000)>>16, t) / 255.0f;
+        float g = interpolation((from&0x0000FF00)>>8,  (to&0x0000FF00)>>8,  t) / 255.0f;
+        float b = interpolation((from&0x000000FF),     (to&0x000000FF),     t) / 255.0f;
+
+        return new Color4F(r, g, b, a);
+    }
+
+    public static Color4F interpolateColor4F(int from, int to, float t, int[] outValue) {
+        float a = interpolation((from&0xFF000000)>>24, (to&0xFF000000)>>24, t) / 255.0f;
+        float r = interpolation((from&0x00FF0000)>>16, (to&0x00FF0000)>>16, t) / 255.0f;
+        float g = interpolation((from&0x0000FF00)>>8,  (to&0x0000FF00)>>8,  t) / 255.0f;
+        float b = interpolation((from&0x000000FF),     (to&0x000000FF),     t) / 255.0f;
+
+        outValue[0] =  (((int)(a*0xFF))<<24)|(((int)(r*0xFF))<<16)|(((int)(g*0xFF))<<8)|((int)(b*0xFF));
+
+        return new Color4F(r, g, b, a);
+    }
+
+    public static Color4F uint32ToColor4F(int value) {
+        float a = ((value&0xFF000000)>>24) / 255.0f;
+        float r = ((value&0x00FF0000)>>16) / 255.0f;
+        float g = ((value&0x0000FF00)>>8) / 255.0f;
+        float b = ((value&0x000000FF)) / 255.0f;
+
+        return new Color4F(r, g, b, a);
+    }
+
+    public static double toRadians(double degrees) {
+        return ( degrees * Math.PI) / 180.0;
+    }
+
+    public static double toDegrees(double radians) {
+        return ( radians * 180.0 ) / Math.PI ;
+    }
+
+    public static int round(float value) {
+        return (int)(value+0.5);
+    }
+
+    public static int signum(float value) {
+        return value >= 0 ? 1 : -1;
+    }
+
+    public static float shortestAngle(float from, float to) {
+        return ((((to-from) % 360.0f)+540) % 360.0f) - 180;
+    }
+
+    public enum Direction {
+        UP, LEFT, DOWN, RIGHT
+    };
+
+    public static Direction getDirection(float dx, float dy) {
+        final int VERTICAL_WIDE = 100;
+        final int HORIZONTAL_WIDE = (180-VERTICAL_WIDE);
+
+        double radians = Math.atan2(dy, dx);
+        int degrees = (int)toDegrees(radians);
+        degrees = (degrees % 360) + (degrees < 0 ? 360 : 0); // normalize
+
+        int a = HORIZONTAL_WIDE/2;
+        if (degrees > a && degrees < a + VERTICAL_WIDE) {
+            return Direction.UP;
+        }
+        a += VERTICAL_WIDE;
+
+        if (degrees > a && degrees < a + HORIZONTAL_WIDE) {
+            return Direction.LEFT;
+        }
+        a += HORIZONTAL_WIDE;
+
+        if (degrees > a && degrees < a + VERTICAL_WIDE) {
+            return Direction.DOWN;
+        }
+
+        return Direction.RIGHT;
+    }
+
+    public static Color4F MakeColor4F(int rgb, float alpha) {
+        float r = ((rgb & 0xFF0000) >> 16)/255.0f;
+        float g = ((rgb & 0x00FF00) >> 8)/255.0f;
+        float b = (rgb & 0x0000FF)/255.0f;
+
+        return new Color4F(r, g, b, alpha);
+    }
+
+    public static Color4B MakeColor4B(int rgba) {
+        int r = ((rgba & 0x00FF0000) >> 16);
+        int g = ((rgba & 0x0000FF00) >> 8);
+        int b = (rgba & 0x000000FF);
+        int a = ((rgba & 0xFF000000) >> 24);
+
+        return new Color4B(r, g, b, a);
+
     }
 }

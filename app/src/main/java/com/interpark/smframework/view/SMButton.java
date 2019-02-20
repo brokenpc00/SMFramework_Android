@@ -17,6 +17,7 @@ import com.interpark.smframework.base.texture.FileTexture;
 import com.interpark.smframework.base.types.Action;
 import com.interpark.smframework.base.types.ActionInstant;
 import com.interpark.smframework.base.types.ActionInterval;
+import com.interpark.smframework.base.types.Color4B;
 import com.interpark.smframework.base.types.Color4F;
 import com.interpark.smframework.base.types.DelayTime;
 import com.interpark.smframework.base.types.Sequence;
@@ -117,7 +118,7 @@ public class SMButton extends _UIContainerView {
             target = new Color4F[stateToInt(STATE.MAX)];
         }
 
-        target[stateToInt(state)] = color;
+        target[stateToInt(state)] = new Color4F(color);
     }
 
     private SMView[] getTargetView(boolean isButton) {
@@ -146,13 +147,13 @@ public class SMButton extends _UIContainerView {
         }
     }
 
-    private void setTargetColor(Color4F[] color, int colorType) {
+    private void setTargetColor(Color4F[] colors, int colorType) {
         if (colorType==1) {
-            _buttonColor = color;
+            _buttonColor = colors;
         } else if (colorType==2) {
-            _iconColor = color;
+            _iconColor = colors;
         } else {
-            _outlineColor = color;
+            _outlineColor = colors;
         }
     }
 
@@ -483,7 +484,7 @@ public class SMButton extends _UIContainerView {
             _shapeOutlineWidth = AppConst.DEFAULT_VALUE.LINE_WIDTH;
 
             buttonView.setBackgroundColor(0, 0, 0, 0);
-            buttonView.setAnchorPoint(new Vec2(0.5f, 0.5f));
+            buttonView.setAnchorPoint(Vec2.MIDDLE);
 //            buttonView.setPivot(getContentSize().width/2, getContentSize().height/2);
             buttonView.setPosition(getContentSize().width/2, getContentSize().height/2);
             buttonView.setContentSize(getContentSize());
@@ -517,36 +518,49 @@ public class SMButton extends _UIContainerView {
         registerUpdate(FLAG_CONTENT_SIZE);
     }
 
+    public void setButtonColor(final STATE state, final Color4B color) {
+        setButtonColor(state, new Color4F(color));
+    }
+
     public void setButtonColor(final STATE state, final Color4F color) {
         if (_buttonColor==null) {
             _buttonColor = new Color4F[stateToInt(STATE.MAX)];
         }
-        _buttonColor[stateToInt(state)] = color;
+        _buttonColor[stateToInt(state)] = new Color4F(color);
 
         registerUpdate(FLAG_BUTTON_COLOR);
     }
 
+    public void setIconColor(final STATE state, final Color4B color) {
+        setIconColor(state, new Color4F(color));
+    }
     public void setIconColor(final STATE state, final Color4F color) {
         if (_iconColor==null) {
             _iconColor = new Color4F[stateToInt(STATE.MAX)];
         }
-        _iconColor[stateToInt(state)] = color;
+        _iconColor[stateToInt(state)] = new Color4F(color);
         registerUpdate(FLAG_ICON_COLOR);
     }
 
+    public void setTextColor(final STATE state, final Color4B color) {
+        setTextColor(state, new Color4F(color));
+    }
     public void setTextColor(final STATE state, final Color4F color) {
         if (_textColor==null) {
             _textColor = new Color4F[stateToInt(STATE.MAX)];
         }
-        _textColor[stateToInt(state)] = color;
+        _textColor[stateToInt(state)] = new Color4F(color);
         registerUpdate(FLAG_TEXT_COLOR);
     }
 
+    public void setOutlineColor(final STATE state, final Color4B color) {
+        setOutlineColor(state, new Color4F(color));
+    }
     public void setOutlineColor(final STATE state, final Color4F color) {
         if (_outlineColor==null) {
             _outlineColor = new Color4F[stateToInt(STATE.MAX)];
         }
-        _outlineColor[stateToInt(state)] = color;
+        _outlineColor[stateToInt(state)] = new Color4F(color);
         registerUpdate(FLAG_OUTLINE_COLOR);
     }
 
@@ -587,7 +601,7 @@ public class SMButton extends _UIContainerView {
             }
         }
 
-        view.setAnchorPoint(new Vec2(0.5f, 0.5f));
+        view.setAnchorPoint(Vec2.MIDDLE);
         setStateView(_buttonView, state, view, state==STATE.NORMAL?AppConst.ZOrder.BUTTON_NORMAL:AppConst.ZOrder.BUTTON_PRESSED, _buttonColor);
 
         if (view!=null) {
@@ -661,7 +675,7 @@ public class SMButton extends _UIContainerView {
 //                }
 //
 //                _buttonView[stateToInt(STATE.PRESSED)] = outlineView;
-                outlineView.setAnchorPoint(new Vec2(0.5f, 0.5f));
+                outlineView.setAnchorPoint(Vec2.MIDDLE);
                 outlineView.setPosition(getContentSize().width/2, getContentSize().height/2);
 
 
@@ -748,7 +762,7 @@ public class SMButton extends _UIContainerView {
         }
 
         SMImageView imageView = SMImageView.create(getDirector(), imageFileName);
-        imageView.setAnchorPoint(new Vec2(0.5f, 0.5f));
+        imageView.setAnchorPoint(Vec2.MIDDLE);
         imageView.setPosition(getContentSize().width/2, getContentSize().height/2);
         setIcon(state, imageView);
     }
@@ -767,8 +781,8 @@ public class SMButton extends _UIContainerView {
 
     public void setText(final String text, final float fontSize) {
         if (_textLabel==null) {
-            _textLabel = SMLabel.create(getDirector(), text, fontSize, 0, 0, 0, 1);
-            _textLabel.setAnchorPoint(new Vec2(0.5f, 0.5f));
+            _textLabel = SMLabel.create(getDirector(), text, fontSize, new Color4F(0, 0, 0, 1));
+            _textLabel.setAnchorPoint(Vec2.MIDDLE);
 //            _textLabel.setPivot(getContentSize().width/2, getContentSize().height/2);
             _uiContainer.addChild(_textLabel, AppConst.ZOrder.BUTTON_TEXT);
             if (_textColor==null || _textColor[0]==null) {

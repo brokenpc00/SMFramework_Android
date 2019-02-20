@@ -16,6 +16,13 @@ public class SMSolidRectView extends SMShapeView {
         bgShape = new PrimitiveRect(director, 1, 1, 0.0f, 0.0f, true);
     }
 
+    public static SMSolidRectView create(IDirector director) {
+        SMSolidRectView view = new SMSolidRectView(director);
+        view.init();
+        return view;
+    }
+
+
     protected PrimitiveRect bgShape = null;
 
     private float lineWidth = 1.0f;

@@ -36,7 +36,7 @@ public class SlideOutToRight extends BaseSceneTransition {
         if (isDimLayerEnable() && _lastProgress > 0 && _dimLayer==null) {
             _dimLayer = new SMSolidRectView(getDirector());
             _dimLayer.setContentSize(new Size(getDirector().getWidth(), getDirector().getHeight()));
-            _dimLayer.setAnchorPoint(new Vec2(0.5f, 0.5f));
+            _dimLayer.setAnchorPoint(Vec2.MIDDLE);
             _dimLayer.setPosition(new Vec2(getDirector().getWinSize().width/2, getDirector().getWinSize().height/2));
             _dimLayer.setBackgroundColor(new Color4F(0, 0, 0, 0));
         }

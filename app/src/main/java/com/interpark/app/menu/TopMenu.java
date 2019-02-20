@@ -32,102 +32,20 @@ import java.util.ArrayList;
 
 public class TopMenu extends SMView {
 
-    public enum DropDown {
-        NOTHING,
-        UP,
-        DOWN
-    }
-
-    public enum Id {
-        NONE,
-        DROPDOWN,
-
-        MENU_MENU,
-        MENU_BACK,
-        MENU_CLOSE,
-        MENU_DOT,
-        MENU_CLOSE2,
-        MENU_ALARM,
-
-        SEARCH,
-        CONFIRM,
-        DELETE,
-        CAMERA,
-        ALBUM,
-        CART,
-        SETTINGS,
-
-        NEXT,
-        DONE,
-        CANCEL,
-        CROP,
-        CLEAR
-    }
-
-    public enum TextTransition {
-        FADE,
-        ELASTIC,
-        SWIPE
-    }
-
-    public enum ButtonTransition {
-        FADE,
-        ELASTIC,
-        SWIPE
-    }
-
-    public interface TopMenuClickListener {
-        void onTopMenuClick(TopMenuComponentType type);
-    }
-    public TopMenuClickListener _listener = null;
-
-    public static DotPosition sDotMenu[] = new DotPosition[4];
-    public static DotPosition sDotClose[] = new DotPosition[4];
-    public static DotPosition sDotBack[] = new DotPosition[4];
-    public static DotPosition sDotDot[] = new DotPosition[4];
-
     public TopMenu(IDirector director) {
         super(director);
 
-        sDotMenu[0] = new DotPosition(new Vec2(-13, 13), new Vec2(-13, 13), AppConst.SIZE.DOT_DIAMETER);
-        sDotMenu[1] = new DotPosition(new Vec2(13, -13), new Vec2(13, -13), AppConst.SIZE.DOT_DIAMETER);
-        sDotMenu[2] = new DotPosition(new Vec2(-13, 13), new Vec2(-13, 13), AppConst.SIZE.DOT_DIAMETER);
-        sDotMenu[3] = new DotPosition(new Vec2(13, -13), new Vec2(13, -13), AppConst.SIZE.DOT_DIAMETER);
-
-        sDotClose[0] = new DotPosition(new Vec2(-20, 20), Vec2.ZERO, AppConst.SIZE.LINE_DIAMETER);
-        sDotClose[1] = new DotPosition(new Vec2(20, -20), Vec2.ZERO, AppConst.SIZE.LINE_DIAMETER);
-        sDotClose[2] = new DotPosition(new Vec2(-20, -20), Vec2.ZERO, AppConst.SIZE.LINE_DIAMETER);
-        sDotClose[3] = new DotPosition(new Vec2(20, 20), Vec2.ZERO, AppConst.SIZE.LINE_DIAMETER);
-
-        sDotBack[0] = new DotPosition(new Vec2(-16, 16), Vec2.ZERO, AppConst.SIZE.LINE_DIAMETER);
-        sDotBack[1] = new DotPosition(new Vec2(16, -16), Vec2.ZERO, AppConst.SIZE.LINE_DIAMETER);
-        sDotBack[2] = new DotPosition(new Vec2(-16, -12), new Vec2(-16, 16), AppConst.SIZE.LINE_DIAMETER);
-        sDotBack[3] = new DotPosition(new Vec2(12, 16), new Vec2(-16, 16), AppConst.SIZE.LINE_DIAMETER);
-
-        sDotDot[0] = new DotPosition(Vec2.ZERO, Vec2.ZERO, AppConst.SIZE.LINE_DIAMETER);
-        sDotDot[1] = new DotPosition(Vec2.ZERO, Vec2.ZERO, AppConst.SIZE.LINE_DIAMETER);
-        sDotDot[2] = new DotPosition(Vec2.ZERO, Vec2.ZERO, AppConst.SIZE.LINE_DIAMETER);
-        sDotDot[3] = new DotPosition(Vec2.ZERO, Vec2.ZERO, AppConst.SIZE.LINE_DIAMETER);
-    }
-
-    protected SMButton _menuButton;
-    protected SMButton[][] _actionButton = new SMButton[2][2];
-    protected SMRoundLine _menuLine[] = new SMRoundLine[4];
-    protected SMSolidCircleView _menuCircle[] = new SMSolidCircleView[4];
-    protected BitmapSprite _menuSprite;
-    protected MenuTransform _menuTransform;
-    protected TextTransform _textTransform;
-    protected ColorTransform _colorTransform;
-    protected TextContainer _textContainer;
-
-    private void updateTextPosition(boolean dropdown) {
 
     }
 
-    private void onToastHiddenComplete(SMToastBar toat) {
-
+    public static TopMenu create(IDirector director) {
+        TopMenu view = new TopMenu(director);
+        if (view!=null) {
+            view.init();
     }
 
+        return view;
+    }
 
     public enum TopMenuComponentType {
         MENU,
@@ -137,73 +55,11 @@ public class TopMenu extends SMView {
 
     }
 
-    protected class ColorSet implements Cloneable {
-        public ColorSet() {
-
+    public interface TopMenuClickListener {
+        void onTopMenuClick(TopMenuComponentType type);
         }
+    public TopMenuClickListener _listener = null;
 
-        public ColorSet(final Color4F bg, final Color4F text, final Color4F normal, final Color4F press) {
-            BG.set(bg);
-            TEXT.set(text);
-            NORMAL.set(normal);
-            PRESS.set(press);
-        }
-
-        public Color4F BG = new Color4F(1, 1, 1, 1);
-        public Color4F TEXT = new Color4F(new Color4B(0x22, 0x22, 0x22, 0xff));
-        public Color4F NORMAL = new Color4F(new Color4B(0x22, 0x22, 0x22, 0xff));
-        public Color4F PRESS = new Color4F(new Color4B(0xad, 0xaf, 0xb3, 0xff));
-
-        public boolean equals(ColorSet set) {
-            return BG.equals(set.BG) && TEXT.equals(set.TEXT) && NORMAL.equals(set.NORMAL) && PRESS.equals(set.PRESS);
-        }
-
-        public ColorSet set(ColorSet set) {
-            if (equals(set)) return this;
-
-            this.BG.set(set.BG);
-            this.TEXT.set(set.TEXT);
-            this.NORMAL.set(set.NORMAL);
-            this.PRESS.set(set.PRESS);
-
-            return this;
-        }
-
-        public final ColorSet WHITE = new ColorSet();
-        public final ColorSet WHITE_TRANSULANT = new ColorSet(new Color4F(1, 1, 1, 0.7f), new Color4F(new Color4B(0x22, 0x22, 0x22, 0xff)), new Color4F(new Color4B(0x22, 0x22, 0x22, 0xff)), new Color4F(new Color4B(0xad, 0xaf, 0xb3, 0xff)));
-        public final ColorSet BLACK = new ColorSet(new Color4F(new Color4B(0x22, 0x22, 0x22, 0xff)), new Color4F(1, 1, 1, 1), new Color4F(1, 1, 1, 1), new Color4F(new Color4B(0xad, 0xaf, 0xb3, 0xff)));
-        public final ColorSet NONE = new ColorSet(new Color4F(1, 1, 1, 1), new Color4F(1, 1, 1, 1), new Color4F(1, 1, 1, 1), new Color4F(1, 1, 1, 1));
-        public final ColorSet TRANSULANT = new ColorSet(new Color4F(1, 1, 1, 0), new Color4F(new Color4B(0x22, 0x22, 0x22, 0xff)), new Color4F(new Color4B(0x22, 0x22, 0x22, 0xff)), new Color4F(new Color4B(0xad, 0xaf, 0xb3, 0xff)));
-    }
-
-    public class DotPosition {
-        public Vec2 from = new Vec2();
-        public Vec2 to = new Vec2();
-        public float diameter = 0.0f;
-
-        public DotPosition(DotPosition pos) {
-            this.from.set(pos.from);
-            this.to.set(pos.to);
-            this.diameter = pos.diameter;
-        }
-
-        public DotPosition(final Vec2 from, final Vec2 to, float diameter) {
-            this.from.set(from);
-            this.to.set(to);
-            this.diameter = diameter;
-        }
-    }
-
-
-
-    public static TopMenu create(IDirector director) {
-        TopMenu view = new TopMenu(director);
-        if (view!=null) {
-            view.init();
-        }
-
-        return view;
-    }
 
     @Override
     protected boolean init() {
@@ -237,7 +93,7 @@ public class TopMenu extends SMView {
                 float btnSize = AppConst.SIZE.TOP_MENU_HEIGHT;
 
                 SMButton menuBtn = SMButton.create(getDirector(), 0, SMButton.STYLE.SOLID_RECT, 0, 0, btnSize, btnSize);
-                menuBtn.setButtonColor(STATE.NORMAL, new Color4F(1, 1, 1, 1));
+                menuBtn.setButtonColor(STATE.NORMAL,  Color4F.WHITE);
                 menuBtn.setButtonColor(STATE.PRESSED, new Color4F(new Color4B(0xee, 0xef, 0xf1, 0xff)));
                 if (menuBtn==null) return;
                 {
@@ -249,9 +105,9 @@ public class TopMenu extends SMView {
                 menuBg.addChild(line2);
                 menuBg.addChild(line3);
 
-                line1.setBackgroundColor(new Color4F(1, 1, 1, 1));
-                line2.setBackgroundColor(new Color4F(1, 1, 1, 1));
-                line3.setBackgroundColor(new Color4F(1, 1, 1, 1));
+                    line1.setBackgroundColor(Color4F.WHITE);
+                    line2.setBackgroundColor(Color4F.WHITE);
+                    line3.setBackgroundColor(Color4F.WHITE);
 
                     Bitmap bmp = menuBg.captureView();
                     BitmapSprite sprite = BitmapSprite.createFromBitmap(getDirector(), "MENUICON", bmp);
@@ -285,7 +141,7 @@ public class TopMenu extends SMView {
                     title = params.getString("MENU_TITLE");
                 }
 
-                SMLabel titleLabel = SMLabel.create(getDirector(), title, 45, 0x22/255.0f, 0x22/255.0f, 0x22/255.0f, 1.0f);
+                SMLabel titleLabel = SMLabel.create(getDirector(), title, 45, new Color4F( new Color4B(0x22, 0x22, 0x22, 0xff)));
                 titleLabel.setAnchorPoint(new Vec2(0.5f, 0.5f));
                 titleLabel.setPosition(new Vec2(getContentSize().width/2, getContentSize().height/2));
 
@@ -297,7 +153,7 @@ public class TopMenu extends SMView {
                 float btnSize = AppConst.SIZE.TOP_MENU_HEIGHT;
 
                 SMButton menuBtn = SMButton.create(getDirector(), 0, SMButton.STYLE.SOLID_RECT, 0, 0, btnSize, btnSize);
-                menuBtn.setButtonColor(STATE.NORMAL, new Color4F(1, 1, 1, 1));
+                menuBtn.setButtonColor(STATE.NORMAL, Color4F.WHITE);
                 menuBtn.setButtonColor(STATE.PRESSED, new Color4F(new Color4B(0xee, 0xef, 0xf1, 0xff)));
                 if (menuBtn==null) return;
                 {
@@ -309,9 +165,9 @@ public class TopMenu extends SMView {
                     menuBg.addChild(line2);
                     menuBg.addChild(line3);
 
-                    line1.setBackgroundColor(new Color4F(1, 1, 1, 1));
-                    line2.setBackgroundColor(new Color4F(1, 1, 1, 1));
-                    line3.setBackgroundColor(new Color4F(1, 1, 1, 1));
+                    line1.setBackgroundColor(Color4F.WHITE);
+                    line2.setBackgroundColor(Color4F.WHITE);
+                    line3.setBackgroundColor(Color4F.WHITE);
 
                     Bitmap bmp = menuBg.captureView();
                     BitmapSprite sprite = BitmapSprite.createFromBitmap(getDirector(), "MENUICON", bmp);
@@ -381,70 +237,7 @@ public class TopMenu extends SMView {
     private ArrayList<SMView> _components = new ArrayList<>();
 
 
-    public class TextContainer extends SMView {
-        public TextContainer(IDirector director) {
-            super(director);
-        }
 
-        @Override
-        protected boolean init() {
-
-            stub[0] = new SMView(getDirector());
-
-            stub[1] = new SMView(getDirector());
-
-            return true;
-        }
-
-        @Override
-        public void onStateChangeNormalToPress(MotionEvent event) {
-            setAnimOffset(new Vec2(0, -3));
-        }
-
-        @Override
-        public void onStateChangePressToNormal(MotionEvent event) {
-            setAnimOffset(new Vec2(0, 0));
-        }
-
-        public SMView stub[] = new SMView[2];
-    }
-
-    public class MenuTransform extends DelayBaseAction {
-        public MenuTransform(IDirector director) {
-            super(director);
-        }
-    }
-
-    public class ColorTransform extends DelayBaseAction {
-        public ColorTransform(IDirector director) {
-            super(director);
-        }
-    }
-
-    public class TextTransform extends DelayBaseAction {
-        public TextTransform(IDirector director) {
-            super(director);
-        }
-    }
-
-
-    public class ButtonAction extends DelayBaseAction {
-        public ButtonAction(IDirector director) {
-            super(director);
-        }
-    }
-
-    public class ButtonFadeAction extends DelayBaseAction {
-        public ButtonFadeAction(IDirector director) {
-            super(director);
-        }
-    }
-
-    public class DropDownAction extends DelayBaseAction {
-        public DropDownAction(IDirector director) {
-            super(director);
-        }
-    }
 
 
 }

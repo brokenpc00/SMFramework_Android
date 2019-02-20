@@ -2,6 +2,9 @@ package com.interpark.smframework.base.types;
 
 import android.util.Log;
 
+import com.interpark.smframework.base.SMView;
+import com.interpark.smframework.util.AppConst;
+
 public class Color4F implements Cloneable {
     public Color4F() {
         r = 1.0f;
@@ -101,4 +104,9 @@ public class Color4F implements Cloneable {
     public float g = 1.0f;
     public float b = 1.0f;
     public float a = 0.0f;
+
+    public static Color4F WHITE = new Color4F(1, 1, 1, 1);
+    public static Color4F BLANK = new Color4F(0, 0, 0, 0);
+    public static Color4F BLACK = new Color4F(0, 0, 0, 1);
+    public static Color4F TEXT_BLACK = SMView.MakeColor4F(0x222222, 1.0f);
 }

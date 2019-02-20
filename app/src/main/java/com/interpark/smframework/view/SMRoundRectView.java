@@ -20,6 +20,11 @@ public class SMRoundRectView extends SMShapeView {
         lineTexture = director.getTextureManager().createTextureFromResource(R.raw.dash_line_2);
         mRound = 0.0f;
     }
+    public static SMRoundRectView create(IDirector director) {
+        SMRoundRectView view = new SMRoundRectView(director);
+        view.init();
+        return view;
+    }
     public SMRoundRectView (IDirector director, float tickness, LineType type) {
         this(director);
         mType = type;

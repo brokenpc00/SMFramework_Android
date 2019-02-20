@@ -11,6 +11,12 @@ public class SMSolidCircleView extends SMShapeView {
         bgShape = new PrimitiveCircle(director);
     }
 
+    public static SMSolidCircleView create(IDirector director) {
+        SMSolidCircleView view = new SMSolidCircleView(director);
+        view.init();
+        return view;
+    }
+
     public SMSolidCircleView(IDirector director, Color4F color) {
         this(director);
         bgColor = color;

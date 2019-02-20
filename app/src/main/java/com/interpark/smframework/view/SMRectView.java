@@ -15,6 +15,12 @@ public class SMRectView extends SMShapeView {
 
         bgShape = new PrimitiveRect(director, 1, 1, 0.0f, 0.0f, false);
     }
+    public static SMRectView create(IDirector director) {
+        SMRectView view = new SMRectView(director);
+        view.init();
+        return view;
+    }
+
 
     protected PrimitiveRect bgShape = null;
 

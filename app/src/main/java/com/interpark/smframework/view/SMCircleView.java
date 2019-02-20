@@ -12,6 +12,12 @@ public class SMCircleView extends SMShapeView {
         super(director);
         bgShape = new PrimitiveCircle(director);
     }
+    public static SMCircleView create(IDirector director) {
+        SMCircleView view = new SMCircleView(director);
+        view.init();
+        return view;
+    }
+
 
     public SMCircleView(IDirector director, final float linewidth) {
         this(director);

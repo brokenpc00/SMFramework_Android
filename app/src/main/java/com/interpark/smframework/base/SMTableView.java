@@ -184,39 +184,39 @@ public class SMTableView extends BaseTableView {
 
     public int getColumnCount() {return (int)getContainerCount();}
 
-    public enum Direction {
-        UP,
-        LEFT,
-        DOWN,
-        RIGHT
-    }
-
-    public static Direction getDirection(float dx, float dy) {
-        final int VERTICAL_WIDE = 100;
-        final int HORIZONTAL_WIDE = (180-VERTICAL_WIDE);
-        double radians = Math.atan2(dy, dx);
-        int degrees = (int)Math.toDegrees(radians);
-        degrees = (degrees % 360) + (degrees < 0 ? 360 : 0); // normalize
-
-        int a = HORIZONTAL_WIDE/2;
-        if (degrees > a && degrees < a + VERTICAL_WIDE) {
-            return Direction.UP;
-        }
-
-        a += VERTICAL_WIDE;
-
-        if (degrees > a && degrees < a + HORIZONTAL_WIDE) {
-            return Direction.LEFT;
-        }
-
-        a += HORIZONTAL_WIDE;
-
-        if (degrees > a && degrees < a + VERTICAL_WIDE) {
-            return Direction.DOWN;
-        }
-
-        return Direction.RIGHT;
-    }
+//    public enum Direction {
+//        UP,
+//        LEFT,
+//        DOWN,
+//        RIGHT
+//    }
+//
+//    public static Direction getDirection(float dx, float dy) {
+//        final int VERTICAL_WIDE = 100;
+//        final int HORIZONTAL_WIDE = (180-VERTICAL_WIDE);
+//        double radians = Math.atan2(dy, dx);
+//        int degrees = (int)Math.toDegrees(radians);
+//        degrees = (degrees % 360) + (degrees < 0 ? 360 : 0); // normalize
+//
+//        int a = HORIZONTAL_WIDE/2;
+//        if (degrees > a && degrees < a + VERTICAL_WIDE) {
+//            return Direction.UP;
+//        }
+//
+//        a += VERTICAL_WIDE;
+//
+//        if (degrees > a && degrees < a + HORIZONTAL_WIDE) {
+//            return Direction.LEFT;
+//        }
+//
+//        a += HORIZONTAL_WIDE;
+//
+//        if (degrees > a && degrees < a + VERTICAL_WIDE) {
+//            return Direction.DOWN;
+//        }
+//
+//        return Direction.RIGHT;
+//    }
 
 
 
