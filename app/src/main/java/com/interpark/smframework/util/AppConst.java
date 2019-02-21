@@ -111,5 +111,7 @@ public class AppConst {
         public static final float TEXT_TRANS_DELAY = 0.05f;
         public static final float TEXT_TRANS_DURATION = 0.17f;
         public static final float TEXT_TRANS_MOVE_DURATION = 0.6f;
+
+        public static final float ACTION_BUTTON_DELAY = 0.1f;
     }
 }

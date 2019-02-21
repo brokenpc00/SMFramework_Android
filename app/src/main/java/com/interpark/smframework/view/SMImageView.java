@@ -45,7 +45,8 @@ public class SMImageView extends _UIContainerView {
     private float mImageScale = 1f;
     private float mScaleX, mScaleY;
     private final RectF mContentsBounds;
-    private float[] mTintColor = null;
+//    private float[] _spriteColor = null;
+    private Color4F _spriteColor = new Color4F(0, 0, 0, 0);
 
     public static SMImageView create(IDirector director, String assetName) {
         SMImageView imageView = new SMImageView(director, assetName);
@@ -175,10 +176,10 @@ public class SMImageView extends _UIContainerView {
     }
 
     protected void drawImage(float x, float y, float scaleX, float scaleY, float a) {
-        if (mTintColor == null) {
+        if (_spriteColor == null) {
             _director.setColor(a, a, a, a);
         } else {
-            _director.setColor(a*mTintColor[0], a*mTintColor[1], a*mTintColor[2], a*mTintColor[3]);
+            _director.setColor(a*_spriteColor.r, a*_spriteColor.g, a*_spriteColor.b, a*_spriteColor.a);
         }
         mSprite.drawScaleXY(x, y, scaleX, scaleY);
     }
@@ -304,13 +305,7 @@ public class SMImageView extends _UIContainerView {
         }
     }
 
-    public void setTintColor(float r, float g, float b, float a) {
-        if (mTintColor == null) {
-            mTintColor = new float[4];
-        }
-        mTintColor[0] = r;
-        mTintColor[1] = g;
-        mTintColor[2] = b;
-        mTintColor[3] = a;
+    public void setColor(final Color4F color) {
+        _spriteColor.set(color);
     }
 }

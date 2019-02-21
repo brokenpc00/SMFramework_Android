@@ -8,11 +8,13 @@ import android.widget.Toast;
 import com.interpark.smframework.IDirector;
 import com.interpark.smframework.SideMenu;
 import com.interpark.smframework.base.SMView;
+import com.interpark.smframework.base.scroller.SMScroller;
 import com.interpark.smframework.base.sprite.BitmapSprite;
 import com.interpark.smframework.base.types.Action;
 import com.interpark.smframework.base.types.Color4B;
 import com.interpark.smframework.base.types.Color4F;
 import com.interpark.smframework.base.types.DelayBaseAction;
+import com.interpark.smframework.base.types.TransformAction;
 import com.interpark.smframework.util.AppConst;
 import com.interpark.smframework.util.Size;
 import com.interpark.smframework.util.Vec2;
@@ -105,7 +107,7 @@ public class MenuBar extends SMView {
         _mainButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(SMView view) {
-                onClick(view);
+                MainClick(view);
             }
         });
         _mainButton.setPushDownScale(0.9f);
@@ -116,7 +118,7 @@ public class MenuBar extends SMView {
         return true;
     }
 
-    public void onClick(SMView view) {
+    public void MainClick(SMView view) {
         if (_mainButton.getActionByTag(AppConst.TAG.USER+1)!=null) {
             // in transform action...
             return;
@@ -297,6 +299,25 @@ public class MenuBar extends SMView {
             case BACK: to = sDotBack; _mainButton.setTag(menuTypeToInt(MenuType.BACK)); break;
             case DOT: to = sDotDot; _mainButton.setTag(menuTypeToInt(MenuType.DOT)); break;
             case CLOSE2: to = sDotClose; _mainButton.setTag(menuTypeToInt(MenuType.CLOSE)); break;
+            case ALARM:
+            {
+                if (_menuImage==null) {
+                    _menuImage = SMImageView.create(getDirector(), "images/ic_titlebar_notice.png");
+                    _menuImage.setPosition(_buttonContainer.getContentSize().width/2, _buttonContainer.getContentSize().height/2);
+                    _menuImage.setColor(Color4F.TEXT_BLACK);
+                    _buttonContainer.addChild(_menuImage);
+
+                    // if you need.. regist... ready to receiving
+                }
+                to = null;
+                _mainButton.setTag(menuTypeToInt(MenuType.ALARM));
+
+                // getting new Alaram count.
+                _newAlarm = false;
+
+                showAlarmBadge();
+            }
+            break;
             default:
             {
                 return;
@@ -324,7 +345,6 @@ public class MenuBar extends SMView {
                     _menuCircle[i].setVisible(false);
                 }
             }
-    }
 
         float angle = 0;
         switch (menuButtonType) {
@@ -338,66 +358,488 @@ public class MenuBar extends SMView {
         _menuButtonType = menuButtonType;
     }
 
+        if (_menuTransform==null) {
+            _menuTransform = MenuTransformCreate(getDirector());
+            _menuTransform.setMenuBar(this);
+            _menuTransform.setTag(AppConst.TAG.ACTION_MENUBAR_MENU);
+        }
+
+        _menuTransform.setMenuType(_menuButtonType, menuButtonType, 0.45f);
+        if (!swipe) {
+            runAction(_menuTransform);
+        }
+
+        _menuButtonType = menuButtonType;
+    }
+
     public MenuType getMenuButtonType() {return _menuButtonType;}
 
     public void setColorSet(final ColorSet colorSet, boolean immediate) {
+        if (_colorSet.equals(colorSet)) {
+            return;
+        }
 
+        Action action = getActionByTag(AppConst.TAG.ACTION_MENUBAR_COLOR);
+        if (action!=null) {
+            stopAction(action);
+        }
+
+        if (immediate) {
+            _colorSet.set(colorSet);
+            _activeColorSet.set(colorSet);
+
+            applyColorSet(colorSet);
+        } else {
+            if (_colorTransform!=null) {
+                _colorTransform = ColorTransformCreate(getDirector());
+                _colorTransform.setTag(AppConst.TAG.ACTION_MENUBAR_COLOR);
+            }
+
+            _colorTransform.setColorSet(colorSet);
+            runAction(_colorTransform);
+        }
     }
 
     public void setText(final String textString, boolean immediate) {
         setText(textString, immediate, false);
     }
     public void setText(final String textString, boolean immediate, boolean dropdown) {
+        if (_textString==textString)return;
 
+        _textString = textString;
+        _textIndex = 1 - _textIndex;
+
+        if (_textLabel[_textIndex]==null) {
+            _textLabel[_textIndex] = SMLabel.create(getDirector(), "", 40, Color4F.TEXT_BLACK, Paint.Align.CENTER, true);
+            _textLabel[_textIndex].setAnchorPoint(Vec2.MIDDLE);
+            _textContainer.stub[_textIndex].addChild(_textLabel[_textIndex]);
+        }
+
+        _textLabel[_textIndex].setText(textString);
+        _textLabel[_textIndex].setColor(_activeColorSet.TEXT);
+        _textLabel[_textIndex].setVisible(false);
+
+        updateTextPosition(dropdown);
+
+        Action action = getActionByTag(AppConst.TAG.ACTION_MENUBAR_TEXT);
+        if (action!=null) {
+            stopAction(action);
+        }
+
+        if (immediate) {
+            _textLabel[_textIndex].setVisible(true);
+            if (_textLabel[1-_textIndex]!=null) {
+                _textLabel[1-_textIndex].setVisible(false);
+            }
+            return;
+        }
+
+        if (_textTransform==null) {
+            _textTransform = TextTransformCreate(getDirector());
+            _textTransform.setTag(AppConst.TAG.ACTION_MENUBAR_TEXT);
+            _textTransform.setMenuBar(this);
+        }
+
+        if (_textTransType==TextTransition.ELASTIC) {
+            _textTransform.setElasticType();
+        } else {
+            _textTransform.setFadeType();
+        }
+
+        // for separate text animation... make letter
+        if (_textTransType!=TextTransition.SWIPE) {
+            _textTransform.makeTextSeparate();
+        }
+
+        _textTransform.setTextIndex(_textIndex);
+
+        if (_textTransType!=TextTransition.SWIPE) {
+            runAction(_textTransform);
+        }
     }
 
     public String getText() {
-        return "";
+        return _textString;
     }
 
     public void setTextTransitionType(TextTransition type) {
-
+        _textTransType = type;
     }
 
     public void setButtonTransitionType(ButtonTransition type) {
-
+        _buttonTransType = type;
     }
 
     public void setTextWithDropDown(final String textString, boolean immediate) {
-
+        setText(textString, immediate, true);
     }
 
     public void setOneButton(MenuType buttonType, boolean immediate) {
         setOneButton(buttonType, immediate, false);
     }
     public void setOneButton(MenuType buttonType, boolean immediate, boolean swipe) {
-
+        setTwoButton(buttonType, MenuType.NONE, immediate, swipe);
     }
-
     public void setTwoButton(MenuType buttonType1, MenuType buttonType2, boolean immediate) {
         setTwoButton(buttonType1, buttonType2, immediate, false);
     }
     public void setTwoButton(MenuType buttonType1, MenuType buttonType2, boolean immediate, boolean swipe) {
+//        ACTION_BUTTON_DELAY
+        float delay = 0;
 
+        final MenuType[] types = new MenuType[] {buttonType1, buttonType2};
+
+        if (!swipe) {
+            for (int i=0; i<2; i++) {
+                SMButton button = _menuButtons[_buttonIndex][i];
+                if (button!=null && button.isVisible()) {
+                    if (immediate) {
+                        button.setVisible(false);
+                    } else {
+                        Action action = getActionByTag(AppConst.TAG.ACTION_MENUBAR_BUTTON);
+                        if (action!=null) {
+                            stopAction(action);
+                        }
+
+                        if (_buttonTransType==ButtonTransition.ELASTIC) {
+                            ButtonAction buttonAction = ButtonActionCreate(getDirector());
+                            buttonAction.setTag(AppConst.TAG.ACTION_MENUBAR_BUTTON);
+                            buttonAction.setHide(this, delay);
+                            button.runAction(buttonAction);
+                        } else {
+                            ButtonFadeAction buttonFadeAction = ButtonFadeActionCreate(getDirector());
+                            buttonFadeAction.setTag(AppConst.TAG.ACTION_MENUBAR_BUTTON);
+                            buttonFadeAction.setHide(this, 0);
+                            button.runAction(buttonFadeAction);
+                        }
+
+                        delay += AppConst.Config.ACTION_BUTTON_DELAY;
+                    }
+                }
+            }
+
+            if (delay>0) {
+                delay += 0.2f;
+            }
+        } else {
+            immediate = true;
+        }
+
+        _buttonIndex = 1 - _buttonIndex;
+
+        float x = _contentSize.width - 20;
+        int index = 0;
+
+        for (int i=0; i<2; i++) {
+            if (types[i]==MenuType.NONE) continue;
+
+            SMButton button = _menuButtons[_buttonIndex][i];
+            if (button==null) {
+                button = SMButton.create(getDirector(), menuTypeToInt(MenuType.NONE), SMButton.STYLE.DEFAULT, 0, 0, AppConst.SIZE.TOP_MENU_BUTTON_HEIGHT, AppConst.SIZE.TOP_MENU_BUTTON_HEIGHT, 0.5f, 0.5f);
+                button.setIconColor(STATE.NORMAL, _activeColorSet.NORMAL);
+                button.setIconColor(STATE.PRESSED, _activeColorSet.PRESS);
+                button.setOnClickListener(new OnClickListener() {
+                    @Override
+                    public void onClick(SMView view) {
+                        MainClick(view);
+                    }
+                });
+                button.setPushDownScale(0.9f);
+                button.setPushDownOffset(new Vec2(0, -3));
+                addChild(button);
+                _menuButtons[_buttonIndex][index] = button;
+            }
+
+            SMView icon = null;
+            boolean textIcon = false;
+            if (button.getTag()!=menuTypeToInt(types[i])) {
+                button.setTag(menuTypeToInt(types[i]));
+                // incase text icon... (if image icon then textIcon is false)
+                switch (types[i]) {
+                    case NEXT:
+                    {
+                        icon = SMLabel.create(getDirector(), "NEXT", 38);
+                        icon.setAnchorPoint(Vec2.MIDDLE);
+                        textIcon = true;
+                    }
+                    break;
+                    case DONE:
+                    {
+                        icon = SMLabel.create(getDirector(), "DONE", 38);
+                        icon.setAnchorPoint(Vec2.MIDDLE);
+                        textIcon = true;
+                    }
+                    break;
+                    case CANCEL:
+                    {
+                        icon = SMLabel.create(getDirector(), "CANCEL", 38);
+                        icon.setAnchorPoint(Vec2.MIDDLE);
+                        textIcon = true;
+                    }
+                    break;
+                    default:
+                    {
+                        icon = SMLabel.create(getDirector(), "Whatever", 38);
+                        icon.setAnchorPoint(Vec2.MIDDLE);
+                        textIcon = true;
+                    }
+                    break;
+                }
+                button.setIcon(STATE.NORMAL, icon);
+            }
+            if (icon!=null) {
+                int width = 0;
+                if (textIcon) {
+                    width = (int)icon.getContentSize().width;
+                    x -= 20;
+                }
+
+                x -= width/2;
+                button.setPosition(x, AppConst.SIZE.MENUBAR_HEIGHT/2);
+                x -= width/2 + 20;
+            }
+
+            if (immediate) {
+                button.setScale(1);
+                button.setVisible(true);
+            } else {
+                Action action = getActionByTag(AppConst.TAG.ACTION_MENUBAR_BUTTON);
+                if (action!=null) {
+                    stopAction(action);
+                }
+
+                if (_buttonTransType==ButtonTransition.ELASTIC) {
+                    button.setScale(0);
+                    button.setAlpha(1.0f);
+                    ButtonAction buttonAction = ButtonActionCreate(getDirector());
+                    buttonAction.setTag(AppConst.TAG.ACTION_MENUBAR_BUTTON);
+                    buttonAction.setShow(this, delay);
+                    button.runAction(buttonAction);
+                } else {
+                    button.setAlpha(0);
+                    button.setScale(1);
+                    ButtonFadeAction buttonFadeAction = ButtonFadeActionCreate(getDirector());
+                    buttonFadeAction.setTag(AppConst.TAG.ACTION_MENUBAR_BUTTON);
+                    buttonFadeAction.setShow(this, 0.1f);
+                    button.runAction(buttonFadeAction);
+                }
+
+                delay += AppConst.Config.ACTION_BUTTON_DELAY;
+            }
+
+            index++;
+        }
     }
 
     public void setDropDown(DropDown dropdown, boolean immediate) {
         setDropDown(dropdown, immediate, 0);
     }
     public void setDropDown(DropDown dropdown, boolean immediate, float delay) {
+        if (dropdown == _dropdown)
+            return;
 
+        if (dropdown == DropDown.NOTHING) {
+            _textContainer.setOnClickListener(null);
+        } else {
+            _textContainer.setOnClickListener(new OnClickListener() {
+                @Override
+                public void onClick(SMView view) {
+                    MainClick(view);
+                }
+            });
+        }
+
+        if (_dropdownButton!=null) {
+            Action action = _dropdownButton.getActionByTag(AppConst.TAG.ACTION_MENUBAR_DROPDOWN);
+            if (action!=null) {
+                _dropdownButton.stopAction(action);
+            }
+        }
+
+        if (immediate) {
+            _dropdown = dropdown;
+            if (dropdown == DropDown.NOTHING) {
+                if (_dropdownButton!=null) {
+                    removeChild(_dropdownButton);
+                    _dropdownButton = null;
+                }
+            } else {
+                if (_dropdownButton == null) {
+                    _dropdownButton = SMImageView.create(getDirector(), "images/arrow_bottom.png");
+                    _dropdownButton.setColor(_activeColorSet.TEXT);
+                    addChild(_dropdownButton);
+                }
+                if (dropdown == DropDown.UP) {
+                    _dropdownButton.setRotation(180);
+                } else {
+                    _dropdownButton.setRotation(0);
+                }
+                _dropdownButton.setScale(1);
+                _dropdownButton.setVisible(true);
+            }
+
+            updateTextPosition(dropdown != DropDown.NOTHING);
+
+            return;
+        }
+        // animation
+        if (_dropdownAction == null) {
+            _dropdownAction = DropDownActionCreate(getDirector());
+            _dropdownAction.setTag(AppConst.TAG.ACTION_MENUBAR_DROPDOWN);
+        }
+
+        boolean created = false;
+        if (_dropdownButton == null) {
+            _dropdownButton = SMImageView.create(getDirector(), "images/arrow_bottom.png");
+            _dropdownButton.setColor(_activeColorSet.TEXT);
+            _dropdownButton.setVisible(false);
+            _dropdownButton.setScale(0);
+            addChild(_dropdownButton);
+            updateTextPosition(true);
+            created = true;
+        }
+
+        if (dropdown == DropDown.UP) {
+            if (created) {
+                _dropdownButton.setRotation(180);
+                _dropdownAction.setShow(this, delay);
+                _dropdownButton.runAction(_dropdownAction);
+            } else {
+                _dropdownAction.setUp(this, delay);
+                _dropdownButton.runAction(_dropdownAction);
+            }
+        } else if (dropdown == DropDown.DOWN) {
+            if (created) {
+                _dropdownButton.setRotation(0);
+                _dropdownAction.setShow(this, delay);
+                _dropdownButton.runAction(_dropdownAction);
+            } else {
+                _dropdownAction.setDown(this, delay);
+                _dropdownButton.runAction(_dropdownAction);
+            }
+        } else { // NOTHING
+            _dropdownAction.setHide(this, delay);
+            _dropdownButton.runAction(_dropdownAction);
+        }
+
+        _dropdown = dropdown;
     }
 
     public void showButton(boolean show, boolean immediate) {
+        for (int i = 0;  i < 2; i++) {
+            SMButton button = _menuButtons[_buttonIndex][i];
+            if (button!=null && button.getTag() != menuTypeToInt(MenuType.NONE)) {
+                if (immediate) {
+                    if (show) {
+                        button.setScale(1);
+                        button.setVisible(true);
+                    } else {
+                        button.setScale(0);
+                        button.setVisible(false);
+                    }
+                } else {
+                    Action action = button.getActionByTag(AppConst.TAG.ACTION_MENUBAR_BUTTON);
+                    if (action!=null) {
+                        button.stopAction(action);
+                    }
+                    ButtonAction buttonAction = ButtonActionCreate(getDirector());
+                    buttonAction.setTag(AppConst.TAG.ACTION_MENUBAR_BUTTON);
+                    if (show) {
+                        buttonAction.setShow(this, 0);
+                    } else {
+                        buttonAction.setHide(this, 0);
+                    }
+                    button.runAction(buttonAction);
+                }
+            }
+        }
+        // menu button
+        if (_mainButton==null)
+            return;
 
+        SMButton button = _mainButton;
+        if (immediate) {
+            if (show) {
+                button.setScale(1);
+                button.setVisible(true);
+            } else {
+                button.setScale(0);
+                button.setVisible(false);
+            }
+        } else {
+            Action action = button.getActionByTag(AppConst.TAG.ACTION_MENUBAR_BUTTON);
+            if (action!=null) {
+                button.stopAction(action);
+            }
+            if (_buttonTransType == ButtonTransition.ELASTIC) {
+                ButtonAction buttonAction = ButtonActionCreate(getDirector());
+                buttonAction.setTag(AppConst.TAG.ACTION_MENUBAR_BUTTON);
+                if (show) {
+                    buttonAction.setShow(this, 0);
+                } else {
+                    buttonAction.setHide(this, 0);
+                }
+                button.runAction(buttonAction);
+            } else {
+                ButtonFadeAction buttonFadeAction = ButtonFadeActionCreate(getDirector());
+                buttonFadeAction.setTag(AppConst.TAG.ACTION_MENUBAR_BUTTON);
+                if (show) {
+                    buttonFadeAction.setShow(this, 0);
+                } else {
+                    buttonFadeAction.setHide(this, 0);
+                }
+                button.runAction(buttonFadeAction);
+            }
+        }
     }
 
     public void showActionButtonWithDelay(boolean show, float delay) {
-
+        for (int i = 0;  i < 2; i++) {
+            SMButton button = _menuButtons[_buttonIndex][i];
+            if (button!=null && button.getTag() != menuTypeToInt(MenuType.NONE)) {
+                Action action = button.getActionByTag(AppConst.TAG.ACTION_MENUBAR_BUTTON);
+                if (action!=null) {
+                    button.stopAction(action);
+                }
+                ButtonAction buttonAction = ButtonActionCreate(getDirector());
+                buttonAction.setTag(AppConst.TAG.ACTION_MENUBAR_BUTTON);
+                if (show) {
+                    buttonAction.setShow(this, delay);
+                } else {
+                    buttonAction.setHide(this, delay);
+                }
+                button.runAction(buttonAction);
+            }
+        }
     }
 
     public void showMenuButton(boolean show, boolean immediate) {
+        if (_mainButton==null)
+            return;
 
+        SMButton button = _mainButton;
+        if (immediate) {
+            if (show) {
+                button.setScale(1);
+                button.setVisible(true);
+            } else {
+                button.setScale(0);
+                button.setVisible(false);
+            }
+        } else {
+            Action action = button.getActionByTag(AppConst.TAG.ACTION_MENUBAR_BUTTON);
+            if (action!=null) {
+                button.stopAction(action);
+            }
+            ButtonAction buttonAction = ButtonActionCreate(getDirector());
+            buttonAction.setTag(AppConst.TAG.ACTION_MENUBAR_BUTTON);
+            if (show) {
+                buttonAction.setShow(this, 0);
+            } else {
+                buttonAction.setHide(this, 0);
+            }
+            button.runAction(buttonAction);
+        }
     }
 
     public DropDown getDropDownState() {return _dropdown;}
@@ -419,67 +861,221 @@ public class MenuBar extends SMView {
     }
 
     public void setTextOffsetY(float textOffsetY) {
-
+        if (_textContainer!=null) {
+            _textContainer.setPositionY(AppConst.SIZE.MENUBAR_HEIGHT/2+textOffsetY);
+        }
     }
 
     public void setOverlapChild(SMView child) {
-
+        _overlapChild = child;
     }
 
     public SMView getOverlapChild() {return _overlapChild;}
 
     @Override
     public boolean containsPoint(float x, float y) {
-        return true;
+        if (_overlapChild!=null) {
+            Vec2 worldPt = convertToWorldSpace(new Vec2(x, y));
+            Vec2 pt = _overlapChild.convertToNodeSpace(worldPt);
+            if (_overlapChild.containsPoint(pt)) {
+                return false;
+            }
+        }
+
+        return super.containsPoint(x, y);
     }
 
     public MenuBarListener getMenuBarListener() {return _listener;}
 
     public SMView getButtonByType(MenuType type) {
+        for (int i=0; i<2; i++) {
+            SMButton button = _menuButtons[_buttonIndex][i];
+            if (button!=null && button.getTag()==menuTypeToInt(type)) {
+                return button;
+            }
+        }
         return null;
     }
 
     public ArrayList<MenuType> getButtonTypes() {
-        return null;
+        ArrayList<MenuType> buttonTypes = new ArrayList<>();
+        for (int i=0; i<2; i++) {
+            SMButton button = _menuButtons[_buttonIndex][i];
+            if (button!=null && button.isVisible()) {
+                buttonTypes.add(intToMenuType(button.getTag()));
+            }
+        }
+        return buttonTypes;
     }
 
     public void onSwipeStart() {
-
+        if (_textTransType == TextTransition.SWIPE && _textTransform!=null && _menuTransform!=null) {
+            _textTransform.onStart();
+            _menuTransform.onStart();
+        }
     }
 
     public void onSwipeUpdate(float t) {
+        if (_textTransType == TextTransition.SWIPE && _textTransform!=null && _menuTransform!=null) {
+            _textTransform.onUpdate(t);
+            _menuTransform.onUpdate(t);
 
+            for (int i = 0; i < 2; i++) {
+                SMButton button = _menuButtons[1 - _buttonIndex][i];
+                if (button!=null && button.isVisible()) {
+                    button.setAlpha(1-t);
+                }
+                button = _menuButtons[_buttonIndex][i];
+                if (button!=null && button.isVisible()) {
+                    button.setAlpha(t);
+                }
+            }
+        }
     }
 
     public void onSwipeComplete() {
+        if (_textTransType == TextTransition.SWIPE && _textTransform!=null && _menuTransform!=null) {
+            _textTransform.onEnd();
+            _menuTransform.onEnd();
 
+            for (int i = 0; i < 2; i++) {
+                SMButton button = _menuButtons[1-_buttonIndex][i];
+                if (button!=null && button.isVisible()) {
+                    button.setVisible(false);
+                }
+                button = _menuButtons[_buttonIndex][i];
+                if (button!=null && button.isVisible()) {
+                    button.setAlpha(1);
+                }
+            }
+        }
     }
 
     public void onSwipeCancel() {
+        if (_textTransType == TextTransition.SWIPE && _textTransform!=null && _menuTransform!=null) {
+            _textTransform.onCancel();
+            _textIndex = 1 - _textIndex;
+            _textString = _textLabel[_textIndex].getText();
 
+            _menuButtonType = _menuTransform._fromType;
+            _menuTransform.onCancel();
+
+            _buttonIndex = 1 - _buttonIndex;
+            for (int i = 0; i < 2; i++) {
+                SMButton button = _menuButtons[1 - _buttonIndex][i];
+                if (button!=null && button.isVisible()) {
+                    button.setVisible(false);
+                }
+                button = _menuButtons[_buttonIndex][i];
+                if (button!=null && button.isVisible()) {
+                    button.setAlpha(1);
+                }
+            }
+        }
     }
 
     public void showToast(final String message, final Color4F color, float duration) {
+        if (_toast == null) {
+            _toast = SMToastBar.create(getDirector(), new SMToastBar.ToastBarCallback() {
+                @Override
+                public void func(SMToastBar bar) {
+                    onToastHideComplete(bar);
+                }
+            });
+            addChild(_toast, -100);
+        }
 
+        _toast.setMessage(message, color, duration);
     }
 
     protected void applyColorSet(final ColorSet colorSet) {
+        setBackgroundColor(colorSet.BG);
 
+        if (_textLabel[0]!=null) {
+            _textLabel[0].setColor(colorSet.TEXT);
+        }
+        if (_textLabel[1]!=null) {
+            _textLabel[1].setColor(colorSet.TEXT);
+        }
+        if (_dropdownButton!=null) {
+            _dropdownButton.setColor(colorSet.TEXT);
+        }
+
+        _mainButton.setButtonColor(STATE.NORMAL, colorSet.NORMAL);
+        _mainButton.setButtonColor(STATE.PRESSED, colorSet.PRESS);
+
+        for (int i=0; i<2; i++) {
+            for (int j=0; j<2; j++) {
+                SMButton button = _menuButtons[i][j];
+                if (button!=null) {
+                    button.setIconColor(STATE.NORMAL, colorSet.NORMAL);
+                    button.setIconColor(STATE.PRESSED, colorSet.PRESS);
+                }
+            }
+        }
     }
 
     private void updateTextPosition(boolean dropdown) {
+        if (_textLabel[_textIndex] == null)
+            return;
 
+        float containerWidth = _textLabel[_textIndex].getContentSize().width;
+
+        if (dropdown) {
+            containerWidth += 16 + 36;
     }
 
-    private void onToastHiddenComplete(SMToastBar toast) {
+        _textContainer.setContentSize(new Size(containerWidth, AppConst.SIZE.MENUBAR_HEIGHT));
+        _textContainer.stub[0].setPosition(containerWidth/2, AppConst.SIZE.MENUBAR_HEIGHT/2);
+        _textContainer.stub[1].setPosition(containerWidth/2, AppConst.SIZE.MENUBAR_HEIGHT/2);
+        if (dropdown) {
+            _textLabel[_textIndex].setPositionX(-16-18);
+        } else {
+            _textLabel[_textIndex].setPositionX(0);
+        }
 
+        if (_dropdownButton!=null && dropdown) {
+            _dropdownButton.setPosition((_contentSize.width+containerWidth)/2 - 18, AppConst.SIZE.MENUBAR_HEIGHT/2);
+        }
+    }
+
+    private void onToastHideComplete(SMToastBar toast) {
+        if (_toast!=null) {
+            removeChild(_toast);
+            _toast = null;
+        }
     }
 
     private void showAlarmBadge() {
         showAlaramBadge(false);
     }
     private void showAlaramBadge(boolean effect) {
+        if (_newAlarm==false) return;
 
+        if (_alarmCircle == null) {
+            if (_menuImage!=null) {
+                _alarmCircle = SMSolidCircleView.create(getDirector());
+
+                _alarmCircle.setContentSize(new Size(12, 12));
+                _alarmCircle.setBackgroundColor(Color4F.ALARM_BADGE_RED);
+                _alarmCircle.setAnchorPoint(Vec2.MIDDLE);
+                _alarmCircle.setPosition(73, 73);
+                _menuImage.addChild(_alarmCircle );
+            }
+        }
+        if (_alarmCircle!=null) {
+            _alarmCircle.setAlpha(0);
+            _alarmCircle.stopAllActions();
+            TransformAction a = TransformAction.create(getDirector());
+            a.toAlpha(1).setTimeValue(0.2f, 0);
+            _alarmCircle.runAction(a);
+
+            if (effect) {
+                Size size = new Size(_alarmCircle.getContentSize());
+
+//                ViewAction::RingWave::show(_notiCircle, size.width/2, size.height/2, 50, 0.4, 0.1, (cocos2d::Color4F*)&ColorDef::NOTI_RED4F);
+            }
+        }
     }
 
 
@@ -759,7 +1355,7 @@ public class MenuBar extends SMView {
             _menuBar._buttonContainer.setRotation(_toAngle);
         }
 
-        public void cancel() {
+        public void onCancel() {
             for (int i=0; i<4; i++) {
                 if (_fromType==MenuType.MENU) {
                     _menuBar._menuLine[i].setVisible(false);
@@ -1287,7 +1883,7 @@ public class MenuBar extends SMView {
             _show = true;
         }
 
-        public void setHdie(MenuBar menuBar, final float delay) {
+        public void setHide(MenuBar menuBar, final float delay) {
             _showAction = true;
             setTimeValue(0.25f, delay);
             _show = false;

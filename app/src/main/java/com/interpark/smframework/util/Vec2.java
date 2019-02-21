@@ -174,7 +174,6 @@ public final class Vec2 implements Cloneable {
         return value < min_inclusive ? min_inclusive : value < max_inclusive? value : max_inclusive;
     }
 
-    public static final Vec2 ZERO = new Vec2(0, 0);
 
     public float distanceSquared(Vec2 v) {
         float dx = v.x - this.x;
@@ -201,9 +200,10 @@ public final class Vec2 implements Cloneable {
         }
     }
 
-    public static Vec2 MIDDLE = new Vec2(0.5f, 0.5f);
-    public static Vec2 LEFT_TOP = new Vec2(0.0f, 0.0f);
-    public static Vec2 LEFT_BOTTOM = new Vec2(0.0f, 1.0f);
-    public static Vec2 RIGHT_TOP = new Vec2(1.0f, 0.0f);
-    public static Vec2 RIGHT_BOTTOM = new Vec2(1.0f, 1.0f);
+    public static final Vec2 ZERO = new Vec2(0, 0);
+    public static final Vec2 MIDDLE = new Vec2(0.5f, 0.5f);
+    public static final Vec2 LEFT_TOP = new Vec2(0.0f, 0.0f);
+    public static final Vec2 LEFT_BOTTOM = new Vec2(0.0f, 1.0f);
+    public static final Vec2 RIGHT_TOP = new Vec2(1.0f, 0.0f);
+    public static final Vec2 RIGHT_BOTTOM = new Vec2(1.0f, 1.0f);
 }

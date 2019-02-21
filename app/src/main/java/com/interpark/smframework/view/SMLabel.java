@@ -1,5 +1,6 @@
 package com.interpark.smframework.view;
 
+import android.graphics.Paint.Align;
 import android.util.Log;
 
 import com.interpark.smframework.IDirector;
@@ -12,35 +13,102 @@ import com.interpark.smframework.util.Vec2;
 
 public class SMLabel extends _UIContainerView {
 
-    private TextSprite _text = null;
+    private TextSprite _textSprite = null;
     private float _fontSize = 0.0f;
-    private Color4F _fontColor = new Color4F(0, 0, 0, 1);
-    private String _str = "";
+    private Color4F _fontColor = Color4F.TEXT_BLACK;
+    private String _text = "";
     private boolean _isSep = false;
     private SMView _letterConainerView = null;
     private SMLabel[] _letters = null;
+    private Align _align = Align.CENTER;
+    private boolean _bold = false;
+    private boolean _italic = false;
+    private boolean _strike = false;
+    private int _maxWidth = -1;
+    private int _maxLines = -1;
 
     public SMLabel(IDirector director) {
         super(director);
     }
 
+    public static SMLabel create(IDirector director, String text, float fontSize) {
+        return create(director, text, fontSize, Color4F.TEXT_BLACK);
+    }
     public static SMLabel create(IDirector director, String text, float fontSize, Color4F fontColor) {
+        return create(director, text, fontSize, fontColor, Align.CENTER);
+    }
+    public static SMLabel create(IDirector director, String text, float fontSize, Color4F fontColor, Align align) {
+        return create(director, text, fontSize, fontColor, align, false);
+    }
+    public static SMLabel create(IDirector director, String text, float fontSize, Color4F fontColor, Align align, boolean bold) {
+        return create(director, text, fontSize, fontColor, align, false, false);
+    }
+    public static SMLabel create(IDirector director, String text, float fontSize, Color4F fontColor, Align align, boolean bold, boolean italic) {
+        return create(director, text, fontSize, fontColor, align, false, false, false);
+    }
+    public static SMLabel create(IDirector director, String text, float fontSize, Color4F fontColor, Align align, boolean bold, boolean italic, boolean strike) {
+        return create(director, text, fontSize, fontColor, align, false, false, false, -1);
+    }
+    public static SMLabel create(IDirector director, String text, float fontSize, Color4F fontColor, Align align, boolean bold, boolean italic, boolean strike, int maxWidth) {
+        return create(director, text, fontSize, fontColor, align, false, false, false, -1, 1);
+    }
+    public static SMLabel create(IDirector director, String text, float fontSize, Color4F fontColor, Align align, boolean bold, boolean italic, boolean strike, int maxWidth, int maxLines) {
         SMLabel label = new SMLabel(director);
-        label.initWithFont(text, fontSize, fontColor);
+        label.initWithFont(text, fontSize, fontColor, align, bold, italic, strike, maxWidth, maxLines);
         return label;
     }
 
-    public static SMLabel create(IDirector director, String text, float fontSize, float textColorR, float textColorG, float textColorB, float textColorA) {
-        return create(director, text, fontSize, new Color4F(textColorR, textColorG, textColorB, textColorA));
+    public void initWithFont(final String text, final float fontSize, final Color4F fontColor, Align align, boolean bold, boolean italic, boolean strike, int maxWidth, int maxLines) {
+        _text = text;
+        _fontSize = fontSize;
+        _fontColor.set(fontColor);
+        _align = align;
+        _bold = bold;
+        _italic = italic;
+        _strike = strike;
+        _maxWidth = maxWidth;
+        _maxLines = maxLines;
+
+        makeTextSprite();
     }
 
-    public void initWithFont(final String text, final float fontSize, final Color4F fontColor) {
-        _str = text;
-        _fontSize = fontSize;
-        _fontColor = fontColor;
+    private void makeTextSprite() {
+        if (_textSprite!=null) {
+            _textSprite.releaseResources();
+        }
+        _textSprite = TextSprite.createTextSprite(getDirector(), _text, _fontSize, _align, _bold, _italic, _strike, _maxWidth, _maxLines);
+        setContentSize(new Size(_textSprite.getWidth(), _textSprite.getHeight()));
+    }
 
-        _text = TextSprite.createTextSprite(getDirector(), text, fontSize);
-        setContentSize(new Size(_text.getWidth(), _text.getHeight()));
+    public void setBold(boolean bold) {
+        if (_bold==bold) return;
+
+        _bold = bold;
+        makeTextSprite();
+    }
+
+    public void setItalic(boolean italic) {
+        if (_italic==italic) return;
+        _italic = italic;
+        makeTextSprite();
+    }
+
+    public void setStrike(boolean strike) {
+        if (_strike==strike) return;
+        _strike = strike;
+        makeTextSprite();
+    }
+
+    public void setMaxWidth(int maxWidth) {
+        if (_maxWidth==maxWidth) return;
+        _maxWidth = maxWidth;
+        makeTextSprite();
+    }
+
+    public void setMaxLines(int maxLines) {
+        if (_maxLines==maxLines) return;
+        _maxLines = maxLines;
+        makeTextSprite();
     }
 
     public void makeSeparate() {
@@ -49,7 +117,7 @@ public class SMLabel extends _UIContainerView {
     public void makeSeparate(boolean make) {
         _isSep = make;
 
-        int len = _str.length();
+        int len = _text.length();
 
         if (_letterConainerView!=null) {
             if (_letters!=null) {
@@ -76,7 +144,7 @@ public class SMLabel extends _UIContainerView {
             _letters = new SMLabel[len];
             float posX = 0.0f;
             for (int i=0; i<len; i++) {
-                String str = _text.getText().substring(i, i=1);
+                String str = _textSprite.getText().substring(i, i=1);
                 SMLabel letter = SMLabel.create(getDirector(), str, _fontSize, _fontColor);
                 letter.setAnchorPoint(Vec2.MIDDLE);
                 posX += letter.getContentSize().width/2;
@@ -89,17 +157,17 @@ public class SMLabel extends _UIContainerView {
     }
 
     public int getStringLength() {
-        return _str.length();
+        return _text.length();
     }
 
     public String getText() {
-        return _text.getText();
+        return _textSprite.getText();
     }
 
     public boolean isSeparateMode() {return _isSep;}
 
     public void setText(final String text) {
-        _text.setText(text);
+        _textSprite.setText(text);
     }
 
     public SMLabel getLetter(int index) {
@@ -108,6 +176,14 @@ public class SMLabel extends _UIContainerView {
         if (index>_letters.length-1) return null;
 
         return _letters[index];
+    }
+
+    public void setFontColor(final Color4F color) {
+        _fontColor.set(color);
+    }
+
+    public void setColor(final Color4F color) {
+        _fontColor.set(color);
     }
 
     @Override
@@ -124,7 +200,7 @@ public class SMLabel extends _UIContainerView {
     protected void render(float a) {
         if (_isSep) return;
         getDirector().setColor(_fontColor.r, _fontColor.g, _fontColor.b, _fontColor.a);
-        _text.draw(_text.getWidth()/2, _text.getHeight()/2);
+        _textSprite.draw(_textSprite.getWidth()/2, _textSprite.getHeight()/2);
     }
 
 }

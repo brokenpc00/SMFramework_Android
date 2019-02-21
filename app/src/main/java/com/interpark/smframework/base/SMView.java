@@ -1185,6 +1185,21 @@ public class SMView extends Ref {
         return x + getOriginX();
     }
 
+    public Vec2 convertToWorldSpace(final Vec2 nodePos) {
+
+        return new Vec2(getScreenX(nodePos.x), getScreenY(nodePos.y));
+    }
+
+    public Vec2 convertToNodeSpace(final Vec2 worldPos) {
+        float baseX = getScreenX();
+        float baseY = getScreenY();
+
+        float posX = worldPos.x - baseX;
+        float posY = worldPos.y - baseY;
+
+        return new Vec2(posX, posY);
+    }
+
     public float getScreenX(float posX) {
         float x = 0;
         if (_parent != null) {
@@ -3315,11 +3330,11 @@ public class SMView extends Ref {
     }
 
     public static double toRadians(double degrees) {
-        return ( degrees * Math.PI) / 180.0;
+        return ( degrees * M_PI) / 180.0;
     }
 
     public static double toDegrees(double radians) {
-        return ( radians * 180.0 ) / Math.PI ;
+        return ( radians * 180.0 ) / M_PI ;
     }
 
     public static int round(float value) {
@@ -3381,4 +3396,11 @@ public class SMView extends Ref {
         return new Color4B(r, g, b, a);
 
     }
+
+    public static final double M_PI = Math.PI;
+    public static final double M_PI_2 = Math.PI/2;
+    public static final double M_PI_4 = Math.PI/4;
+    public static final double M_1_PI = 1/Math.PI;
+    public static final double M_2_PI = 2/Math.PI;
+    public static final double M_PI_X_2 = M_PI * 2.0f;
 }

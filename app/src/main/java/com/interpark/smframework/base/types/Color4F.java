@@ -108,5 +108,25 @@ public class Color4F implements Cloneable {
     public static Color4F WHITE = new Color4F(1, 1, 1, 1);
     public static Color4F BLANK = new Color4F(0, 0, 0, 0);
     public static Color4F BLACK = new Color4F(0, 0, 0, 1);
+
+    public static Color4F XDBDCDF = SMView.MakeColor4F(0xdbdcdf, 1.0f);
+    public static Color4F XADAFB3 = SMView.MakeColor4F(0xadafb3, 1.0f);
+    public static Color4F XEEEFF1 = SMView.MakeColor4F(0xeeeff1, 1.0f);
+    public static Color4F X00A1E4 = SMView.MakeColor4F(0x00a1e4, 1.0f);
+
     public static Color4F TEXT_BLACK = SMView.MakeColor4F(0x222222, 1.0f);
+    public static Color4F ALARM_BADGE_RED = SMView.MakeColor4F(0xFF3A2F, 1.0f);
+    public static Color4F ALARM_BADGE_RED_DIM = SMView.MakeColor4F(0xD53128, 1.0f);
+    public static Color4F MINT = SMView.MakeColor4F(0x64dbd5, 1.0f);
+
+    public static Color4F TOAST_RED = SMView.MakeColor4F(0xFF3A2F, 0.95f);
+    public static Color4F TOAST_GRAY = SMView.MakeColor4F(0xADAFB3, 0.95f);
+    public static Color4F TOAST_GREEN = SMView.MakeColor4F(0x64DBD5, 0.95f);
+    public static Color4F TOAST_BLUE = SMView.MakeColor4F(0x4399FA, 0.95f);
+
+    public static Color4F NEGATIVE_BUTTON_NORMAL = SMView.MakeColor4F(0xADAFB3, 1.0f);
+    public static Color4F NEGATIVE_BUTTON_PRESSED = SMView.MakeColor4F(0x9A9CA1, 1.0f);
+    public static Color4F POSITIVE_BUTTON_NORMAL = SMView.MakeColor4F(0x494949, 1.0f);
+    public static Color4F POSITIVE_BUTTON_PRESSED = SMView.MakeColor4F(0x373737, 1.0f);
+
 }

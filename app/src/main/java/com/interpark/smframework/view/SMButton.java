@@ -297,7 +297,7 @@ public class SMButton extends _UIContainerView {
                 if (srcView==_iconView[0] && srcView instanceof SMImageView) {
                     // icon인 경우는 background color가 아니다.
                     SMImageView imageView = (SMImageView)srcView;
-                    imageView.setTintColor(srcColor.a, srcColor.g, srcColor.b, srcColor. a);
+                    imageView.setColor(srcColor);
                 } else {
                 srcView.setBackgroundColor(srcColor.r, srcColor.g, srcColor.b, srcColor.a);
                 }
@@ -309,7 +309,7 @@ public class SMButton extends _UIContainerView {
                 if (dstView==_iconView[1] && dstView instanceof SMImageView) {
                     // icon인 경우는 background color가 아니다.
                     SMImageView imageView = (SMImageView)dstView;
-                    imageView.setTintColor(dstColor.a, dstColor.g, dstColor.b, dstColor. a);
+                    imageView.setColor(dstColor);
                 } else {
                 dstView.setBackgroundColor(dstColor.r, dstColor.g, dstColor.b, dstColor.a);
                 }
@@ -338,7 +338,7 @@ public class SMButton extends _UIContainerView {
             if (srcView==_iconView[0] && srcView instanceof SMImageView) {
                 // icon인 경우는 background color가 아니다.
                 SMImageView imageView = (SMImageView)srcView;
-                imageView.setTintColor(rc.r, rc.g, rc.b, rc.a);
+                imageView.setColor(rc);
             } else {
             srcView.setBackgroundColor(rc.r, rc.g, rc.b, rc.a);
             }
@@ -412,20 +412,35 @@ public class SMButton extends _UIContainerView {
     public SMButton(IDirector director) {
         super(director);
         setPosition(0, 0);
+        setAnchorPoint(0, 0);
         setContentSize(new Size(0, 0));
         _style = STYLE.DEFAULT;
         setTag(0);
     }
 
+    public static SMButton create(IDirector director) {
+        return create(director, 0);
+    }
+    public static SMButton create(IDirector director, int tag) {
+        return create(director, tag, STYLE.DEFAULT);
+    }
+    public static SMButton create(IDirector director, int tag, STYLE style) {
+        return create(director, tag, style, 0, 0);
+    }
+    public static SMButton create(IDirector director, int tag, STYLE style, float x, float y) {
+        return create(director, tag, style, x, y, 0, 0);
+    }
     public static SMButton create(IDirector director, int tag, STYLE style, float x, float y, float width, float height) {
-        SMButton btn = new SMButton(director, tag, style, x, y, width, height);
+        return create(director, tag, style, x, y, width, height, 0, 0);
+    }
+    public static SMButton create(IDirector director, int tag, STYLE style, float x, float y, float width, float height, float anchorX, float anchorY) {
+        SMButton btn = new SMButton(director, tag, style, x, y, width, height, anchorX, anchorY);
         return btn;
     }
-
-    public SMButton(IDirector director, int tag, STYLE style, float x, float y, float width, float height) {
+    public SMButton(IDirector director, int tag, STYLE style, float x, float y, float width, float height, float anchorX, float anchorY) {
         this(director);
-//        setBounds(x, y, width, height);
         setPosition(x, y);
+        setAnchorPoint(anchorX, anchorY);
         setContentSize(new Size(width, height));
         _style = style;
         setTag(tag);
