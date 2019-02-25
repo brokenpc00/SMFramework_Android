@@ -1,9 +1,11 @@
 package com.interpark.app.scene;
 
+import android.graphics.ColorSpace;
 import android.transition.Scene;
 import android.util.Log;
 import android.view.MotionEvent;
 
+import com.interpark.app.menu.MenuBar;
 import com.interpark.app.menu.TopMenu;
 import com.interpark.smframework.IDirector;
 import com.interpark.smframework.NativeImageProcess.ImageProcessing;
@@ -54,6 +56,7 @@ import com.interpark.smframework.view.SMSolidCircleView;
 import com.interpark.smframework.view.SMSolidRectView;
 import com.interpark.smframework.view.SMSolidRoundRectView;
 import com.interpark.app.menu.TopMenu.TopMenuComponentType;
+import com.interpark.smframework.view.SMToastBar;
 
 import java.util.ArrayList;
 import java.util.ListIterator;
@@ -82,7 +85,8 @@ public class HellowInterparkScene extends SMScene {
 
     static boolean isBack = false;
 
-    private TopMenu _topMenu = null;
+    private MenuBar _menuBar = null;
+//    private TopMenu _topMenu = null;
     private SMView _contentView = null;
     private ArrayList<String> _menuNames = new ArrayList<>();
 
@@ -98,6 +102,7 @@ public class HellowInterparkScene extends SMScene {
         _contentView = SMView.create(getDirector(), 0, 0, s.width, s.height);
         _contentView.setBackgroundColor(AppConst.COLOR._WHITE);
         addChild(_contentView);
+
 
         _menuNames.add("Shapes");
         _menuNames.add("View");
@@ -120,6 +125,7 @@ public class HellowInterparkScene extends SMScene {
                     SMLabel title = SMLabel.create(getDirector(), str, 55, MakeColor4F(0x222222, 1.0f));
                     title.setAnchorPoint(Vec2.MIDDLE);
                     title.setPosition(new Vec2(s.width/2, cell.getContentSize().height/2));
+                    title.setTintAlpha(0.0f);
                     cell.addChild(title);
 
                     SMRoundLine line = SMRoundLine.create(getDirector());
@@ -145,6 +151,7 @@ public class HellowInterparkScene extends SMScene {
                                 case 1:
                                 {
                                     // view
+                                    _menuBar.showToast("test", Color4F.TOAST_RED, 2.0f);
                                 }
                                 break;
                                 case 2:
@@ -198,6 +205,15 @@ public class HellowInterparkScene extends SMScene {
 //        _tableView.setAnchorPoint(Vec2.MIDDLE);
 //        _tableView.setPosition(new Vec2(s.width/2, s.height/2+AppConst.SIZE.TOP_MENU_HEIGHT/2));
         _contentView.addChild(_tableView);
+        _contentView.setLocalZOrder(-10);
+
+        _menuBar = MenuBar.create(getDirector());
+        _menuBar.setMenuButtonType(MenuBar.MenuType.MENU, true);
+        _menuBar.setText("SMFrameWork", true);
+        _menuBar.setColorSet(MenuBar.ColorSet.TRANSULANT, true);
+        _menuBar.setLocalZOrder(999);
+        addChild(_menuBar);
+
 
         return true;
     }
@@ -205,45 +221,45 @@ public class HellowInterparkScene extends SMScene {
     @Override
     public void onEnter() {
         super.onEnter();
-        if (_topMenu==null) {
-            _topMenu = TopMenu.create(getDirector());
-            _contentView.addChild(_topMenu);
-
-            _topMenu.addMenuType(TopMenuComponentType.MENU);
-            SceneParams titleParam = new SceneParams();
-            titleParam.putString("MENU_TITLE", "SMFrameWork Lib.");
-            _topMenu.addMenuType(TopMenuComponentType.TITLE, titleParam);
-            _topMenu.generateMenu();
-
-
-            _topMenu._listener = new TopMenu.TopMenuClickListener() {
-                @Override
-                public void onTopMenuClick(TopMenuComponentType type) {
-                    switch (type) {
-                        case MENU:
-                        {
-                            SideMenu.OpenMenu(_mainScene);
-                        }
-                        break;
-                        case BACK:
-                        {
-
-                        }
-                        break;
-                        case HOME:
-                        {
-
-                        }
-                        break;
-                        default:
-                        {
-
-                        }
-                        break;
-                    }
-                }
-            };
-        }
+//        if (_topMenu==null) {
+//            _topMenu = TopMenu.create(getDirector());
+//            _contentView.addChild(_topMenu);
+//
+//            _topMenu.addMenuType(TopMenuComponentType.MENU);
+//            SceneParams titleParam = new SceneParams();
+//            titleParam.putString("MENU_TITLE", "SMFrameWork Lib.");
+//            _topMenu.addMenuType(TopMenuComponentType.TITLE, titleParam);
+//            _topMenu.generateMenu();
+//
+//
+//            _topMenu._listener = new TopMenu.TopMenuClickListener() {
+//                @Override
+//                public void onTopMenuClick(TopMenuComponentType type) {
+//                    switch (type) {
+//                        case MENU:
+//                        {
+//                            SideMenu.OpenMenu(_mainScene);
+//                        }
+//                        break;
+//                        case BACK:
+//                        {
+//
+//                        }
+//                        break;
+//                        case HOME:
+//                        {
+//
+//                        }
+//                        break;
+//                        default:
+//                        {
+//
+//                        }
+//                        break;
+//                    }
+//                }
+//            };
+//        }
     }
 
     public void openMenu() {

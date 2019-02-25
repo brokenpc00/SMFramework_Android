@@ -26,7 +26,7 @@ public class SMCircleView extends SMShapeView {
 
     public SMCircleView(IDirector director, final float linewidth, final Color4F color) {
         this(director, linewidth);
-        lineColor = color;
+        setTintColor(color);
     }
 
     @Override
@@ -35,26 +35,19 @@ public class SMCircleView extends SMShapeView {
     }
 
     public void setLineColor(final Color4F color) {
-        setBackgroundColor(color);
+        setTintColor(color);
     }
 
-    @Override
-    public void setBackgroundColor(final Color4F color) {
-        lineColor = color;
-    }
-
-    @Override
-    public void setBackgroundColor(float r, float g, float b, float a) {
-        lineColor = new Color4F(r, g, b, a);
-    }
-
+//    @Override
+//    public void updateTintColor() {
+//        lineColor.set(new Color4F(_tintColor));
+//    }
 
     protected PrimitiveCircle bgShape = null;
-    private Color4F lineColor = new Color4F(0, 0, 0, 1);
 
     @Override
     protected void render(float a) {
-        getDirector().setColor(lineColor.r, lineColor.g, lineColor.b, lineColor.a);
+        getDirector().setColor(_shapeColor.r*a, _shapeColor.g*a, _shapeColor.b*a, _shapeColor.a*a);
         float x = _contentSize.width/2;
         float y = _contentSize.height/2;
         float radius = _contentSize.width/2;

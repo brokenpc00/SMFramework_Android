@@ -33,9 +33,10 @@ public final class Size implements Cloneable  {
         return false;
     }
 
-    public void set(Size v) {
+    public Size set(Size v) {
         this.width = v.width;
         this.height = v.height;
+        return this;
     }
 
     public void set(float width, float height) {
@@ -85,6 +86,54 @@ public final class Size implements Cloneable  {
         Size intS = new Size();
         intS.set((int)this.width, (int)this.height);
         return intS;
+    }
+
+    public Size add(Size size) {
+        Size ret = new Size();
+        ret.setWidth(this.width + size.width);
+        ret.setHeight(this.height + size.height);
+        return ret;
+    }
+
+    public void addLocal(Size size) {
+        this.width += size.width;
+        this.height += size.height;
+    }
+
+    public Size minus(Size size) {
+        Size ret = new Size();
+        ret.setWidth(this.width-size.width);
+        ret.setHeight(this.height-size.height);
+        return ret;
+    }
+
+    public void minusLocal(Size size) {
+        this.width -= size.width;
+        this.height -= size.height;
+    }
+
+    public Size multiply(float r) {
+        Size ret = new Size();
+        ret.setWidth(this.width*r);
+        ret.setHeight(this.height*r);
+        return ret;
+    }
+
+    public void multiplyLocal(float r) {
+        this.width *= r;
+        this.height *= r;
+    }
+
+    public Size divide(float r) {
+        Size ret = new Size();
+        ret.setWidth(this.width/r);
+        ret.setHeight(this.height/r);
+        return ret;
+    }
+
+    public void divideLocal(float r) {
+        this.width /= r;
+        this.height /= r;
     }
 
     public boolean roundEqual(Size size) {

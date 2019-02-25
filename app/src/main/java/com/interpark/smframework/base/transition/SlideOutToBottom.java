@@ -31,7 +31,7 @@ public class SlideOutToBottom extends BaseSceneTransition {
             _dimLayer.setContentSize(new Size(getDirector().getWidth(), getDirector().getHeight()));
             _dimLayer.setAnchorPoint(new Vec2(0.5f, 0.5f));
             _dimLayer.setPosition(new Vec2(getDirector().getWinSize().width/2, getDirector().getWinSize().height/2));
-            _dimLayer.setBackgroundColor(new Color4F(0, 0, 0, 0));
+            _dimLayer.setTintColor(new Color4F(0, 0, 0, 0));
         }
 
         if (_isInSceneOnTop) {
@@ -50,7 +50,7 @@ public class SlideOutToBottom extends BaseSceneTransition {
                     _dimLayer.transformMatrix(_director.getProjectionMatrix());
                     _director.updateProjectionMatrix();
                     float alpha = 0.4f*_lastProgress;
-                    _dimLayer.setBackgroundColor(new Color4F(0, 0, 0, alpha));
+                    _dimLayer.setTintColor(new Color4F(0, 0, 0, alpha));
                     _dimLayer.renderFrame(a);
                 }
                 _director.popProjectionMatrix();
@@ -79,7 +79,8 @@ public class SlideOutToBottom extends BaseSceneTransition {
             _director.popProjectionMatrix();
 
             if (_lastProgress>0.0f && _lastProgress<1.0f && _dimLayer!=null) {
-                _dimLayer.setAlpha(0.4f * (1.0f-_lastProgress));
+//                _dimLayer.setTintAlpha(0.4f * (1.0f-_lastProgress));
+                _dimLayer.setTintColor(new Color4F(0, 0, 0, 0.4f * (1.0f-_lastProgress)));
                 _director.pushProjectionMatrix();
                 {
                     _dimLayer.transformMatrix(_director.getProjectionMatrix());

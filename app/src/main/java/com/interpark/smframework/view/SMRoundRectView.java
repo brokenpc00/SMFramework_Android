@@ -39,7 +39,8 @@ public class SMRoundRectView extends SMShapeView {
 
     public SMRoundRectView (IDirector director, float tickness, LineType type, float round, Color4F color) {
         this (director, tickness, type, round);
-        roundColor = color;
+//        roundColor = color;
+        setTintColor(color);
     }
 
     public void setLineWidth(float width) {
@@ -57,28 +58,34 @@ public class SMRoundRectView extends SMShapeView {
 
     @Override
     public void setBackgroundColor(final Color4F color) {
-        roundColor = color;
+        setTintColor(color);
     }
 
     @Override
     public void setBackgroundColor(float r, float g, float b, float a) {
-        roundColor = new Color4F(r, g, b, a);
+        setTintColor(r, g, b, a);
     }
 
+//    @Override
+//    public void updateTintColor() {
+//        roundColor.set(new Color4F(_tintColor));
+//    }
 
     public void setLineColor(Color4F color) {
-        roundColor = color;
+        setTintColor(color);
     }
 
     protected PrimitiveRoundRectLine bgShape = null;
     protected Texture lineTexture = null;
     private float mRound;
     private LineType mType = LineType.Solid;
-    private Color4F roundColor = new Color4F(0, 0, 0, 1);
+//    private Color4F roundColor = new Color4F(0, 0, 0, 1);
 
     @Override
     protected void render(float a) {
-        getDirector().setColor(roundColor.r, roundColor.g, roundColor.b, roundColor.a);
+//        getDirector().setColor(roundColor.r, roundColor.g, roundColor.b, roundColor.a);
+//        setRenderColor(a);
+        getDirector().setColor(_shapeColor.r*a, _shapeColor.g*a, _shapeColor.b*a, _shapeColor.a*a);
 
         bgShape.setSize(_contentSize.width, _contentSize.height, mRound);
 //        bgShape.drawRotate(_contentSize.width/2, _contentSize.height/2, 0);

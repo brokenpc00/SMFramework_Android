@@ -157,7 +157,7 @@ public class TransformAction extends DelayBaseAction {
         if (_alphaAction) {
             float alpha = SMView.interpolation(_fromAlpha, _toAlpha, t);
             alpha = Math.max(0.0f, Math.min(1.0f, alpha));
-            _target.setAlpha(alpha);
+            _target.setTintAlpha(alpha);
         }
 
         if (_positionXAction && _positionYAction) {

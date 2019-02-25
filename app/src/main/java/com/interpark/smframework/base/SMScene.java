@@ -167,6 +167,7 @@ public class SMScene extends SMView implements BackPressable {
         }
 
         if (init()) {
+            setCascadeAlphaEnable(true);
             return true;
         }
 

@@ -59,22 +59,28 @@ public final class Vec2 implements Cloneable {
         return aux;
     }
 
-    public void set(Vec2 v) {
+    public Vec2 set(Vec2 v) {
         this.x = v.x;
         this.y = v.y;
+
+        return this;
     }
 
-    public void set(float x, float y) {
+    public Vec2 set(float x, float y) {
         this.x = x;
         this.y = y;
+
+        return this;
     }
 
-    public void setX(float x) {
+    public float setX(float x) {
         this.x = x;
+        return this.x;
     }
 
-    public void setY(float y) {
+    public float setY(float y) {
         this.y = y;
+        return this.y;
     }
 
     public void offset(float x, float y) {

@@ -79,11 +79,11 @@ public class SMRoundLine extends SMSolidRoundRectView {
     }
 
     public void setLineColor(float r, float g, float b, float a) {
-        setBackgroundColor(r, g, b, a);
+        setTintColor(r, g, b, a);
     }
 
     public void setLineColor(final Color4F color) {
-        setBackgroundColor(color);
+        setTintColor(color);
     }
 
     public Vec2 getFromPosition() {return new Vec2(_x1, _y1);}

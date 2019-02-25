@@ -26,26 +26,33 @@ public class SMSolidRectView extends SMShapeView {
     protected PrimitiveRect bgShape = null;
 
     private float lineWidth = 1.0f;
-    private Color4F solidColor = new Color4F(0, 0, 0, 1);
+//    private Color4F solidColor = new Color4F(0, 0, 0, 1);
+
+//    @Override
+//    public void updateTintColor() {
+//        solidColor.set(new Color4F(_tintColor));
+//    }
 
     @Override
     public void setBackgroundColor(final float r, final float g, final float b, final float a) {
-        solidColor = new Color4F(r, g, b, a);
+        setTintColor(r, g, b, a);
     }
 
     @Override
     public void setBackgroundColor(final Color4F color) {
-        solidColor = color;
+        setTintColor(color);
     }
 
     public SMSolidRectView(IDirector director, Color4F solidcolor) {
         this(director);
-        solidColor = solidcolor;
+//        solidColor = solidcolor;
+        setTintColor(solidcolor);
     }
 
     @Override
     protected void render(float a) {
-        getDirector().setColor(solidColor.r, solidColor.g, solidColor.b, solidColor.a);
+        getDirector().setColor(_shapeColor.r*a, _shapeColor.g*a, _shapeColor.b*a, _shapeColor.a*a);
+//        getDirector().setColor(solidColor.r, solidColor.g, solidColor.b, solidColor.a);
         bgShape.drawScaleXY(0, 0, _contentSize.width, _contentSize.height);
     }
 }

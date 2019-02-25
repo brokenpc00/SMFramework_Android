@@ -99,15 +99,14 @@ public class SMView extends Ref {
 
     public int getLocalZOrder() {return _localZOrder;}
 
-    public void _setLocalZOrder(int zOrder) {
-        _localZOrderAndArrival = ((long)zOrder << 32) | (_localZOrderAndArrival & 0xffffffff);
-        _localZOrder = zOrder;
+    public void _setLocalZOrder(int z) {
+        _localZOrderAndArrival = ((long)(z) << 32) | (_localZOrderAndArrival & 0xffffffff);
+        _localZOrder = z;
     }
 
     protected static int s_globalOrderOfArrival = 0;
 
     public void updateOrderOfArrival() {
-//        s_globalOrderOfArrival = s_globalOrderOfArrival+1;
         _localZOrderAndArrival = (_localZOrderAndArrival & 0xffffffff00000000L) | (++s_globalOrderOfArrival);
     }
 
@@ -222,7 +221,7 @@ public class SMView extends Ref {
             _position.y = _realPosition.y = _newPosition.y;
             _positionZ = _realPosition.z = _newPosition.z;
 
-            _scale = _realScale = _newScale;
+            _scaleX = _scaleY = _scaleZ = _realScale = _newScale;
 
             _transformUpdated = true;
 
@@ -384,7 +383,10 @@ public class SMView extends Ref {
     protected float _rotationZ_Y = 0.0f;
 
     protected float _alpha = 1.0f;
-    protected float _scale = 1.0f;
+//    protected float _scale = 1.0f;
+    protected float _scaleX = 1.0f;
+    protected float _scaleY = 1.0f;
+    protected float _scaleZ = 1.0f;
 
     protected Vec2 _position = new Vec2(0, 0);
     protected float _positionZ = 0.0f;
@@ -398,7 +400,7 @@ public class SMView extends Ref {
     protected Size _contentSize = new Size(0, 0);
     protected boolean _contentSizeDirty = true;
 
-    protected float[] mBgColor, mNewBgColor;
+    protected float[] _bgColor, _newBgColor, _tintColor, _realTintColor;
 
 
 
@@ -469,6 +471,7 @@ public class SMView extends Ref {
         _actionManager = _director.getActionManager();
         _scheduler = _director.getScheduler();
         mScaledDoubleTouchSlope = ViewConfig.getScaledDoubleTouchSlop(director);
+        setCascadeAlphaEnable(true);
     }
 
     protected boolean init() {
@@ -616,8 +619,20 @@ public class SMView extends Ref {
 //        return _contentSize.height;
 //    }
 
+    public float getScaleX() {
+        return _scaleX;
+    }
+
+    public float getScaleY() {
+        return _scaleY;
+    }
+
+    public float getScaleZ() {
+        return _scaleZ;
+    }
+
     public float getScale() {
-        return _scale;
+        return _scaleX;
     }
 
     public float getLeft() {
@@ -637,6 +652,22 @@ public class SMView extends Ref {
     }
 
     public void setAlpha(float alpha) {setAlpha(alpha, true);}
+
+    public void setScaleX(float scale) {
+        if (_scaleX==scale) return;
+        _scaleX = scale;
+        _transformUpdated = _transformDirty =_inverseDirty = true;
+    }
+    public void setScaleY(float scale) {
+        if (_scaleY==scale) return;
+        _scaleY = scale;
+        _transformUpdated = _transformDirty =_inverseDirty = true;
+    }
+    public void setScaleZ(float scale) {
+        if (_scaleZ==scale) return;
+        _scaleZ = scale;
+        _transformUpdated = _transformDirty =_inverseDirty = true;
+    }
 
     public void setScale(float scale) {
         setScale(scale, true);
@@ -806,7 +837,7 @@ public class SMView extends Ref {
 
         if (immediate ) {
             _realScale = _newScale = scale;
-            _scale = scale * _animScale;
+            _scaleX = _scaleY = _scaleZ = scale * _animScale;
         } else {
             if (_newScale==scale) {
                 return;
@@ -1233,7 +1264,7 @@ public class SMView extends Ref {
         if (_parent != null) {
             scale = _parent.getScreenScale();
         }
-        return scale * _scale;
+        return scale * _scaleX;
     }
 
     public float getScreenAngleX() {
@@ -1293,8 +1324,8 @@ public class SMView extends Ref {
             // 현재 x, y, z를 입력하고
             android.opengl.Matrix.translateM(matrix, 0, x, y, z);
             // scale
-            if (_scale!=1.0f) {
-                android.opengl.Matrix.scaleM(matrix, 0, _scale, _scale, 1);
+            if (_scaleX!=1.0f || _scaleY!=1.0f || _scaleZ!=1.0f) {
+                android.opengl.Matrix.scaleM(matrix, 0, _scaleX, _scaleY, _scaleZ);
             }
 
             // rotate
@@ -1991,13 +2022,13 @@ public class SMView extends Ref {
 
     private final float[] sMapPoint = new float[2];
     protected boolean pointInView(final float x, final float y) {
-        if (_scale == 0)
+        if (_scaleX == 0)
             return false;
 
         sMatrix.reset();
         sMatrix.postTranslate(-_position.x, -_position.y);
-        if (_scale != 1) {
-            sMatrix.postScale(1/_scale, 1/_scale);
+        if (_scaleX != 1.0f || _scaleY!=1.0f) {
+            sMatrix.postScale(1/_scaleX, 1/_scaleY);
         }
         if (_rotationZ_X != 0) {
             sMatrix.postRotate(-_rotationZ_X);
@@ -2038,8 +2069,8 @@ public class SMView extends Ref {
     {
         sMatrix.reset();
         sMatrix.postTranslate(-view.getX()+view._anchorPointInPoints.x, -view.getY()+view._anchorPointInPoints.y);
-        if (view._scale != 1) {
-            sMatrix.postScale(1/view._scale, 1/view._scale);
+        if (view._scaleX != 1.0f || view._scaleY!=1.0f) {
+            sMatrix.postScale(1/view._scaleX, 1/view._scaleY);
         }
         if (view._rotationZ_X != 0) {
             sMatrix.postRotate(-view._rotationZ_X);
@@ -2423,7 +2454,7 @@ public class SMView extends Ref {
                 unscheduleSmoothUpdate(VIEWFLAG_SCALE);
             }
 
-            _scale = _realScale * _animScale;
+            _scaleX = _scaleY = _scaleZ = _realScale * _animScale;
 
             _transformUpdated = true;
         }
@@ -2507,6 +2538,7 @@ public class SMView extends Ref {
         }
     }
 
+    public void updateTintColor() {}
 
     public void renderFrame(float alpha) {
 
@@ -2526,8 +2558,8 @@ public class SMView extends Ref {
         // alpha는 여기서 쓰임...
         final float a = _alpha*alpha;
 
-        if (mNewBgColor != null) {
-            drawBackground(mBgColor[0]*a, mBgColor[1]*a, mBgColor[2]*a, mBgColor[3]*a);
+        if (_newBgColor != null) {
+            drawBackground(_bgColor[0]*a, _bgColor[1]*a, _bgColor[2]*a, _bgColor[3]*a);
         }
 
         if (_updateFlags>0) {
@@ -2542,15 +2574,18 @@ public class SMView extends Ref {
 
             Size scissorSize = new Size(0, 0);
             if (_scissorRect!=null) {
-                x = getScreenX(_scissorRect.origin.x);
-                y = getScreenY(_scissorRect.origin.y);
                 w = _scissorRect.size.width * scale;
                 h = _scissorRect.size.height * scale;
+
+                x = getScreenX(_scissorRect.origin.x);
+                // gl은 세로 좌표가 반대
+                y = _director.getWinSize().height - (getScreenY(_scissorRect.origin.y) + h);
             } else {
-                x = getScreenX();
-                y = _director.getHeight() - getScreenY() - _contentSize.height*scale;
                 w = _contentSize.width * scale;
                 h = _contentSize.height * scale;
+                x = getScreenX();
+                // gl은 세로 좌표가 반대
+                y = _director.getWinSize().height - (getScreenY() + h);
             }
 
             _targetScissorRect.setRect(x, y, w, h);
@@ -2565,7 +2600,6 @@ public class SMView extends Ref {
 
         render(a);
 
-//        visit(_director.getProjectionMatrix(), a);
         renderChildren(a);
 
         // override method...
@@ -2573,6 +2607,28 @@ public class SMView extends Ref {
 
         if (_scissorEnable) {
             enableScissorTest(false);
+        }
+    }
+
+    // clip to bounds
+    // child가 view를 벗어나는 부분은 그리지 않는다. (자른다)
+    public void enableScissorTest(boolean enable) {
+        if (enable) {
+
+            _director.enableScissorTest(true);
+            GLES20.glScissor((int)_targetScissorRect.origin.x, (int)_targetScissorRect.origin.y, (int)_targetScissorRect.size.width, (int)_targetScissorRect.size.height);
+        } else {
+            _director.enableScissorTest(false);
+        }
+    }
+
+    private Rect _targetScissorRect = new Rect();
+    private Rect _scissorRect = null;
+    public void setScissorRect(final Rect rect) {
+        if (_scissorRect==null) {
+            _scissorRect = new Rect(rect);
+        } else {
+            _scissorRect.setRect(rect);
         }
     }
 
@@ -2787,21 +2843,193 @@ public class SMView extends Ref {
             _position.x = x;
             _position.y = y;
             _positionZ = z;
-            _scale = scale;
+            _scaleX = _scaleY = _scaleZ = scale;
             _rotationX = angleX;
             _rotationY = angleY;
             _rotationZ_X = angleZ;
         }
     }
 
+    public Color4F getTintColor() {
+        if (_tintColor==null) {
+            _tintColor = new float[]{1, 1, 1, 1};
+        }
+        if (_realTintColor==null) {
+            _realTintColor = new float[]{1, 1, 1, 1};
+        }
+
+        return new Color4F(_realTintColor[0], _realTintColor[1], _realTintColor[2], _realAlpha);
+    }
+
+    protected boolean _cascadeColorEnabled = false;
+
+    public void setCascadeColorEnabled(boolean enable) {
+        if (_cascadeColorEnabled == enable)
+        {
+            return;
+        }
+
+        _cascadeColorEnabled = enable;
+
+        if (_cascadeColorEnabled)
+        {
+            updateCascadeColor();
+        }
+        else
+        {
+            disableCascadeColor();
+        }
+    }
+
+    public void disableCascadeColor()
+    {
+
+        for (SMView child : _children) {
+            child.updateDisplayedColor(Color4F.WHITE);
+        }
+    }
+
+    public void updateDisplayedColor(Color4F parentColor) {
+        if (_tintColor==null) {
+            _tintColor = new float[]{1, 1, 1, 1};
+        }
+        if (_realTintColor==null) {
+            _realTintColor = new float[]{1, 1, 1, 1};
+        }
+
+        _tintColor[0] = _realTintColor[0] * parentColor.r;
+        _tintColor[1] = _realTintColor[1] * parentColor.g;
+        _tintColor[2] = _realTintColor[2] * parentColor.b;
+        _tintColor[3] = _realTintColor[3] * parentColor.a;
+
+        updateTintColor();
+
+        if (_cascadeColorEnabled) {
+            for (SMView view : _children) {
+                view.updateDisplayedColor(new Color4F(_tintColor));
+            }
+        }
+    }
+
+    public boolean isCascadeColorEnabled() {return _cascadeColorEnabled;}
+
+    public void updateCascadeColor() {
+        Color4F parentColor = new Color4F(Color4F.WHITE);
+        if (_parent!=null && _parent.isCascadeColorEnabled()) {
+            parentColor = _parent.getTintColor();
+        }
+        updateDisplayedColor(parentColor);
+    }
+
+    public void setTintColor(float r, float g, float b, float a) {
+        if (_realTintColor==null) {
+            _realTintColor = new float[] {r, g, b, a};
+        } else {
+            _realTintColor[0] = r;
+            _realTintColor[1] = g;
+            _realTintColor[2] = b;
+            _realTintColor[3] = a;
+        }
+        if (_tintColor==null) {
+            _tintColor = new float[]{r, g, b, a};
+        } else {
+            _tintColor[0] = r;
+            _tintColor[1] = g;
+            _tintColor[2] = b;
+            _tintColor[3] = a;
+        }
+
+        setTintAlpha(a);
+
+        updateCascadeColor();
+    }
+
+    public void setTintColor(float[] color) {
+        if (color==null || color.length!=4) return;;
+
+        setTintColor(color[0], color[1], color[2], color[3]);
+    }
+
+    public void setTintColor(Color4F color) {
+        setTintColor(color.r, color.g, color.b, color.a);
+    }
+
+    public void setTintColor(Color4B color) {
+        setTintColor(new Color4F(color));
+    }
+
+    protected float _realTintAlpha = 1.0f;
+
+    public float getDisplayedAlpha() {return _tintColor[3];}
+    public float getTintAlpha() {return _realTintAlpha;}
+
+    public void setTintAlpha(float alpha) {
+        _tintColor[3] = _realTintAlpha = alpha;
+
+        updateCascadeAlpha();
+    }
+
+    public void updateCascadeAlpha() {
+        float parentAlpha = 1.0f;
+        if (_parent!=null && _parent.isCascadeColorEnabled()) {
+            parentAlpha = _parent.getDisplayedAlpha();
+        }
+        updateDisplayedAlpha(parentAlpha);
+    }
+
+    protected boolean _cascadeAlphaEnabled = false;
+    public boolean isCascadeAlphaEnabled() {
+        return _cascadeAlphaEnabled;
+    }
+    public void setCascadeAlphaEnable(boolean enable) {
+        if (_cascadeAlphaEnabled==enable) return;
+
+        _cascadeAlphaEnabled = enable;
+        if (enable) {
+            updateCascadeAlpha();
+        } else {
+            disableCascadeAlpha();
+        }
+    }
+
+    public void disableCascadeAlpha() {
+        _tintColor[3] = _realAlpha;
+        for (SMView child : _children) {
+            child.updateDisplayedAlpha(1.0f);
+        }
+    }
+
+    public void updateDisplayedAlpha(float alpha) {
+        if (_tintColor==null) {
+            _tintColor = new float[]{1, 1, 1, 1};
+        }
+        _tintColor[3] = _realAlpha * alpha;
+        updateTintColor();
+
+        if (_cascadeAlphaEnabled) {
+            for (SMView child : _children) {
+                child.updateDisplayedAlpha(_tintColor[3]);
+            }
+        }
+    }
+
+    protected void setRenderColor(float a) {
+        if (_tintColor==null) {
+            _tintColor = new float[]{1, 1, 1, 1};
+        }
+        getDirector().setColor(a*_tintColor[0], a*_tintColor[1], a*_tintColor[2], a*_tintColor[3]);
+    }
+
+//    public void updateTintAlph(){}
+
     public Color4F getBackgroundColor() {
-        if (mNewBgColor == null) {
-            mNewBgColor = new float[]{0, 0, 0, 0};
+        if (_newBgColor == null) {
+            _newBgColor = new float[]{1, 1, 1, 1};
         }
-        if (mBgColor == null) {
-            mBgColor = new float[]{0, 0, 0, 0};
+        if (_bgColor == null) {
+            _bgColor = new float[]{1, 1, 1, 1};
         }
-        return new Color4F(mBgColor[0], mBgColor[1], mBgColor[2], mBgColor[3]);
+        return new Color4F(_bgColor[0], _bgColor[1], _bgColor[2], _bgColor[3]);
     }
 
     public void setBackgroundColor(final Color4F color, final float changeDurationTime) {
@@ -2833,21 +3061,21 @@ public class SMView extends Ref {
 
 
     public void setBackgroundColor(float r, float g, float b, float a, boolean immediate) {
-        if (mNewBgColor == null) {
-            mNewBgColor = new float[]{ r, g, b, a };
+        if (_newBgColor == null) {
+            _newBgColor = new float[]{ r, g, b, a };
         } else {
-            mNewBgColor[0] = r;
-            mNewBgColor[1] = g;
-            mNewBgColor[2] = b;
-            mNewBgColor[3] = a;
+            _newBgColor[0] = r;
+            _newBgColor[1] = g;
+            _newBgColor[2] = b;
+            _newBgColor[3] = a;
         }
-        if (mBgColor == null) {
-            mBgColor = new float[]{ r, g, b, a };
+        if (_bgColor == null) {
+            _bgColor = new float[]{ r, g, b, a };
         } else if (immediate) {
-            mBgColor[0] = r;
-            mBgColor[1] = g;
-            mBgColor[2] = b;
-            mBgColor[3] = a;
+            _bgColor[0] = r;
+            _bgColor[1] = g;
+            _bgColor[2] = b;
+            _bgColor[3] = a;
         }
     }
 
@@ -2862,22 +3090,22 @@ public class SMView extends Ref {
 //        }
 //    }
 
-    private ColorAnimator mBgColorAni;
+    private ColorAnimator _animBgColor;
 
     public void setBackgroundColor(float r, float g, float b, float a, long changeMillis, long delayMillis) {
         if (changeMillis <= 0) {
             setBackgroundColor(r, g, b, a);
-            if (mBgColorAni != null) {
-                mBgColorAni.stop();
-                mBgColorAni = null;
+            if (_animBgColor != null) {
+                _animBgColor.stop();
+                _animBgColor = null;
             }
         } else {
-            if (mBgColorAni == null) {
-                mBgColorAni = new ColorAnimator(_director);
+            if (_animBgColor == null) {
+                _animBgColor = new ColorAnimator(_director);
             }
-            mBgColorAni.setBackgroundColor(mNewBgColor[0], mNewBgColor[1], mNewBgColor[2], mNewBgColor[3], r, g, b, a);
-            mBgColorAni.setView(this);
-//            startAnimation(mBgColorAni, changeMillis, delayMillis);
+            _animBgColor.setBackgroundColor(_newBgColor[0], _newBgColor[1], _newBgColor[2], _newBgColor[3], r, g, b, a);
+            _animBgColor.setView(this);
+//            startAnimation(_animBgColor, changeMillis, delayMillis);
         }
     }
 
@@ -3128,29 +3356,6 @@ public class SMView extends Ref {
         _scissorEnable = enable;
     }
 
-
-    // clip to bounds
-    // child가 view를 벗어나는 부분은 그리지 않는다. (자른다)
-    public void enableScissorTest(boolean enable) {
-        if (enable) {
-
-            _director.enableScissorTest(true);
-            GLES20.glScissor((int)_targetScissorRect.origin.x, (int)_targetScissorRect.origin.y, (int)_targetScissorRect.size.width, (int)_targetScissorRect.size.height);
-        } else {
-            _director.enableScissorTest(false);
-        }
-    }
-
-    private Rect _targetScissorRect = new Rect();
-    private Rect _scissorRect = null;
-    public void setScissorRect(final Rect rect) {
-        if (_scissorRect==null) {
-            _scissorRect = new Rect(rect);
-        } else {
-            _scissorRect.setRect(rect);
-        }
-    }
-
 //    private static final String CAPTURE_SCREEN = "_CAPTURE_SCREEN_";
 
     public Bitmap captureView() {
@@ -3255,7 +3460,9 @@ public class SMView extends Ref {
         Collections.sort(nodes, new Comparator<SMView>(){
             @Override
             public int compare(SMView a, SMView b) {
-                return a._localZOrder < b._localZOrder ? -1 : (a._localZOrder > b._localZOrder) ? 1 : 0;
+//                return a._localZOrder < b._localZOrder ? -1 : (a._localZOrder > b._localZOrder) ? 1 : 0;
+                return a._localZOrderAndArrival < b._localZOrderAndArrival ? -1 : (a._localZOrderAndArrival > b._localZOrderAndArrival) ? 1 : 0;
+                //_localZOrderAndArrival
 //                return a._localZOrder > b._localZOrder ? -1 : (a._localZOrder < b._localZOrder) ? 1 : 0;
             }
         });

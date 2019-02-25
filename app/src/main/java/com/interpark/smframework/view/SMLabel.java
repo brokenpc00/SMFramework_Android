@@ -15,7 +15,7 @@ public class SMLabel extends _UIContainerView {
 
     private TextSprite _textSprite = null;
     private float _fontSize = 0.0f;
-    private Color4F _fontColor = Color4F.TEXT_BLACK;
+//    private Color4F _fontColor = new Color4F(Color4F.TEXT_BLACK);
     private String _text = "";
     private boolean _isSep = false;
     private SMView _letterConainerView = null;
@@ -61,7 +61,8 @@ public class SMLabel extends _UIContainerView {
     public void initWithFont(final String text, final float fontSize, final Color4F fontColor, Align align, boolean bold, boolean italic, boolean strike, int maxWidth, int maxLines) {
         _text = text;
         _fontSize = fontSize;
-        _fontColor.set(fontColor);
+//        _fontColor.set(fontColor);
+        setTintColor(fontColor);
         _align = align;
         _bold = bold;
         _italic = italic;
@@ -145,7 +146,7 @@ public class SMLabel extends _UIContainerView {
             float posX = 0.0f;
             for (int i=0; i<len; i++) {
                 String str = _textSprite.getText().substring(i, i=1);
-                SMLabel letter = SMLabel.create(getDirector(), str, _fontSize, _fontColor);
+                SMLabel letter = SMLabel.create(getDirector(), str, _fontSize, new Color4F(_tintColor));
                 letter.setAnchorPoint(Vec2.MIDDLE);
                 posX += letter.getContentSize().width/2;
                 letter.setPosition(new Vec2(posX, _letterConainerView.getContentSize().height/2));
@@ -179,27 +180,34 @@ public class SMLabel extends _UIContainerView {
     }
 
     public void setFontColor(final Color4F color) {
-        _fontColor.set(color);
+        setTintColor(color);
     }
 
     public void setColor(final Color4F color) {
-        _fontColor.set(color);
+        setTintColor(color);
     }
+
+//    @Override
+//    public void updateTintColor() {
+//        _fontColor.set(new Color4F(_tintColor));
+//    }
 
     @Override
     public void setBackgroundColor(final Color4F color) {
-        _fontColor.set(color);
+        setTintColor(color);
     }
 
     @Override
     public void setBackgroundColor(float r, float g, float b, float a) {
-        _fontColor = new Color4F(r, g, b, a);
+        setTintColor(r, g, b, a);
     }
 
     @Override
     protected void render(float a) {
         if (_isSep) return;
-        getDirector().setColor(_fontColor.r, _fontColor.g, _fontColor.b, _fontColor.a);
+
+        setRenderColor(a);
+
         _textSprite.draw(_textSprite.getWidth()/2, _textSprite.getHeight()/2);
     }
 

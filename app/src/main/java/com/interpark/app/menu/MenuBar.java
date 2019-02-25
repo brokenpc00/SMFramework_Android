@@ -19,6 +19,7 @@ import com.interpark.smframework.util.AppConst;
 import com.interpark.smframework.util.Size;
 import com.interpark.smframework.util.Vec2;
 import com.interpark.smframework.util.tweenfunc;
+import com.interpark.smframework.view.RingWave;
 import com.interpark.smframework.view.SMButton;
 import com.interpark.smframework.view.SMImageView;
 import com.interpark.smframework.view.SMLabel;
@@ -31,8 +32,8 @@ import java.util.ArrayList;
 public class MenuBar extends SMView {
     public MenuBar(IDirector director) {
         super(director);
-        sDotMenu[0] = new DotPosition(new Vec2(-13, 13), new Vec2(-13, 13), AppConst.SIZE.DOT_DIAMETER);
-        sDotMenu[1] = new DotPosition(new Vec2(13, -13), new Vec2(13, -13), AppConst.SIZE.DOT_DIAMETER);
+        sDotMenu[0] = new DotPosition(new Vec2(-13, -13), new Vec2(-13, -13), AppConst.SIZE.DOT_DIAMETER);
+        sDotMenu[1] = new DotPosition(new Vec2(13, 13), new Vec2(13, 13), AppConst.SIZE.DOT_DIAMETER);
         sDotMenu[2] = new DotPosition(new Vec2(-13, 13), new Vec2(-13, 13), AppConst.SIZE.DOT_DIAMETER);
         sDotMenu[3] = new DotPosition(new Vec2(13, -13), new Vec2(13, -13), AppConst.SIZE.DOT_DIAMETER);
 
@@ -69,6 +70,12 @@ public class MenuBar extends SMView {
         setAnchorPoint(new Vec2(0, 0));
         setPosition(new Vec2(0, 0));
 
+//        _contentView = SMView.create(getDirector(), 0, 0, 0, getContentSize().width, getContentSize().height);
+//        _contentView.setBackgroundColor(Color4F.TOAST_RED);
+//        _contentView.setLocalZOrder(100);
+//        addChild(_contentView);
+
+
         _textContainer = TextContainerCreate(getDirector());
         _textContainer.setTag(menuTypeToInt(MenuType.DROPDOWN));
         _textContainer.setContentSize(0, AppConst.SIZE.MENUBAR_HEIGHT);
@@ -91,6 +98,8 @@ public class MenuBar extends SMView {
 
         _buttonContainer = SMView.create(getDirector());
         _buttonContainer.setContentSize(AppConst.SIZE.TOP_MENU_BUTTONE_SIZE, AppConst.SIZE.TOP_MENU_BUTTONE_SIZE);
+        _buttonContainer.setCascadeColorEnabled(true);
+        _buttonContainer.setCascadeAlphaEnable(true);
 
         for (int i=0; i<4; i++) {
             _menuLine[i] = SMRoundLine.create(getDirector());
@@ -256,6 +265,7 @@ public class MenuBar extends SMView {
 
 
 
+    protected SMView _contentView = null;
     protected SMImageView _dropdownButton = null;
     protected TextContainer _textContainer = null;
 
@@ -304,7 +314,7 @@ public class MenuBar extends SMView {
                 if (_menuImage==null) {
                     _menuImage = SMImageView.create(getDirector(), "images/ic_titlebar_notice.png");
                     _menuImage.setPosition(_buttonContainer.getContentSize().width/2, _buttonContainer.getContentSize().height/2);
-                    _menuImage.setColor(Color4F.TEXT_BLACK);
+                    _menuImage.setTintColor(Color4F.TEXT_BLACK);
                     _buttonContainer.addChild(_menuImage);
 
                     // if you need.. regist... ready to receiving
@@ -412,11 +422,12 @@ public class MenuBar extends SMView {
         if (_textLabel[_textIndex]==null) {
             _textLabel[_textIndex] = SMLabel.create(getDirector(), "", 40, Color4F.TEXT_BLACK, Paint.Align.CENTER, true);
             _textLabel[_textIndex].setAnchorPoint(Vec2.MIDDLE);
+            _textLabel[_textIndex].setCascadeAlphaEnable(true);
             _textContainer.stub[_textIndex].addChild(_textLabel[_textIndex]);
         }
 
         _textLabel[_textIndex].setText(textString);
-        _textLabel[_textIndex].setColor(_activeColorSet.TEXT);
+        _textLabel[_textIndex].setTintColor(_activeColorSet.TEXT);
         _textLabel[_textIndex].setVisible(false);
 
         updateTextPosition(dropdown);
@@ -610,13 +621,13 @@ public class MenuBar extends SMView {
 
                 if (_buttonTransType==ButtonTransition.ELASTIC) {
                     button.setScale(0);
-                    button.setAlpha(1.0f);
+                    button.setTintAlpha(1.0f);
                     ButtonAction buttonAction = ButtonActionCreate(getDirector());
                     buttonAction.setTag(AppConst.TAG.ACTION_MENUBAR_BUTTON);
                     buttonAction.setShow(this, delay);
                     button.runAction(buttonAction);
                 } else {
-                    button.setAlpha(0);
+                    button.setTintAlpha(0);
                     button.setScale(1);
                     ButtonFadeAction buttonFadeAction = ButtonFadeActionCreate(getDirector());
                     buttonFadeAction.setTag(AppConst.TAG.ACTION_MENUBAR_BUTTON);
@@ -666,7 +677,7 @@ public class MenuBar extends SMView {
             } else {
                 if (_dropdownButton == null) {
                     _dropdownButton = SMImageView.create(getDirector(), "images/arrow_bottom.png");
-                    _dropdownButton.setColor(_activeColorSet.TEXT);
+                    _dropdownButton.setTintColor(_activeColorSet.TEXT);
                     addChild(_dropdownButton);
                 }
                 if (dropdown == DropDown.UP) {
@@ -691,7 +702,7 @@ public class MenuBar extends SMView {
         boolean created = false;
         if (_dropdownButton == null) {
             _dropdownButton = SMImageView.create(getDirector(), "images/arrow_bottom.png");
-            _dropdownButton.setColor(_activeColorSet.TEXT);
+            _dropdownButton.setTintColor(_activeColorSet.TEXT);
             _dropdownButton.setVisible(false);
             _dropdownButton.setScale(0);
             addChild(_dropdownButton);
@@ -923,11 +934,11 @@ public class MenuBar extends SMView {
             for (int i = 0; i < 2; i++) {
                 SMButton button = _menuButtons[1 - _buttonIndex][i];
                 if (button!=null && button.isVisible()) {
-                    button.setAlpha(1-t);
+                    button.setTintAlpha(1-t);
                 }
                 button = _menuButtons[_buttonIndex][i];
                 if (button!=null && button.isVisible()) {
-                    button.setAlpha(t);
+                    button.setTintAlpha(t);
                 }
             }
         }
@@ -945,7 +956,7 @@ public class MenuBar extends SMView {
                 }
                 button = _menuButtons[_buttonIndex][i];
                 if (button!=null && button.isVisible()) {
-                    button.setAlpha(1);
+                    button.setTintAlpha(1);
                 }
             }
         }
@@ -968,7 +979,7 @@ public class MenuBar extends SMView {
                 }
                 button = _menuButtons[_buttonIndex][i];
                 if (button!=null && button.isVisible()) {
-                    button.setAlpha(1);
+                    button.setTintAlpha(1);
                 }
             }
         }
@@ -992,13 +1003,13 @@ public class MenuBar extends SMView {
         setBackgroundColor(colorSet.BG);
 
         if (_textLabel[0]!=null) {
-            _textLabel[0].setColor(colorSet.TEXT);
+            _textLabel[0].setTintColor(colorSet.TEXT);
         }
         if (_textLabel[1]!=null) {
-            _textLabel[1].setColor(colorSet.TEXT);
+            _textLabel[1].setTintColor(colorSet.TEXT);
         }
         if (_dropdownButton!=null) {
-            _dropdownButton.setColor(colorSet.TEXT);
+            _dropdownButton.setTintColor(colorSet.TEXT);
         }
 
         _mainButton.setButtonColor(STATE.NORMAL, colorSet.NORMAL);
@@ -1057,14 +1068,14 @@ public class MenuBar extends SMView {
                 _alarmCircle = SMSolidCircleView.create(getDirector());
 
                 _alarmCircle.setContentSize(new Size(12, 12));
-                _alarmCircle.setBackgroundColor(Color4F.ALARM_BADGE_RED);
+                _alarmCircle.setTintColor(Color4F.ALARM_BADGE_RED);
                 _alarmCircle.setAnchorPoint(Vec2.MIDDLE);
                 _alarmCircle.setPosition(73, 73);
                 _menuImage.addChild(_alarmCircle );
             }
         }
         if (_alarmCircle!=null) {
-            _alarmCircle.setAlpha(0);
+            _alarmCircle.setTintAlpha(0);
             _alarmCircle.stopAllActions();
             TransformAction a = TransformAction.create(getDirector());
             a.toAlpha(1).setTimeValue(0.2f, 0);
@@ -1072,8 +1083,7 @@ public class MenuBar extends SMView {
 
             if (effect) {
                 Size size = new Size(_alarmCircle.getContentSize());
-
-//                ViewAction::RingWave::show(_notiCircle, size.width/2, size.height/2, 50, 0.4, 0.1, (cocos2d::Color4F*)&ColorDef::NOTI_RED4F);
+                RingWave.show(getDirector(), _alarmCircle, size.width/2, size.height/2, 50, 0.4f, 0.1f, Color4F.ALARM_BADGE_RED);
             }
         }
     }
@@ -1082,34 +1092,9 @@ public class MenuBar extends SMView {
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     // for inner class
 
-    protected class ColorSet implements Cloneable {
+    public static class ColorSet implements Cloneable {
         public ColorSet() {
 
         }
@@ -1121,7 +1106,7 @@ public class MenuBar extends SMView {
             PRESS.set(press);
         }
 
-        public Color4F BG = Color4F.WHITE;
+        public Color4F BG = new Color4F(Color4F.WHITE);
         public Color4F TEXT = SMView.MakeColor4F(0x222222, 01.f);
         public Color4F NORMAL = SMView.MakeColor4F(0x222222, 01.f);
         public Color4F PRESS = SMView.MakeColor4F(0xadafb3, 01.f);
@@ -1141,11 +1126,11 @@ public class MenuBar extends SMView {
             return this;
         }
 
-        public final ColorSet WHITE = new ColorSet();
-        public final ColorSet WHITE_TRANSULANT = new ColorSet(new Color4F(1, 1, 1, 0.7f), SMView.MakeColor4F(0x222222, 01.f), SMView.MakeColor4F(0x222222, 01.f), SMView.MakeColor4F(0xadafb3, 01.f));
-        public final ColorSet BLACK = new ColorSet(SMView.MakeColor4F(0x222222, 01.f), Color4F.WHITE, Color4F.WHITE, SMView.MakeColor4F(0xadafb3, 01.f));
-        public final ColorSet NONE = new ColorSet(Color4F.WHITE, Color4F.WHITE, Color4F.WHITE, Color4F.WHITE);
-        public final ColorSet TRANSULANT = new ColorSet(new Color4F(1, 1, 1, 0), SMView.MakeColor4F(0x222222, 01.f), SMView.MakeColor4F(0x222222, 01.f), SMView.MakeColor4F(0xadafb3, 01.f));
+        public static final ColorSet WHITE = new ColorSet();
+        public static final ColorSet WHITE_TRANSULANT = new ColorSet(new Color4F(1, 1, 1, 0.7f), SMView.MakeColor4F(0x222222, 01.f), SMView.MakeColor4F(0x222222, 01.f), SMView.MakeColor4F(0xadafb3, 01.f));
+        public static final ColorSet BLACK = new ColorSet(SMView.MakeColor4F(0x222222, 01.f), Color4F.WHITE, Color4F.WHITE, SMView.MakeColor4F(0xadafb3, 01.f));
+        public static final ColorSet NONE = new ColorSet(Color4F.WHITE, Color4F.WHITE, Color4F.WHITE, Color4F.WHITE);
+        public static final ColorSet TRANSULANT = new ColorSet(new Color4F(1, 1, 1, 0), SMView.MakeColor4F(0x222222, 01.f), SMView.MakeColor4F(0x222222, 01.f), SMView.MakeColor4F(0xadafb3, 01.f));
     }
 
     public class DotPosition {
@@ -1183,8 +1168,9 @@ public class MenuBar extends SMView {
         protected boolean init() {
 
             stub[0] = new SMView(getDirector());
-
+            stub[0].setCascadeAlphaEnable(true);
             stub[1] = new SMView(getDirector());
+            stub[1].setCascadeAlphaEnable(true);
 
             return true;
         }
@@ -1301,18 +1287,18 @@ public class MenuBar extends SMView {
 
                 // alram bubble count
                 if (_fromType==MenuType.ALARM) {
-                    line.setAlpha(t);
+                    line.setTintAlpha(t);
                 } else if (_menuButtonType==MenuType.ALARM) {
-                    line.setAlpha(1-t);
+                    line.setTintAlpha(1-t);
                 }
             }
 
             if (_menuBar._menuImage!=null) {
                 // alram bubble count
                 if (_fromType==MenuType.ALARM) {
-                    _menuBar._menuImage.setAlpha(1-t);
+                    _menuBar._menuImage.setTintAlpha(1-t);
                 } else if (_menuButtonType==MenuType.ALARM) {
-                    _menuBar._menuImage.setAlpha(t);
+                    _menuBar._menuImage.setTintAlpha(t);
                 }
             }
         }
@@ -1509,7 +1495,7 @@ public class MenuBar extends SMView {
             } else {
                 if (_menuBar._textLabel[_toIndex]!=null) {
                     _menuBar._textLabel[_toIndex].setVisible(true);
-                    _menuBar._textLabel[_toIndex].setAlpha(1.0f);
+                    _menuBar._textLabel[_toIndex].setTintAlpha(1.0f);
                 }
             }
         }
@@ -1518,11 +1504,11 @@ public class MenuBar extends SMView {
         public void onUpdate(float t) {
             if (_fadeType) {
                 if (_menuBar._textLabel[1-_toIndex]!=null) {
-                    _menuBar._textLabel[1-_toIndex].setAlpha(1-t);
+                    _menuBar._textLabel[1-_toIndex].setTintAlpha(1-t);
                 }
 
                 if (_menuBar._textLabel[_toIndex]!=null) {
-                    _menuBar._textLabel[_toIndex].setAlpha(t);
+                    _menuBar._textLabel[_toIndex].setTintAlpha(t);
                 }
             } else {
                 t = tweenfunc.cubicEaseOut(t);
@@ -1542,7 +1528,7 @@ public class MenuBar extends SMView {
                                 if (letter!=null) {
                                     f = 1 - f;
                                     letter.setScale(f);
-                                    letter.setAlpha(f);
+                                    letter.setTintAlpha(f);
                                 }
                             }
                         }
@@ -1570,7 +1556,7 @@ public class MenuBar extends SMView {
                                     SMLabel letter = label.getLetter(i);
                                     if (letter!=null) {
                                         letter.setScale(0.5f + 0.5f*f);
-                                        letter.setAlpha(f);
+                                        letter.setTintAlpha(f);
                                     }
                                 }
                             }
@@ -1593,7 +1579,7 @@ public class MenuBar extends SMView {
                         SMLabel letter = label.getLetter(i);
                         if (letter!=null) {
                             letter.setScale(1);
-                            letter.setAlpha(1);
+                            letter.setTintAlpha(1);
                         }
                     }
                 } else {
@@ -1619,7 +1605,7 @@ public class MenuBar extends SMView {
                         SMLabel letter = label.getLetter(i);
                         if (letter!=null) {
                             letter.setScale(1);
-                            letter.setAlpha(1);
+                            letter.setTintAlpha(1);
                         }
                     }
                 } else {
@@ -1790,7 +1776,7 @@ public class MenuBar extends SMView {
         @Override
         public void onUpdate(float t) {
             float alpha = SMView.interpolation(_from, _to, t);
-            _target.setAlpha(alpha);
+            _target.setTintAlpha(alpha);
         }
 
         @Override

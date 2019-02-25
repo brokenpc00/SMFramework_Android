@@ -39,14 +39,14 @@ public class SMImageView extends _UIContainerView {
         FIT_CENTER,
     }
 
-    protected DrawNode mSprite;
+    protected boolean _iconVisible = true;
+    protected DrawNode _sprite = null;
     private ScaleType mScaleType = ScaleType.FIT_CENTER;
 
     private float mImageScale = 1f;
     private float mScaleX, mScaleY;
     private final RectF mContentsBounds;
-//    private float[] _spriteColor = null;
-    private Color4F _spriteColor = new Color4F(0, 0, 0, 0);
+//    private Color4F _spriteColor = new Color4F(0, 0, 0, 0);
 
     public static SMImageView create(IDirector director, String assetName) {
         SMImageView imageView = new SMImageView(director, assetName);
@@ -120,7 +120,7 @@ public class SMImageView extends _UIContainerView {
     }
 
     public void setSprite(DrawNode sprite, boolean fitBounds) {
-        mSprite = sprite;
+        _sprite = sprite;
         if (fitBounds) {
             fitSpriteBounds();
         } else {
@@ -147,13 +147,13 @@ public class SMImageView extends _UIContainerView {
     }
 
     public DrawNode getSprite() {
-        return mSprite;
+        return _sprite;
     }
 
     public void fitSpriteBounds() {
-        if (mSprite != null) {
+        if (_sprite != null) {
             setPosition(getX(), getY());
-            setContentSize(new Size(mSprite.getWidth(), mSprite.getHeight()));
+            setContentSize(new Size(_sprite.getWidth(), _sprite.getHeight()));
         }
     }
 
@@ -166,22 +166,23 @@ public class SMImageView extends _UIContainerView {
 
     @Override
     protected void render(float a) {
-        if (mSprite == null)
+        if (_sprite == null)
             return;
 
-        float x = mContentsBounds.left + mSprite.getCX()*mScaleX;
-        float y = mContentsBounds.top + mSprite.getCY()*mScaleY;
+        float x = mContentsBounds.left + _sprite.getCX()*mScaleX;
+        float y = mContentsBounds.top + _sprite.getCY()*mScaleY;
 
         drawImage(x, y, mScaleX*mImageScale, mScaleY*mImageScale, a);
     }
 
     protected void drawImage(float x, float y, float scaleX, float scaleY, float a) {
-        if (_spriteColor == null) {
+
+        if (_tintColor == null) {
             _director.setColor(a, a, a, a);
         } else {
-            _director.setColor(a*_spriteColor.r, a*_spriteColor.g, a*_spriteColor.b, a*_spriteColor.a);
+            _director.setColor(a*_tintColor[0], a*_tintColor[1], a*_tintColor[2], a*_tintColor[3]);
         }
-        mSprite.drawScaleXY(x, y, scaleX, scaleY);
+        _sprite.drawScaleXY(x, y, scaleX, scaleY);
     }
 
     public void computeContentsBounds() {
@@ -193,9 +194,9 @@ public class SMImageView extends _UIContainerView {
         final float vcy = 0;
         final float sw, sh;
 
-        if (mSprite != null) {
-            sw = mSprite.getWidth();
-            sh = mSprite.getHeight();
+        if (_sprite != null) {
+            sw = _sprite.getWidth();
+            sh = _sprite.getHeight();
         } else {
             sw = vw;
             sh = vh;
@@ -305,7 +306,8 @@ public class SMImageView extends _UIContainerView {
         }
     }
 
-    public void setColor(final Color4F color) {
-        _spriteColor.set(color);
-    }
+//    @Override
+//    public void updateTintColor() {
+//        _spriteColor.set(new Color4F(_tintColor));
+//    }
 }

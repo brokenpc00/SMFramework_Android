@@ -50,7 +50,7 @@ public class RingWave extends SMView {
         if (color!=null) {
             _circle.setLineColor(color);
         }
-        _circle.setAlpha(0);
+        _circle.setTintAlpha(0);
 
         Action action = null;
         EaseOut wave = EaseOut.create(getDirector(), WaveCircleActionCreate(getDirector(), duration, _circle, size), 2.0f);
@@ -85,7 +85,7 @@ public class RingWave extends SMView {
             float d = r1 - r2;
             float a = (float)(Math.sin(t*M_PI));
 
-            _shape.setAlpha(0.7f * a);
+            _shape.setTintAlpha(0.7f * a);
             _shape.setContentSize(new Size(r1, r2));
             _shape.setLineWidth(d / 4.0f);
 

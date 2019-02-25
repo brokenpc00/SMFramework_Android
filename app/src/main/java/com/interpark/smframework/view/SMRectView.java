@@ -26,27 +26,34 @@ public class SMRectView extends SMShapeView {
 
 //    private float xScale = 1.0f;
 //    private float yScale = 1.0f;
-    private Color4F outlineColor = new Color4F(0, 0, 0, 1);
+//    private Color4F outlineColor = new Color4F(0, 0, 0, 1);
 
     public SMRectView(IDirector director, Color4F outlinecolor) {
         this(director);
-        outlineColor = outlinecolor;
+//        outlineColor = outlinecolor;
+        setTintColor(outlinecolor);
     }
 
     public SMRectView(IDirector director, Color4F outlinecolor, float linewidth) {
         this(director);
-        outlineColor = outlinecolor;
+//        outlineColor = outlinecolor;
+        setTintColor(outlinecolor);
         _lineWidth = linewidth;
     }
 
+//    @Override
+//    public void updateTintColor() {
+//        outlineColor.set(new Color4F(_tintColor));
+//    }
+
     @Override
     public void setBackgroundColor(final float r, final float g, final float b, final float a) {
-        outlineColor = new Color4F(r, g, b, a);
+        setTintColor(r, g, b, a);
     }
 
     @Override
     public void setBackgroundColor(final Color4F color) {
-        outlineColor = color;
+        setTintColor(color);
     }
 
     @Override
@@ -56,7 +63,9 @@ public class SMRectView extends SMShapeView {
 
     @Override
     protected void render(float a) {
-        getDirector().setColor(outlineColor.r, outlineColor.g, outlineColor.b, outlineColor.a);
+//        setRenderColor(a);
+//        getDirector().setColor(outlineColor.r, outlineColor.g, outlineColor.b, outlineColor.a);
+        getDirector().setColor(_shapeColor.r*a, _shapeColor.g*a, _shapeColor.b*a, _shapeColor.a*a);
         GLES20.glLineWidth(_lineWidth);
         bgShape.drawScaleXY(0, 0, _contentSize.width, _contentSize.height);
     }

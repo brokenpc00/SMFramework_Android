@@ -1,10 +1,13 @@
 package com.interpark.smframework.view;
 
+import android.util.Log;
+
 import com.interpark.smframework.IDirector;
 import com.interpark.smframework.base.SMView;
 import com.interpark.smframework.base.types.Color4F;
 import com.interpark.smframework.base.types.SEL_SCHEDULE;
 import com.interpark.smframework.base.types.TransformAction;
+import com.interpark.smframework.util.AppConst;
 import com.interpark.smframework.util.Rect;
 import com.interpark.smframework.util.Size;
 import com.interpark.smframework.util.Vec2;
@@ -47,10 +50,10 @@ public class SMToastBar extends SMView {
     public void setMessage(String message, final Color4F color, float duration) {
         setVisible(true);
 
-        _labelIndex = (_labelIndex+1)%2;
+        _labelIndex = (_labelIndex + 1) % 2;
 
         if (_label[_labelIndex] == null) {
-            SMLabel l = SMLabel.create(getDirector(), message, FONT_SIZE, new Color4F(0, 0, 0, 1));
+            SMLabel l = SMLabel.create(getDirector(), message, FONT_SIZE, new Color4F(1, 1, 1, 1));
             l.setAnchorPoint(new Vec2(0.5f, 0.5f));
             _textContainer.addChild(l);
             _label[_labelIndex] = l;
@@ -67,7 +70,7 @@ public class SMToastBar extends SMView {
             _textContainer.setPosition(_contentSize.width/2, _contentSize.height/2);
 
             TransformAction a = TransformAction.create(getDirector());
-            a.toPositoinY(-reqHeight).setTweenFunc(tweenfunc.TweenType.Cubic_EaseOut);
+            a.toPositoinY(reqHeight).setTweenFunc(tweenfunc.TweenType.Cubic_EaseOut);
             a.setTimeValue(SHOW_TIME, 0);
             runAction(a);
         } else {
@@ -105,9 +108,9 @@ public class SMToastBar extends SMView {
             }
 
             // move bar position
-            if (getPositionY() != -reqHeight) {
+            if (getPositionY() != reqHeight) {
                 TransformAction moveY = TransformAction.create(getDirector());
-                moveY.toPositoinY(-reqHeight).setTweenFunc(tweenfunc.TweenType.Back_EaseOut);
+                moveY.toPositoinY(reqHeight).setTweenFunc(tweenfunc.TweenType.Back_EaseOut);
                 moveY.setTimeValue(MOVE_TIME, 0);
                 runAction(moveY);
             }
@@ -124,7 +127,7 @@ public class SMToastBar extends SMView {
         TransformAction action = TransformAction.create(getDirector());
         action.toAlpha(1).toScale(1).setTweenFunc(tweenfunc.TweenType.Back_EaseOut);
         action.setTimeValue(0.2f, 0.1f);
-        _label[_labelIndex].setAlpha(0.0f);
+        _label[_labelIndex].setTintAlpha(0.0f);
         _label[_labelIndex].setScale(0.8f);
         _label[_labelIndex].runAction(action);
     }
@@ -153,8 +156,8 @@ public class SMToastBar extends SMView {
     public void renderFrame(float alpha) {
         if (!_visible) return;
 
-        setScissorRect(new Rect(0, 0, _contentSize.width, -getPositionY()));
-
+        float reqHeight = Math.max(MIN_HEIGHT, _label[_labelIndex].getContentSize().height + PADDING*2);
+        setScissorRect(new Rect(0, reqHeight, _contentSize.width, getPositionY()));
         super.renderFrame(alpha);
     }
 
@@ -165,6 +168,8 @@ public class SMToastBar extends SMView {
         setContentSize(s.width, 0);
 
         _textContainer = SMView.create(getDirector());
+        _textContainer.setAnchorPoint(Vec2.MIDDLE);
+        _textContainer.setCascadeAlphaEnable(true);
         addChild(_textContainer);
 
 
