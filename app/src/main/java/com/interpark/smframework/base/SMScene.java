@@ -2,8 +2,10 @@ package com.interpark.smframework.base;
 
 import android.content.Intent;
 import android.util.Log;
+import android.view.Menu;
 import android.view.MotionEvent;
 
+import com.interpark.app.menu.MenuBar;
 import com.interpark.smframework.IDirector;
 import com.interpark.smframework.base.transition.SlideInToLeft;
 import com.interpark.smframework.base.transition.SlideInToTop;
@@ -14,6 +16,8 @@ import com.interpark.smframework.util.AppConst;
 import com.interpark.smframework.util.BackPressable;
 import com.interpark.smframework.util.Size;
 import com.interpark.smframework.util.Vec2;
+
+import java.util.ArrayList;
 
 public class SMScene extends SMView implements BackPressable {
 
@@ -71,38 +75,6 @@ public class SMScene extends SMView implements BackPressable {
         SWIPE_OUT
     }
 
-//    public static SMScene create(IDirector director) {
-//        SMScene scene = new SMScene(director);
-//        if (scene!=null) {
-//            scene.init();
-//        }
-//        return scene;
-//    }
-//
-//    public static SMScene createWithSize(IDirector director, Size size) {
-//        SMScene scene = new SMScene(director);
-//        if (scene!=null) {
-//            scene.initWithSize(size);
-//        }
-//
-//        return scene;
-//    }
-
-//    public SMScene(IDirector director) {
-//        super(director);
-//        setAnchorPoint(new Vec2(0.5f, 0.5f));
-//
-//    }
-
-//    public static SMScene create(IDirector director) {
-//        SMScene scene = new SMScene(director);
-//        if (scene!=null) {
-//            scene.init();
-//        }
-//
-//        return scene;
-//    }
-
     public static SMScene createWithSize(IDirector director, Size size) {
         SMScene scene = new SMScene(director);
         if (scene!=null) {
@@ -149,11 +121,12 @@ public class SMScene extends SMView implements BackPressable {
 //    }
 
     // Intent하고 같은거.. 직접 구현..
-    private SceneParams _sceneResult;
-    private SceneParams _sceneParam;
+    protected SceneParams _sceneResult = null;
+    protected SceneParams _sceneParam = null;
 
-    protected SMView _rootView;
-    private SwipeType _swipeType;
+    protected SMView _rootView = null;
+    protected SwipeType _swipeType = SwipeType.NONE;
+
 
     protected boolean initWithSceneParams(SceneParams params, SwipeType type) {
         Size size = new Size(getDirector().getWidth(), getDirector().getHeight());
@@ -240,6 +213,13 @@ public class SMScene extends SMView implements BackPressable {
         _rootView = newRootView;
     }
 
+    public boolean isMainMenuEnable() {return _mainMenuEnable;}
+    public void setMainMenuEnable(boolean enable) {_mainMenuEnable = enable;}
+
+    public void onResetScene() {}
+
+    protected boolean _mainMenuEnable = false;
+
 
     public void setSceneResult(SceneParams result) {
         _sceneResult = result;
@@ -254,6 +234,8 @@ public class SMScene extends SMView implements BackPressable {
     public void onTransitionStart(final Transition t, final int tag) {}
 
     public void onTransitionComplete(final Transition t, final int tag) {}
+
+    public void onTransitionReplaceSceneDidFinish(){}
 
     public boolean canSwipe(final Vec2 point, final SwipeType type) {return true;}
 
@@ -357,13 +339,6 @@ public class SMScene extends SMView implements BackPressable {
         getDirector().popSceneWithTransition(transition);
     }
 
-//    @Override
-//    public void onInitView() {
-//        setPosition(0, 0);
-//        setContentSize(getDirector().getWidth(), getDirector().getHeight());
-//
-////        setBounds(0, 0, getDirector().getWidth(), getDirector().getHeight());
-//    }
 
     /**
      * Scene의 활성 상태
@@ -377,17 +352,6 @@ public class SMScene extends SMView implements BackPressable {
         mState = state;
     }
 
-    public int getState() {
-        return mState;
-    }
-
-    @Override
-    public int dispatchTouchEvent(MotionEvent ev) {
-        if (isActivate()) {
-            return super.dispatchTouchEvent(ev);
-        }
-        return SMView.TOUCH_FALSE;
-    }
 
     /**
      * Back press 이벤트 처리
@@ -407,13 +371,6 @@ public class SMScene extends SMView implements BackPressable {
     }
 
 
-    @Override
-    protected void updateChildren() {
-        if (mState != STATE_PAUSED) {
-            super.updateChildren();
-        }
-    }
-
     public SceneParams getSceneResult() {
         return _sceneResult;
     }
@@ -422,50 +379,7 @@ public class SMScene extends SMView implements BackPressable {
         return _sceneParam;
     }
 
-//    @Override
-//    public void showComplete() {
-//        super.showComplete();
-//        setState(STATE_ACTIVATE);
-//    }
 
-//    @Override
-//    public void hideComplete() {
-//        super.hideComplete();
-//
-//        if (mState == STATE_FINISHING) {
-//            getDirector().popScene(this);
-//        } else {
-//            setState(STATE_PAUSED);
-//            onPause();
-//        }
-//    }
-
-    @Override
-    public void show() {
-        super.show();
-        // scene 보임, 메뉴 처리등.
-    }
-    @Override
-    public void show(long durationMillis, long delayMillis) {
-        super.show(durationMillis, delayMillis);
-        // scene 보임
-    }
-
-    @Override
-    public void hide() {
-        super.hide();
-        // scene 안 보임
-    }
-
-    @Override
-    public void hide(long durationMillis, long delayMillis) {
-        super.hide(durationMillis, delayMillis);
-        // scene 안 보임
-    }
-
-//    @Override
-//    public void onActionBarClick(SMView view) {
-//    }
 
     public void onActivityResult(final int requestCode, final int resultCode, final Intent data) {
     }

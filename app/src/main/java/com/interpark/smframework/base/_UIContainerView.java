@@ -17,6 +17,13 @@ public class _UIContainerView extends SMView {
     public SMView getUIContainer() {return _uiContainer;}
     protected SMView _uiContainer = null;
 
+    protected void setSMViewContentSize(final float width, final float height) {
+        setSMViewContentSize(new Size(width, height));
+    }
+    protected void setSMViewContentSize(final Size size) {
+        super.setContentSize(size);
+    }
+
     @Override
     public void setContentSize(final Size size) {
         Size innerSize = new Size(size.width()-_paddingLeft-_paddingRight, size.height()-_paddingTop-_paddingBottom);

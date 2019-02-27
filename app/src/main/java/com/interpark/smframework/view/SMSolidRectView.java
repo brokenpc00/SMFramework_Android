@@ -50,9 +50,8 @@ public class SMSolidRectView extends SMShapeView {
     }
 
     @Override
-    protected void render(float a) {
-        getDirector().setColor(_shapeColor.r*a, _shapeColor.g*a, _shapeColor.b*a, _shapeColor.a*a);
-//        getDirector().setColor(solidColor.r, solidColor.g, solidColor.b, solidColor.a);
+    protected void draw(float a) {
+        super.draw(a);
         bgShape.drawScaleXY(0, 0, _contentSize.width, _contentSize.height);
     }
 }

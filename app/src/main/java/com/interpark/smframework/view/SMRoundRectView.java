@@ -82,13 +82,10 @@ public class SMRoundRectView extends SMShapeView {
 //    private Color4F roundColor = new Color4F(0, 0, 0, 1);
 
     @Override
-    protected void render(float a) {
-//        getDirector().setColor(roundColor.r, roundColor.g, roundColor.b, roundColor.a);
-//        setRenderColor(a);
-        getDirector().setColor(_shapeColor.r*a, _shapeColor.g*a, _shapeColor.b*a, _shapeColor.a*a);
+    protected void draw(float a) {
+        super.draw(a);
 
         bgShape.setSize(_contentSize.width, _contentSize.height, mRound);
-//        bgShape.drawRotate(_contentSize.width/2, _contentSize.height/2, 0);
         bgShape.drawRotate(_contentSize.width/2, _contentSize.height/2, 0);
     }
 

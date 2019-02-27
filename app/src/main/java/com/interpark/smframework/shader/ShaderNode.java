@@ -24,7 +24,7 @@ public class ShaderNode extends SMView {
     public final float DEFAULT_ANTI_ALIAS_WIDTH = 1.5f;
 
     @Override
-    public void render(float a) {
+    protected void draw(float a) {
 
     }
 

@@ -17,6 +17,10 @@ public class SMRoundLine extends SMSolidRoundRectView {
         return line;
     }
 
+    public void line(final Vec2 from, final Vec2 to) {
+        line(from.x, from.y, to.x, to.y);
+    }
+
     public void line(float x1, float y1, float x2, float y2) {
         if (_x1 != x1 || _x2 != x2 || _y1 != y1 || _y2 != y2) {
 
@@ -27,10 +31,6 @@ public class SMRoundLine extends SMSolidRoundRectView {
 
             updateLineShape();
         }
-    }
-
-    public void line(final Vec2 from, final Vec2 to) {
-        line(from.x, from.y, to.x, to.y);
     }
 
     public void moveTo(float x, float y) {
@@ -70,9 +70,10 @@ public class SMRoundLine extends SMSolidRoundRectView {
         }
     }
 
+    @Override
     public void setLineWidth(float lineWidth) {
         if (lineWidth != _lineWidth) {
-            _lineWidth = lineWidth;
+            super.setLineWidth(lineWidth);
             updateLineShape();
         }
 
@@ -91,7 +92,7 @@ public class SMRoundLine extends SMSolidRoundRectView {
     public Vec2 getToPosition() {return new Vec2(_x2, _y2);}
 
     @Override
-    protected void render(float a) {
+    protected void draw(float a) {
         if (_dirty) {
             updateLineShape();
         }
@@ -99,14 +100,14 @@ public class SMRoundLine extends SMSolidRoundRectView {
         if (_lineWidth == 0)
             return;
 
-        super.render(a);
+        super.draw(a);
     }
 
     private void updateLineShape() {
         float dx = _x2 - _x1;
         float dy = _y2 - _y1;
         float length = (float)Math.sqrt(dx*dx + dy*dy) * _lineScale;
-        float degrees = -(float)(Math.atan2(dy, dx) * 180.0 / Math.PI); // to degrees
+        float degrees = (float)(Math.atan2(dy, dx) * 180.0f / M_PI); // to degrees
 
         setCornerRadius(_lineWidth/2);
         super.setContentSize(new Size(length + _lineWidth, _lineWidth));
@@ -127,7 +128,6 @@ public class SMRoundLine extends SMSolidRoundRectView {
     private float _y2 = 0;
     private float _lineScale = 1.0f;
     private boolean _dirty = false;
-    private float _lineWidth;
 
     @Override
     public void setCornerRadius(float cornerRadius) {

@@ -1,6 +1,11 @@
 package com.interpark.smframework.util;
 
 public final class Vec3 implements Cloneable  {
+    public static final float MATH_FLOAT_SMALL = 1.0e-37f;
+    public static final float MATH_TOLERANCE = 2e-37f;
+    public static final float MATH_PIOVER2 = 1.57079632679489661923f;
+    public static final float MATH_EPSILON = 0.000001f;
+
     public float x;
     public float y;
     public float z;
@@ -9,6 +14,10 @@ public final class Vec3 implements Cloneable  {
         this.x = v.x;
         this.y = v.y;
         this.z = v.z;
+    }
+
+    public Vec3(Vec3 p1, Vec3 p2) {
+        set(p1, p2);
     }
 
     public Vec3() {
@@ -52,15 +61,29 @@ public final class Vec3 implements Cloneable  {
     }
 
     public void set(Vec3 r) {
-        this.x = r.x();
-        this.y = r.y();
-        this.z = r.z();
+        this.x = r.x;
+        this.y = r.y;
+        this.z = r.z;
+    }
+
+    public void set(Vec3 p1, Vec3 p2) {
+        this.x = p2.x - p1.x;
+        this.y = p2.y - p1.y;
+        this.z = p2.z - p1.z;
     }
 
     public void set(float[] val) {
         this.x = val[0];
         this.y = val[1];
         this.z = val[2];
+    }
+
+    public float length() {
+        return (float) Math.sqrt(x * x + y * y + z * z);
+    }
+
+    public float lengthSquared() {
+        return (x * x + y * y + z * z);
     }
 
     public float magnitude() {
@@ -73,7 +96,34 @@ public final class Vec3 implements Cloneable  {
     }
 
     public float dot(Vec3 r) {
-        return this.x*r.x() + this.y*r.y() + this.z*r.z();
+        return (this.x*r.x + this.y*r.y + this.z*r.z);
+    }
+
+    public static float dot(Vec3 v1, Vec3 v2) {
+        return (v1.x*v2.x + v1.y*v2.y + v1.z*v2.z);
+    }
+
+    public void normalize() {
+        float n = x * x + y * y + z * z;
+        // Already normalized.
+        if (n == 1.0f)
+            return;
+
+        n = (float) Math.sqrt(n);
+        // Too close to zero.
+        if (n < MATH_TOLERANCE)
+            return;
+
+        n = 1.0f / n;
+        x *= n;
+        y *= n;
+        z *= n;
+    }
+
+    public Vec3 getNormalize() {
+        Vec3 v = new Vec3(this);
+        v.normalize();
+        return v;
     }
 
     public Vec3 add(Vec3 r) {
@@ -98,6 +148,10 @@ public final class Vec3 implements Cloneable  {
         return ret;
     }
 
+    public Vec3 lerp(final Vec3 target, float alpha) {
+        return this.multiply(1.0f-alpha).add(target.multiply(alpha));
+    }
+
     public void scaleLocal(float v) {
         this.x *= v;
         this.y *= v;
@@ -116,6 +170,14 @@ public final class Vec3 implements Cloneable  {
         this.x -= r.x();
         this.y -= r.y();
         this.z -= r.z();
+    }
+
+    public static void minus(final Vec3 v1, final Vec3 v2, Vec3 dst) {
+        assert (dst!=null);
+
+        dst.x = v1.x-v2.x;
+        dst.y = v1.y-v2.y;
+        dst.z = v1.z-v2.z;
     }
 
     public Vec3 multiply(float r) {

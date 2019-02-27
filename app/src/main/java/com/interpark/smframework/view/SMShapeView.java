@@ -1,12 +1,13 @@
 package com.interpark.smframework.view;
 
 import com.interpark.smframework.IDirector;
+import com.interpark.smframework.base.SMView;
 import com.interpark.smframework.base._UIContainerView;
 import com.interpark.smframework.base.types.Color4F;
 import com.interpark.smframework.util.Size;
 import com.interpark.smframework.util.Vec2;
 
-public class SMShapeView extends _UIContainerView {
+public class SMShapeView extends SMView {
     public SMShapeView(IDirector director) {
         super(director);
     }
@@ -100,6 +101,11 @@ public class SMShapeView extends _UIContainerView {
             _shapeColor = new Color4F(Color4F.BLANK);
         }
         _shapeColor.set(_tintColor);
+    }
+
+    @Override
+    protected void draw(float a) {
+        getDirector().setColor(_shapeColor.r*a, _shapeColor.g*a, _shapeColor.b*a, _shapeColor.a*a);
     }
 
     protected Color4F _shapeColor = new Color4F(Color4F.BLANK);

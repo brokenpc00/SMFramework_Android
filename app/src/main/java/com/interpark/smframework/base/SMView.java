@@ -16,9 +16,6 @@ import android.view.View;
 
 import com.interpark.smframework.IDirector;
 import com.interpark.smframework.NativeImageProcess.ImageProcessing;
-import com.interpark.smframework.base.animator.AlphaAnimator;
-import com.interpark.smframework.base.animator.Animator;
-import com.interpark.smframework.base.animator.ColorAnimator;
 import com.interpark.smframework.base.sprite.CanvasSprite;
 import com.interpark.smframework.base.types.Action;
 import com.interpark.smframework.base.types.ActionManager;
@@ -29,12 +26,10 @@ import com.interpark.smframework.base.types.Ref;
 import com.interpark.smframework.base.types.Scheduler;
 import com.interpark.smframework.base.types.SEL_SCHEDULE;
 import com.interpark.smframework.util.AppConst;
-import com.interpark.smframework.util.MotionEventHelper;
 import com.interpark.smframework.util.Rect;
 import com.interpark.smframework.util.Size;
 import com.interpark.smframework.util.Vec2;
 import com.interpark.smframework.util.Vec3;
-import com.interpark.smframework.view.SMButton;
 import com.interpark.smframework.view.ViewConfig;
 
 import java.nio.ByteBuffer;
@@ -42,9 +37,7 @@ import java.nio.ByteOrder;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-
-import androidx.work.Worker;
-import androidx.work.WorkerParameters;
+import java.util.ListIterator;
 
 
 public class SMView extends Ref {
@@ -205,7 +198,6 @@ public class SMView extends Ref {
     }
 
     public void cleanup() {
-        this.stopAllAnimation();
         for (final SMView child : _children) {
             child.cleanup();
         }
@@ -288,15 +280,14 @@ public class SMView extends Ref {
     protected float mStateAlpha = 0;
 
 
-    public STATE mPressState = STATE.NORMAL;
+    public STATE _pressState = STATE.NORMAL;
 
     protected void onStateChangePressToNormal(MotionEvent event) {}
     protected void onStateChangeNormalToPress(MotionEvent event) {}
 
     private void stateChangePressToNormal(MotionEvent event) {
-        if (mPressState==STATE.PRESSED) {
+        if (_pressState==STATE.PRESSED) {
             setState(STATE.NORMAL);
-//            mPressState = STATE.NORMAL;
 
             // for Override
             onStateChangePressToNormal(event);
@@ -304,9 +295,9 @@ public class SMView extends Ref {
             // for listener
             if (mOnStateChangeListener != null) {
                 if (_eventTargetStateChange!=null) {
-                    mOnStateChangeListener.onStateChange(_eventTargetStateChange, mPressState);
+                    mOnStateChangeListener.onStateChange(_eventTargetStateChange, _pressState);
                 } else {
-                    mOnStateChangeListener.onStateChange(this, mPressState);
+                    mOnStateChangeListener.onStateChange(this, _pressState);
                 }
             }
 
@@ -316,9 +307,8 @@ public class SMView extends Ref {
 
 
     private void stateChangeNormalToPress(MotionEvent event) {
-        if (mPressState==STATE.NORMAL) {
+        if (_pressState==STATE.NORMAL) {
             setState(STATE.PRESSED);
-//            mPressState = STATE.PRESSED;
 
             // for Override
             onStateChangeNormalToPress(event);
@@ -326,21 +316,13 @@ public class SMView extends Ref {
             // for listener
             if (mOnStateChangeListener != null) {
                 if (_eventTargetStateChange!=null) {
-                    mOnStateChangeListener.onStateChange(_eventTargetStateChange, mPressState);
+                    mOnStateChangeListener.onStateChange(_eventTargetStateChange, _pressState);
                 } else {
-                    mOnStateChangeListener.onStateChange(this, mPressState);
+                    mOnStateChangeListener.onStateChange(this, _pressState);
                 }
             }
         }
     }
-
-
-    // show / hide listener
-    public static interface OnShowHideCompleteListener {
-        public void onShowComplete();
-        public void onHideComplete();
-    }
-    private OnShowHideCompleteListener mOnShowHideCompleteListener;
 
 
     private int mId;
@@ -403,13 +385,6 @@ public class SMView extends Ref {
     protected float[] _bgColor, _newBgColor, _tintColor, _realTintColor;
 
 
-
-    private float outlineWidth = 0.0f;
-    protected float[] mLineColor, mNewLineColor;
-
-    private float cornerRadius = 0.0f;
-
-
     public static final int VISIBLE = View.VISIBLE;
     public static final int INVISIBLE = View.INVISIBLE;
 
@@ -429,8 +404,8 @@ public class SMView extends Ref {
     private boolean mLongClickable = false;
     private boolean mDoubleClickable = false;
 
-    private Animator mShowAnimator, mHideAnimator;
-    private ArrayList<Animator> mAnimator;
+//    private Animator mShowAnimator, mHideAnimator;
+//    private ArrayList<Animator> mAnimator;
     private float mScaledDoubleTouchSlope;
 
     public static SMView create(IDirector director) {
@@ -483,11 +458,6 @@ public class SMView extends Ref {
         setId(id);
     }
 
-//    public SMView(IDirector director, float x, float y, float width, float height, float cx, float cy) {
-//        this(director);
-//        setBounds(x, y, width, height, cx, cy);
-//    }
-
     public SMView(IDirector director, float x, float y, float width, float height) {
         this(director);
         setPosition(x, y);
@@ -501,10 +471,6 @@ public class SMView extends Ref {
     public Context getContext() {
         return _director.getContext();
     }
-
-//    public void setBounds(float x, float y, float width, float height) {
-//        setBounds(x, y, width, height, 0, 0);
-//    }
 
     public void setContentSize(Size size) {
         setContentSize(size, true);
@@ -532,13 +498,6 @@ public class SMView extends Ref {
         return _contentSize;
     }
 
-//    public Size getContentSize() {
-//        Size size = new Size();
-//        size.setWidth(_contentSize.width);
-//        size.setHeight(_contentSize.height);
-//        return size;
-//    }
-
     public void setWidth(float width) {
         _contentSize.width = width;
     }
@@ -546,12 +505,6 @@ public class SMView extends Ref {
     public void setHeight(float height) {
         _contentSize.height = height;
     }
-
-//    public void setBounds(float x, float y, float width, float height, float cx, float cy) {
-//        setPosition(x, y);
-//        setContentSize(width, height);
-//        setAnchorPoint(Vec2.ZERO);
-//    }
 
     public boolean isInitialized() {
         return true;
@@ -611,14 +564,6 @@ public class SMView extends Ref {
         return new Vec2(pos);
     }
 
-//    public float getWidth() {
-//        return _contentSize.width;
-//    }
-//
-//    public float getHeight() {
-//        return _contentSize.height;
-//    }
-
     public float getScaleX() {
         return _scaleX;
     }
@@ -672,12 +617,6 @@ public class SMView extends Ref {
     public void setScale(float scale) {
         setScale(scale, true);
     }
-
-//    public void setScale(float scaleX, float scaleY) {
-//        setScale(scaleX, scaleY, true);
-//    }
-
-//    public float getRotation() {return _rotationZ_X;}
 
     public float getRotationX() {return _rotationX;}
 
@@ -775,10 +714,11 @@ public class SMView extends Ref {
     public void setRotationZ(float rotateZ, boolean immediate) {
         if (immediate) {
             _realRotation.z = _newPosition.z = rotateZ;
-            float rotaion = rotateZ + _animRotation.z;
-            _rotationZ_X = _rotationZ_Y = rotaion;
+            float rotation = rotateZ + _animRotation.z;
+            if (_rotationZ_X!=rotation) {
+                _rotationZ_X = _rotationZ_Y = rotation;
             _transformUpdated = _transformDirty = _inverseDirty = true;
-
+            }
         } else {
             if (_newRotation.z==rotateZ) {
                 return;
@@ -822,7 +762,8 @@ public class SMView extends Ref {
 
         if (immediate ) {
             _realAlpha = _newAlpha = alpha;
-            _alpha = alpha * _animAlpha;
+            _bgColor[3] =_alpha = alpha * _animAlpha;
+
         } else {
             if (_newAlpha==alpha) {
                 return;
@@ -1008,7 +949,7 @@ public class SMView extends Ref {
     public void setAnchorPoint(Vec2 point) {
 //        setAnchorPoint(point, true);
         if (!point.equals(_anchorPoint)) {
-            _anchorPoint = point;
+            _anchorPoint.set(point);
             _anchorPointInPoints.set(_contentSize.width*_anchorPoint.x, _contentSize.height*_anchorPoint.y);
             _transformUpdated = true;
         }
@@ -1178,25 +1119,6 @@ public class SMView extends Ref {
         }
     }
 
-//    public float getScreenX() {
-//        float x = 0;
-//        if (_parent != null) {
-//            x = _parent.getScreenX();
-//            return x + _parent.getScale()*_position.x;
-//        }
-//        return x + _position.x;
-//    }
-//
-//
-//    public float getScreenY() {
-//        float y = 0;
-//        if (_parent != null) {
-//            y = _parent.getScreenY();
-//            return y + _parent.getScale()*_position.y;
-//        }
-//        return y + _position.y;
-//    }
-
     public float getOriginX() {
         return _position.x - _anchorPointInPoints.x;
     }
@@ -1356,214 +1278,27 @@ public class SMView extends Ref {
 
 
 
-    // show & hide & animator
-    protected int mVisibleState = VISIBLE;
-
     public void setVisible(boolean visible) {
-        setVisibility(visible?VISIBLE:INVISIBLE);
+        if (_visible!=visible) {
+            _visible = visible;
+            if (_visible) {
+                _transformUpdated = _transformDirty = _inverseDirty = true;
+        }
     }
+
+            }
     public boolean isVisible() {
-        return mVisibleState==VISIBLE;
+        return _visible;
     }
 
-//    public int getVisibility() {
-//        return mVisibleState;
-//    }
-
-    private void setVisibility(int visibility) {
-        if (mVisibleState == visibility)
-            return;
-        mVisibleState = visibility;
-        if (mShowAnimator != null) {
-            mShowAnimator.stop();
-        }
-        if (mHideAnimator != null) {
-            mHideAnimator.stop();
-        }
-        _alpha = _newAlpha = (visibility==VISIBLE?1:0);
-    }
-
-    public void show() {
-        if (mVisibleState == VISIBLE)
-            return;
-
-        if (mShowAnimator == null) {
-            show(ANIM_TIME_SHOW, 0);
-            return;
-        } else if (mShowAnimator.hasStarted()) {
-            return;
-        }
-
-        if (mHideAnimator != null && mHideAnimator.hasStarted()) {
-            mHideAnimator.stop();
-        }
-
-        mVisibleState = VISIBLE;
-//		_newAlpha = 0;
-
-        mShowAnimator.setView(this).setRemoveSelf(false).start();
-    }
-
-    public void show(long durationMillis, long delayMillis) {
-        if (mVisibleState == VISIBLE)
-            return;
-
-        if (mShowAnimator == null) {
-            mShowAnimator = new AlphaAnimator(_director, 0, 1);
-        } else if (mShowAnimator.hasStarted()) {
-            return;
-        }
-        if (mHideAnimator != null && mHideAnimator.hasStarted()) {
-            mHideAnimator.stop();
-        }
-
-        mVisibleState = VISIBLE;
-        _newAlpha = 0;
-
-        mShowAnimator.setView(this).setDuration(durationMillis).setDelay(delayMillis).setRemoveSelf(false).start();
-    }
-
-    public void hide() {
-        if (mVisibleState == INVISIBLE)
-            return;
-        if (mHideAnimator == null) {
-            hide(ANIM_TIME_HIDE, 0);
-            return;
-        } else if (mHideAnimator.hasStarted()) {
-            return;
-        }
-        if (mShowAnimator != null && mShowAnimator.hasStarted()) {
-            mShowAnimator.stop();
-        }
-
-        mVisibleState = INVISIBLE;
-        _newAlpha = 1;
-
-        mHideAnimator.setView(this).setRemoveSelf(false).start();
-    }
-
-    public void hide(long durationMillis, long delayMillis) {
-        if (mVisibleState == INVISIBLE)
-            return;
-
-        if (mHideAnimator == null) {
-            mHideAnimator = new AlphaAnimator(_director, 1, 0);
-        } else if (mHideAnimator.hasStarted()) {
-            return;
-        }
-        if (mShowAnimator != null && mShowAnimator.hasStarted()) {
-            mShowAnimator.stop();
-        }
-
-        mVisibleState = INVISIBLE;
-        _newAlpha = 1;
-
-        mHideAnimator.setView(this).setDuration(durationMillis).setDelay(delayMillis).setRemoveSelf(false).start();
-    }
-
-    public void setShowAnimator(Animator animator) {
-        mShowAnimator = animator;
-        mShowAnimator.setView(this);
-    }
-
-    public void setHideAnimator(Animator animator) {
-        mHideAnimator = animator;
-        mHideAnimator.setView(this);
-    }
-
-    public void startAnimation(Animator animator) {
-        if (animator != null) {
-            animator.setView(this);
-            if (addAnimator(animator)) {
-                animator.start();
-            }
-        }
-    }
-
-    public void startAnimation(Animator animator, long durationMillis, long delayMillis) {
-        if (animator != null) {
-            animator.setView(this).setDuration(durationMillis).setDelay(delayMillis);
-            if (addAnimator(animator)) {
-                animator.start();
-            }
-        }
-    }
-
-    public void stopAllAnimation() {
-        if (mShowAnimator != null) {
-            mShowAnimator.stop();
-        }
-        if (mHideAnimator != null) {
-            mHideAnimator.stop();
-        }
-        if (mAnimator != null) {
-            mAnimator.clear();
-        }
-        if (_children != null) {
-            int numChildCount = getChildCount();
-            for (int i = 0; i < numChildCount; i++) {
-                SMView child = getChild(i);
-                child.stopAllAnimation();
-            }
-        }
-    }
-
-
-    public boolean addAnimator(Animator animator) {
-        if (animator != null) {
-            if (mAnimator == null) {
-                mAnimator = new ArrayList<Animator>();
-            }
-            if (!mAnimator.contains(animator)) {
-                mAnimator.add(animator);
-                return true;
-            }
-        }
-        return false;
-    }
-
-    public void removeAnimator(Animator animator) {
-        if (animator != null && mAnimator != null) {
-            mAnimator.remove(animator);
-            if (mAnimator.size() == 0) {
-                mAnimator = null;
-            }
-        }
-    }
-
-    public boolean isShown() {
-        SMView current = this;
-        do {
-            if (current.mVisibleState != VISIBLE) {
-                return false;
-            }
-            SMView parent = current._parent;
-            if (parent == null) {
-                return false;
-            }
-            if (parent instanceof SMScene) {
-                return true;
-            }
-            current = current._parent;
-        } while (current != null);
-
-        return false;
-    }
-
-
+    private boolean _enabled = true;
     public boolean isEnabled() {
-        return mIsEnable;
+        return _enabled;
     }
-
     public void setEnabled(boolean enabled) {
-        if (mIsEnable == enabled)
+        if (_enabled == enabled)
             return;
-        mIsEnable = enabled;
-        // TODO : enable 변경 처리 필요
-    }
-
-    public void setOnShowHideCompleteListener(OnShowHideCompleteListener listener) {
-        mOnShowHideCompleteListener= listener;
+        _enabled = enabled;
     }
 
 
@@ -1710,7 +1445,7 @@ public class SMView extends Ref {
             }
         }
         if (mLongClickable) {
-            // 나 떨고 있니???
+            // for vibrator
 //            ((Vibrator)_director.getContext().getSystemService(Context.VIBRATOR_SERVICE)).vibrate(25);
         }
     }
@@ -1795,10 +1530,6 @@ public class SMView extends Ref {
         child._setLocalZOrder(z);
         child.onAddToParent(this);
     }
-
-//    protected void setTouchMotionTarget(SMView view) {
-//        _touchMotionTarget = view;
-//    }
 
     public void removeFromParent() {
         if (getParent()!=null) {
@@ -2369,7 +2100,8 @@ public class SMView extends Ref {
                 unscheduleSmoothUpdate(VIEWFLAG_COLOR);
             }
 
-            _alpha = _realAlpha * _animAlpha;
+            _bgColor[3] = _alpha = _realAlpha * _animAlpha;
+
 
             _transformUpdated = true;
         }
@@ -2515,9 +2247,9 @@ public class SMView extends Ref {
 
 
 
-    public boolean isVisibleAnimation() {
-        return (mShowAnimator != null && mShowAnimator.hasStarted()) || (mHideAnimator != null && mHideAnimator.hasStarted());
-    }
+//    public boolean isVisibleAnimation() {
+//        return (mShowAnimator != null && mShowAnimator.hasStarted()) || (mHideAnimator != null && mHideAnimator.hasStarted());
+//    }
 
     public void update(float dt) {}
 
@@ -2530,36 +2262,64 @@ public class SMView extends Ref {
         }
     }
 
-    protected void updateChildren() {
-        int idx = 0;
-
-        if (_children != null) {
-            sortAllChildren();
-        }
-    }
-
     public void updateTintColor() {}
 
-    public void renderFrame(float alpha) {
+    public void visit(float a) {
 
-        updateChildren();
+        if (!_visible) {
+            return;
+        }
 
+        _director.pushProjectionMatrix();
+        transformMatrix(_director.getProjectionMatrix());
+        _director.updateProjectionMatrix();
+
+        // base property... draw first me...
+        renderOwn(a);
+
+
+        // and children
+        int i = 0;
+
+        if (_children.size()>0) {
+            sortAllChildren();
+
+            for (int size = _children.size(); i<size; ++i) {
+                SMView view = _children.get(i);
+
+                if (view!=null && view._localZOrder<0) {
+                    view.visit(a);
+                } else break;
+    }
+
+            draw(a);
+
+            ListIterator<SMView> iter = _children.listIterator(i);
+            while (iter.hasNext()) {
+                SMView child = iter.next();
+                child.visit(a);
+            }
+        } else {
+            draw(a);
+        }
+
+        _director.popProjectionMatrix();
+
+        }
+
+    private void renderOwn(float  alpha) {
         if (_scissorEnable) {
             enableScissorTest(true);
         }
 
-        if (mVisibleState != VISIBLE && !isVisibleAnimation()) {
-            return;
-        }
-
-        if (_alpha < .01f)
+        if (_alpha < .001f)
             return;
 
         // alpha는 여기서 쓰임...
         final float a = _alpha*alpha;
 
         if (_newBgColor != null) {
-            drawBackground(_bgColor[0]*a, _bgColor[1]*a, _bgColor[2]*a, _bgColor[3]*a);
+            drawBackground(_bgColor[0]*a, _bgColor[1]*a, _bgColor[2]*a, a);
         }
 
         if (_updateFlags>0) {
@@ -2598,17 +2358,13 @@ public class SMView extends Ref {
 
         }
 
-        render(a);
-
-        renderChildren(a);
-
-        // override method...
-        renderOverlay(a);
-
         if (_scissorEnable) {
             enableScissorTest(false);
         }
     }
+
+    protected void draw(float a) { }
+
 
     // clip to bounds
     // child가 view를 벗어나는 부분은 그리지 않는다. (자른다)
@@ -2676,21 +2432,7 @@ public class SMView extends Ref {
         return true;
     }
 
-    protected void renderChildren(float a) {
-        if (_children != null) {
-            int numChildCount = getChildCount();
-            for (int i = 0; i < numChildCount; i++) {
-                SMView child = getChild(i);
-                if (child.isVisible() || child.isVisibleAnimation()) {
-                    _director.pushProjectionMatrix();
-                    child.transformMatrix(_director.getProjectionMatrix());
-                    _director.updateProjectionMatrix();
-                    child.renderFrame(a);
-                    _director.popProjectionMatrix();
-                }
-            }
-        }
-    }
+
 
     protected void drawBackground(float r, float g, float b, float a) {
         _director.setColor(r, g, b, a);
@@ -2718,21 +2460,6 @@ public class SMView extends Ref {
     }
 
     protected void onUpdateOnVisit(){};
-    protected void onSmoothRender(final long flag, float dt) {};
-    protected void render(float a) {};
-    protected void renderOverlay(float a) {};
-
-    public void showComplete() {
-        if (mOnShowHideCompleteListener != null) {
-            mOnShowHideCompleteListener.onShowComplete();
-        }
-    }
-
-    public void hideComplete() {
-        if (mOnShowHideCompleteListener != null) {
-            mOnShowHideCompleteListener.onHideComplete();
-        }
-    }
 
     protected boolean _touchTargeted = false;
 
@@ -2758,7 +2485,6 @@ public class SMView extends Ref {
     }
 
     public void cancel() {
-
 
         if (_children != null) {
             int numChildCount = getChildCount();
@@ -3020,7 +2746,7 @@ public class SMView extends Ref {
         getDirector().setColor(a*_tintColor[0], a*_tintColor[1], a*_tintColor[2], a*_tintColor[3]);
     }
 
-//    public void updateTintAlph(){}
+//    public void updateTintAlpha(){}
 
     public Color4F getBackgroundColor() {
         if (_newBgColor == null) {
@@ -3071,51 +2797,19 @@ public class SMView extends Ref {
         }
         if (_bgColor == null) {
             _bgColor = new float[]{ r, g, b, a };
+            _alpha = a;
         } else if (immediate) {
             _bgColor[0] = r;
             _bgColor[1] = g;
             _bgColor[2] = b;
-            _bgColor[3] = a;
+            _bgColor[3] = _alpha = a;
         }
     }
-
-//    public void setAlpha(float alpha) {
-//        setAlpha(alpha, true);
-//    }
-//
-//    public void setAlpha(float alpha, boolean immediate) {
-//        _newAlpha = alpha;
-//        if (immediate) {
-//            _alpha = alpha;
-//        }
-//    }
-
-    private ColorAnimator _animBgColor;
-
-    public void setBackgroundColor(float r, float g, float b, float a, long changeMillis, long delayMillis) {
-        if (changeMillis <= 0) {
-            setBackgroundColor(r, g, b, a);
-            if (_animBgColor != null) {
-                _animBgColor.stop();
-                _animBgColor = null;
-            }
-        } else {
-            if (_animBgColor == null) {
-                _animBgColor = new ColorAnimator(_director);
-            }
-            _animBgColor.setBackgroundColor(_newBgColor[0], _newBgColor[1], _newBgColor[2], _newBgColor[3], r, g, b, a);
-            _animBgColor.setView(this);
-//            startAnimation(_animBgColor, changeMillis, delayMillis);
-        }
-    }
-
-
 
     public void releaseGLResources() {}
 
     private long _touchMask = 0;
     private long _smoothFlags;
-    private boolean _enabled;
 
     private Vec2 _lastTouchLocation = new Vec2(0, 0);
 
@@ -3314,7 +3008,7 @@ public class SMView extends Ref {
         float f = 0;
         if (mStateChangeAni) {
             long time = _director.getTickCount() - mStateChangeTime;
-            if (STATE.NORMAL == mPressState) {
+            if (STATE.NORMAL == _pressState) {
                 f = (float)time/TIME_PRESSED_TO_NORMAL;
             } else {
                 f = (float)time/TIME_NORMAL_TO_PRESSED;
@@ -3323,24 +3017,24 @@ public class SMView extends Ref {
                 f = 1;
                 mStateChangeAni = false;
             }
-            if (STATE.NORMAL == mPressState) {
+            if (STATE.NORMAL == _pressState) {
                 f = 1f-f;
             }
         } else {
-            f = STATE.NORMAL == mPressState ? 0 : 1;
+            f = STATE.NORMAL == _pressState ? 0 : 1;
         }
 
         return f;
     }
 
     public boolean setState(STATE state) {
-        if (mPressState != state) {
+        if (_pressState != state) {
             if (isEnabled()) {
-                mPressState = state;
+                _pressState = state;
                 mStateChangeAni  = true;
                 mStateChangeTime = _director.getTickCount();
             } else {
-                mPressState = state;
+                _pressState = state;
             }
             return true;
         }
@@ -3385,7 +3079,7 @@ public class SMView extends Ref {
             {
                 transformMatrix(getDirector().getProjectionMatrix());
                 getDirector().updateProjectionMatrix();
-                renderFrame(1);
+                visit(1);
             }
             getDirector().popProjectionMatrix();
 
@@ -3601,6 +3295,18 @@ public class SMView extends Ref {
         int a = ((rgba & 0xFF000000) >> 24);
 
         return new Color4B(r, g, b, a);
+
+    }
+
+    public void changeParent(SMView newParent) {
+        if (newParent==null || getParent()==newParent) {
+            return;
+        }
+
+        SMView parent = getParent();
+
+        parent.removeChild(this, false);
+        newParent.addChild(this, getLocalZOrder());
 
     }
 

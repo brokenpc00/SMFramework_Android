@@ -165,7 +165,7 @@ public class SMImageView extends _UIContainerView {
     }
 
     @Override
-    protected void render(float a) {
+    protected void draw(float a) {
         if (_sprite == null)
             return;
 
@@ -290,24 +290,4 @@ public class SMImageView extends _UIContainerView {
         mImageScale = imageScale;
     }
 
-    private boolean mScissorTest = false;
-    public void setScissorTest(boolean scissorTest) {
-        mScissorTest = scissorTest;
-    }
-
-    @Override
-    public void renderFrame(float alpha) {
-        if (mScissorTest) {
-            enableScissorTest(true);
-            super.renderFrame(alpha);
-            enableScissorTest(false);
-        } else {
-            super.renderFrame(alpha);
-        }
-    }
-
-//    @Override
-//    public void updateTintColor() {
-//        _spriteColor.set(new Color4F(_tintColor));
-//    }
 }

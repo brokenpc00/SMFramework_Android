@@ -46,8 +46,8 @@ public class SMCircleView extends SMShapeView {
     protected PrimitiveCircle bgShape = null;
 
     @Override
-    protected void render(float a) {
-        getDirector().setColor(_shapeColor.r*a, _shapeColor.g*a, _shapeColor.b*a, _shapeColor.a*a);
+    protected void draw(float a) {
+        super.draw(a);
         float x = _contentSize.width/2;
         float y = _contentSize.height/2;
         float radius = _contentSize.width/2;

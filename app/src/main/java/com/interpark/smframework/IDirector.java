@@ -6,7 +6,6 @@ import android.support.v4.app.FragmentActivity;
 
 import com.android.volley.RequestQueue;
 import com.interpark.smframework.base.SMScene;
-import com.interpark.smframework.base.Popup;
 import com.interpark.smframework.base.SMView;
 import com.interpark.smframework.base.SceneParams;
 import com.interpark.smframework.base.types.ActionManager;
@@ -133,8 +132,6 @@ public interface IDirector {
     public void setSharedLayer(final SharedLayer layerId, SMView layer);
     public SMView getSharedLayer(final SharedLayer layerId);
 
-    public void closePopupView(Popup view);
-
     public void setSideMenuOpenPosition(float position);
 
     public SIDE_MENU_STATE getSideMenuState();
@@ -155,4 +152,8 @@ public interface IDirector {
     public void stopSceneAnimation();
     public SMScene getPreviousScene();
     public int getSceneStackCount();
+
+    public void paused();
+    public void resume();
+    public boolean isPaused();
 }

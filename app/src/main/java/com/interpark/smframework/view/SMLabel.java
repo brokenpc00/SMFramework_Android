@@ -203,7 +203,7 @@ public class SMLabel extends _UIContainerView {
     }
 
     @Override
-    protected void render(float a) {
+    protected void draw(float a) {
         if (_isSep) return;
 
         setRenderColor(a);

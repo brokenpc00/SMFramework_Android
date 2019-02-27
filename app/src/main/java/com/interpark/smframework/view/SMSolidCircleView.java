@@ -43,8 +43,8 @@ public class SMSolidCircleView extends SMShapeView {
 //    private Color4F bgColor = new Color4F(0, 0, 0, 1);
 
     @Override
-    protected void render(float a) {
-        getDirector().setColor(_shapeColor.r*a, _shapeColor.g*a, _shapeColor.b*a, _shapeColor.a*a);
+    protected void draw(float a) {
+        super.draw(a);
 
         float x = _contentSize.width/2;
         float y = _contentSize.height/2;

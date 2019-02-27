@@ -11,7 +11,7 @@ public class SMSolidRoundRectView extends SMShapeView {
     public SMSolidRoundRectView (IDirector director) {
         super(director);
         bgShape = new PrimitiveAARect(director);
-        mRound = 0.0f;
+        _cornerRadius = 0.0f;
     }
 
     public static SMSolidRoundRectView create(IDirector director) {
@@ -20,9 +20,9 @@ public class SMSolidRoundRectView extends SMShapeView {
         return view;
     }
 
-    public SMSolidRoundRectView (IDirector director, float round) {
+    public SMSolidRoundRectView (IDirector director, float radius) {
         this (director);
-        mRound = round;
+        _cornerRadius = radius;
     }
 
     public SMSolidRoundRectView (IDirector director, float round, Color4F color) {
@@ -31,8 +31,8 @@ public class SMSolidRoundRectView extends SMShapeView {
         setTintColor(color);
     }
 
-    public void setCornerRadius(float round) {
-        mRound = round;
+    public void setCornerRadius(float radius) {
+        _cornerRadius = radius;
     }
 
 //    @Override
@@ -52,14 +52,12 @@ public class SMSolidRoundRectView extends SMShapeView {
 
     protected PrimitiveAARect bgShape = null;
 
-    protected float mRound;
+    protected float _cornerRadius;
 //    protected Color4F roundColor = new Color4F(0, 0, 0, 1);
 
     @Override
-    protected void render(float a) {
-//        getDirector().setColor(roundColor.r, roundColor.g, roundColor.b, roundColor.a);
-//        setRenderColor(a);
-        getDirector().setColor(_shapeColor.r*a, _shapeColor.g*a, _shapeColor.b*a, _shapeColor.a*a);
-        bgShape.drawRect(_contentSize.width/2, _contentSize.height/2, _contentSize.width, _contentSize.height, mRound, 1);
+    protected void draw(float a) {
+        super.draw(a);
+        bgShape.drawRect(_contentSize.width/2, _contentSize.height/2, _contentSize.width, _contentSize.height, _cornerRadius, 1);
     }
 }

@@ -118,7 +118,7 @@ public class Sequence extends ActionInterval {
     @Override
     public void update(float t) {
         int found = 0;
-        float new_t = 0.0f;
+        float new_t = 0;
 
         if (t<_split) {
             // _action[0]

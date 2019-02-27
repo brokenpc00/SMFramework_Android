@@ -22,6 +22,7 @@ import com.interpark.smframework.base.sprite.TextSprite;
 import com.interpark.smframework.base.texture.BitmapTexture;
 import com.interpark.smframework.base.texture.FileTexture;
 import com.interpark.smframework.base.texture.ResourceTexture;
+import com.interpark.smframework.base.transition.BaseSceneTransition;
 import com.interpark.smframework.base.transition.SlideInToLeft;
 import com.interpark.smframework.base.transition.SlideInToTop;
 import com.interpark.smframework.base.transition.SlideOutToBottom;
@@ -32,10 +33,12 @@ import com.interpark.smframework.base.types.Bounce;
 import com.interpark.smframework.base.types.CallFunc;
 import com.interpark.smframework.base.types.Color4B;
 import com.interpark.smframework.base.types.Color4F;
+import com.interpark.smframework.base.types.DelayTime;
 import com.interpark.smframework.base.types.EaseCubicActionOut;
 import com.interpark.smframework.base.types.IndexPath;
 import com.interpark.smframework.base.types.MoveTo;
 import com.interpark.smframework.base.types.PERFORM_SEL;
+import com.interpark.smframework.base.types.RotateTo;
 import com.interpark.smframework.base.types.ScaleSine;
 import com.interpark.smframework.base.types.Sequence;
 import com.interpark.smframework.util.AppConst;
@@ -90,10 +93,15 @@ public class HellowInterparkScene extends SMScene {
     private SMView _contentView = null;
     private ArrayList<String> _menuNames = new ArrayList<>();
 
+    public static String _sceneTitle = "SMFrame Lib.";
+
+    public SMView _uiLayer = null;
 
     @Override
     protected boolean init() {
         super.init();
+
+        setBackgroundColor(1, 1, 0, 1);
 
         _mainScene = this;
 
@@ -103,11 +111,29 @@ public class HellowInterparkScene extends SMScene {
         _contentView.setBackgroundColor(AppConst.COLOR._WHITE);
         addChild(_contentView);
 
+        _menuBar = MenuBar.create(getDirector());
+        _menuBar.setMenuButtonType(MenuBar.MenuType.MENU, true);
+        _menuBar.setText(_sceneTitle, true);
+        _menuBar.setColorSet(MenuBar.ColorSet.WHITE_TRANSULANT, true);
+        _menuBar.setLocalZOrder(999);
+        _menuBar.setMenuBarListener(_menuBarListener);
+
+//        _menuBar.setMenuBarListener(new MenuBar.MenuBarListener() {
+//            @Override
+//            public boolean func1(SMView view) {
+//                return onMenuClick(view);
+//            }
+//
+//            @Override
+//            public void func2() {
+//                onMenuTouchg();
+//            }
+//        });
+        _contentView.addChild(_menuBar);
 
         _menuNames.add("Shapes");
         _menuNames.add("View");
         _menuNames.add("Controls");
-
 
         _tableView = SMTableView.createMultiColumn(getDirector(), SMTableView.Orientation.VERTICAL, 1, 0, AppConst.SIZE.TOP_MENU_HEIGHT, s.width, s.height-AppConst.SIZE.TOP_MENU_HEIGHT);
         _tableView.cellForRowAtIndexPath = new CellForRowAtIndexPath() {
@@ -145,18 +171,35 @@ public class HellowInterparkScene extends SMScene {
                                 case 0:
                                 {
                                     // shapes.
-                                    scene = ShapeScene.create(getDirector(), new SceneParams(), SwipeType.BACK);
+                                    scene = ShapeScene.create(getDirector(), _menuBar);
+//                                    scene = ShapeScene.create(getDirector(), new SceneParams(), SwipeType.BACK);
+//                                    _uiLayer = getDirector().getSharedLayer(IDirector.SharedLayer.BETWEEN_SCENE_AND_UI);
+//                                    _menuBar.changeParent(_uiLayer);
                                 }
                                 break;
                                 case 1:
                                 {
                                     // view
+//                                    _menuBar.changeParent(_contentView);
                                     _menuBar.showToast("test", Color4F.TOAST_RED, 2.0f);
                                 }
                                 break;
                                 case 2:
                                 {
                                     // controls
+                                    if (arrowView!=null) {
+                                        RotateTo rotateTo = (RotateTo) arrowView.getActionByTag(AppConst.TAG.USER + 17);
+                                        if (rotateTo != null) {
+                                            arrowView.stopAction(rotateTo);
+                                        }
+                                        if (arrowView.getRotation() == 0) {
+                                            rotateTo = RotateTo.create(getDirector(), 0.45f, 315);
+                                        } else {
+                                            rotateTo = RotateTo.create(getDirector(), 0.45f, 0);
+                                        }
+                                        rotateTo.setTag(AppConst.TAG.USER+17);
+                                        arrowView.runAction(rotateTo);
+                                    }
                                 }
                                 break;
                             }
@@ -207,64 +250,127 @@ public class HellowInterparkScene extends SMScene {
         _contentView.addChild(_tableView);
         _contentView.setLocalZOrder(-10);
 
-        _menuBar = MenuBar.create(getDirector());
-        _menuBar.setMenuButtonType(MenuBar.MenuType.MENU, true);
-        _menuBar.setText("SMFrameWork", true);
-        _menuBar.setColorSet(MenuBar.ColorSet.TRANSULANT, true);
-        _menuBar.setLocalZOrder(999);
-        addChild(_menuBar);
+//        float centerX = s.width/2;
+//        float centerY = s.height/2;
+//
+//        arrowView = SMView.create(getDirector());
+//        arrowView.setContentSize(s);
+//        arrowView.setAnchorPoint(Vec2.MIDDLE);  // like in button view
+//        arrowView.setPosition(centerX, centerY); // like in button view
+//        addChild(arrowView);
+//
+//
+//        SMRoundLine line1 = SMRoundLine.create(getDirector());
+//        line1.setBackgroundColor(Color4F.ALARM_BADGE_RED);
+//        line1.setLocalZOrder(100);
+//        line1.setLineWidth(50);
+//        line1.line(-160+centerX, -160+centerY, 0+centerX, 0+centerY);
+//        arrowView.addChild(line1);
+//
+//        SMRoundLine line2 = SMRoundLine.create(getDirector());
+//        line2.setBackgroundColor(Color4F.ALARM_BADGE_RED);
+//        line2.setLocalZOrder(100);
+//        line2.setLineWidth(50);
+//        line2.line(160+centerX, 160+centerY, 0+centerX, 0+centerY);
+//        arrowView.addChild(line2);
+//
+//        SMRoundLine line3 = SMRoundLine.create(getDirector());
+//        line3.setBackgroundColor(Color4F.ALARM_BADGE_RED);
+//        line3.setLocalZOrder(100);
+//        line3.setLineWidth(50);
+//        line3.line(-160+centerX, 120+centerY, -160+centerX, -160+centerY);
+//        arrowView.addChild(line3);
+//
+//        SMRoundLine line4 = SMRoundLine.create(getDirector());
+//        line4.setBackgroundColor(Color4F.ALARM_BADGE_RED);
+//        line4.setLocalZOrder(100);
+//        line4.setLineWidth(50);
+//        line4.line(120+centerX, -160+centerY, -160+centerX, -160+centerY);
+//        arrowView.addChild(line4);
 
+
+//        sDotBack[0] = new DotPosition(new Vec2(-16, -16), Vec2.ZERO, AppConst.SIZE.LINE_DIAMETER); // Left-Top to center (ZERO)
+//        sDotBack[1] = new DotPosition(new Vec2(16, +16), Vec2.ZERO, AppConst.SIZE.LINE_DIAMETER); // Rgith-Bottom to center (ZERO)
+//        sDotBack[2] = new DotPosition(new Vec2(-16, +12), new Vec2(-16, -16), AppConst.SIZE.LINE_DIAMETER); // Left-Bottom middle to Left-Top
+//        sDotBack[3] = new DotPosition(new Vec2(12, -16), new Vec2(-16, -16), AppConst.SIZE.LINE_DIAMETER); // Right middle-Top to Left-Top
 
         return true;
     }
 
-    @Override
-    public void onEnter() {
-        super.onEnter();
-//        if (_topMenu==null) {
-//            _topMenu = TopMenu.create(getDirector());
-//            _contentView.addChild(_topMenu);
-//
-//            _topMenu.addMenuType(TopMenuComponentType.MENU);
-//            SceneParams titleParam = new SceneParams();
-//            titleParam.putString("MENU_TITLE", "SMFrameWork Lib.");
-//            _topMenu.addMenuType(TopMenuComponentType.TITLE, titleParam);
-//            _topMenu.generateMenu();
-//
-//
-//            _topMenu._listener = new TopMenu.TopMenuClickListener() {
-//                @Override
-//                public void onTopMenuClick(TopMenuComponentType type) {
-//                    switch (type) {
-//                        case MENU:
-//                        {
-//                            SideMenu.OpenMenu(_mainScene);
-//                        }
-//                        break;
-//                        case BACK:
-//                        {
-//
-//                        }
-//                        break;
-//                        case HOME:
-//                        {
-//
-//                        }
-//                        break;
-//                        default:
-//                        {
-//
-//                        }
-//                        break;
-//                    }
-//                }
-//            };
-//        }
+    protected SMView arrowView = null;
+
+    public boolean onMenuClick(SMView view) {
+        MenuBar.MenuType type = MenuBar.intToMenuType(view.getTag());
+        Log.i("HelloScene", "[[[[[ on Menu click!!! " + type);
+        switch (type) {
+            case MENU:
+            {
+                // side menu open
+                SideMenu.OpenMenu(this);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public void onMenuTouchg() {
+
     }
 
     public void openMenu() {
         SideMenu.OpenMenu(this);
     }
 
+    @Override
+    public void onTransitionStart(final Transition type, final int tag) {
+
+        if (type==Transition.IN) {
+            if (getSwipeType()==SwipeType.MENU) {
+                _menuBar.setMenuButtonType(MenuBar.MenuType.MENU, false);
+            } else {
+                _menuBar.setMenuButtonType(MenuBar.MenuType.BACK, false);
+            }
+            _menuBar.setColorSet(MenuBar.ColorSet.WHITE_TRANSULANT, false);
+            _menuBar.setText(_sceneTitle, false);
+        }
+    }
+
+    protected MenuBar.MenuBarListener _menuBarListener = new MenuBar.MenuBarListener() {
+        @Override
+        public boolean func1(SMView view) {
+            return onMenuClick(view);
+        }
+
+        @Override
+        public void func2() {
+            onMenuTouchg();
+        }
+    };
+
+
+
+    @Override
+    public void onTransitionComplete(final Transition type, final int tag) {
+        if (type == Transition.RESUME) {
+        } else if (type == Transition.OUT) {
+
+        }
+    }
+
+    @Override
+    public void onTransitionReplaceSceneDidFinish() {
+        SMView layer = _director.getSharedLayer(IDirector.SharedLayer.BETWEEN_SCENE_AND_UI);
+        if (layer==null) return;
+
+        ArrayList<SMView> children = layer.getChildren();
+        for (SMView child : children) {
+            if (child==_menuBar) {
+                _menuBar.changeParent(_contentView);
+                break;
+            }
+        }
+
+        _menuBar.setMenuBarListener(_menuBarListener);
+    }
 }
 

@@ -22,9 +22,14 @@ public class SwipeDismiss extends SwipeBack {
     }
 
     @Override
-    public void render(float a) {
-        _lastProgress = -_outScene.getY() / (getDirector().getWinSize().height+getDirector().getWinSize().height/2);
-        BaseTransitionRender(a);
+    protected void draw(float a) {
+        _lastProgress = -(_outScene.getY()-getDirector().getWinSize().height/2) / getDirector().getWinSize().height;
+
+        if (_menuDrawContainer!=null) {
+            // Todo... If you need another menu
+        }
+
+        BaseTransitionDraw(a);
     }
 
     @Override

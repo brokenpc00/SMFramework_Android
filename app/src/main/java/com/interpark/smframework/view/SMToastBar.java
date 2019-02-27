@@ -33,7 +33,7 @@ public class SMToastBar extends SMView {
     private float MOVE_TIME = 0.3f;
     private float TEXT_CHANGE_TIME = 0.2f;
 
-    private float MIN_HEIGHT = 100.0f;
+    private float MIN_HEIGHT = 130.0f;
     private float PADDING = 20.0f;
 
 
@@ -153,12 +153,12 @@ public class SMToastBar extends SMView {
     }
 
     @Override
-    public void renderFrame(float alpha) {
+    public void visit(float alpha) {
         if (!_visible) return;
 
         float reqHeight = Math.max(MIN_HEIGHT, _label[_labelIndex].getContentSize().height + PADDING*2);
         setScissorRect(new Rect(0, reqHeight, _contentSize.width, getPositionY()));
-        super.renderFrame(alpha);
+        super.visit(alpha);
     }
 
     protected boolean initWithCallback(SMToastBar.ToastBarCallback callback) {

@@ -1,4 +1,4 @@
-package com.interpark.smframework.base.animator;
+package com.interpark.smframework.base.transition;
 
 import android.util.Log;
 
@@ -7,9 +7,6 @@ import com.interpark.smframework.base.SMView;
 import com.interpark.smframework.base.types.ActionInterval;
 import com.interpark.smframework.util.AppConst;
 import com.interpark.smframework.view.SMButton;
-import com.interpark.smframework.view.ViewConfig;
-
-import org.apache.http.cookie.SM;
 
 public class StateTransitionAction extends ActionInterval {
     public StateTransitionAction(IDirector director) {

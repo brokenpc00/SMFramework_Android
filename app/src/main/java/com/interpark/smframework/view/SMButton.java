@@ -8,8 +8,7 @@ import com.interpark.smframework.IDirector;
 import com.interpark.smframework.base.DrawNode;
 import com.interpark.smframework.base.SMView;
 import com.interpark.smframework.base._UIContainerView;
-import com.interpark.smframework.base.animator.Animator;
-import com.interpark.smframework.base.animator.StateTransitionAction;
+import com.interpark.smframework.base.transition.StateTransitionAction;
 import com.interpark.smframework.base.shape.ShapeConstant.LineType;
 import com.interpark.smframework.base.sprite.BitmapSprite;
 import com.interpark.smframework.base.sprite.Sprite;
@@ -88,9 +87,6 @@ public class SMButton extends _UIContainerView {
     private float _shapeLineWidth = 1.0f;
     private float _shapeAntiAliasWidth = 1.0f;
     private float _shapeOutlineWidth = 1.0f;
-
-    private ButtonTransitionAnimator _buttonPressAnimator = null;
-    private ButtonTransitionAnimator _buttonReleaseAnimator = null;
 
     private StateTransitionAction _buttonPressAction = null;
     private StateTransitionAction _buttonReleaseAction = null;
@@ -349,40 +345,6 @@ public class SMButton extends _UIContainerView {
         }
     }
 
-    private class ButtonTransitionAnimator extends Animator {
-        public ButtonTransitionAnimator(IDirector director, SMButton button, STATE state) {
-            super(director);
-            target = button;
-            mState = state;
-        }
-
-        protected SMButton target = null;
-        protected STATE mState = STATE.NORMAL;
-
-        @Override
-        public void start() {
-            super.start();
-            float run = getElapsed() / getDuration();
-            if (run<1) {
-                mElapsed = (getDuration() * (1-run));
-            }
-        }
-
-        @Override
-        public void stop() {
-            super.stop();
-        }
-
-
-        @Override
-        protected void update(SMView view, float t) {
-            if (target!=null) {
-                target.onUpdateStateTransition(mState, mState==STATE.PRESSED?t:1-t);
-            }
-        }
-    }
-
-
     public SMButton(IDirector director) {
         super(director);
         setPosition(0, 0);
@@ -424,7 +386,7 @@ public class SMButton extends _UIContainerView {
     }
 
     private void init(IDirector director) {
-        _UIContainerView buttonView = null;
+        SMView buttonView = null;
 
         switch (_style) {
             case RECT:

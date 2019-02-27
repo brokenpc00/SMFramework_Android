@@ -62,10 +62,8 @@ public class SMRectView extends SMShapeView {
     }
 
     @Override
-    protected void render(float a) {
-//        setRenderColor(a);
-//        getDirector().setColor(outlineColor.r, outlineColor.g, outlineColor.b, outlineColor.a);
-        getDirector().setColor(_shapeColor.r*a, _shapeColor.g*a, _shapeColor.b*a, _shapeColor.a*a);
+    protected void draw(float a) {
+        super.draw(a);
         GLES20.glLineWidth(_lineWidth);
         bgShape.drawScaleXY(0, 0, _contentSize.width, _contentSize.height);
     }

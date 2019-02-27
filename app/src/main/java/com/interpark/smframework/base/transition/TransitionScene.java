@@ -18,11 +18,6 @@ public class TransitionScene extends SMScene {
         setAnchorPoint(new Vec2(0.5f, 0.5f));
         setPosition(new Vec2(size.width/2, size.height/2));
         setContentSize(size);
-
-//        _rootView = new SMView(getDirector(), 0, 0, size.width, size.height);
-//        super.addChild(_rootView);
-//
-//        _rootView.setBackgroundColor(1, 1, 0, 1);
     }
 
     enum Orientation {
@@ -73,59 +68,31 @@ public class TransitionScene extends SMScene {
     }
 
     @Override
-    public void render(float a) {
-        super.render(a);
+    protected void draw(float a) {
+        super.draw(a);
 
         if (_isInSceneOnTop) {
-            _director.pushProjectionMatrix();
-            {
-                _outScene.transformMatrix(_director.getProjectionMatrix());
-                _director.updateProjectionMatrix();
-                _outScene.renderFrame(a);
-            }
-            _director.popProjectionMatrix();
+            _outScene.visit(a);
 
-            _director.pushProjectionMatrix();
-            {
-                _inScene.transformMatrix(_director.getProjectionMatrix());
-                _director.updateProjectionMatrix();
-                _inScene.renderFrame(a);
-            }
-            _director.popProjectionMatrix();
-
+            _inScene.visit(a);
         } else {
-            _director.pushProjectionMatrix();
-            {
-                _inScene.transformMatrix(_director.getProjectionMatrix());
-                _director.updateProjectionMatrix();
-                _inScene.renderFrame(a);
-            }
-            _director.popProjectionMatrix();
-
-            _director.pushProjectionMatrix();
-            {
-                _outScene.transformMatrix(_director.getProjectionMatrix());
-                _director.updateProjectionMatrix();
-                _outScene.renderFrame(a);
-            }
-            _director.popProjectionMatrix();
-
+            _inScene.visit(a);
+            _outScene.visit(a);
         }
     }
 
     public void finish() {
         // clean up
         _inScene.setVisible(true);
-//        _inScene.setPosition(new Vec2(0, 0));
-        _inScene.setPosition(new Vec2(getDirector().getWinSize().width/2, getDirector().getWinSize().height/2));
+        _inScene.setPosition(getDirector().getWinSize().width/2, getDirector().getWinSize().height/2);
         _inScene.setScale(1.0f);
-        _inScene.setRotation(0);
+        _inScene.setRotation(0.0f);
 
         _outScene.setVisible(false);
-//        _outScene.setPosition(new Vec2(0, 0));
-        _outScene.setPosition(new Vec2(getDirector().getWinSize().width/2, getDirector().getWinSize().height/2));
+        _outScene.setPosition(getDirector().getWinSize().width/2, getDirector().getWinSize().height/2);
         _outScene.setScale(1.0f);
-        _outScene.setRotation(0);
+        _outScene.setRotation(0.0f);
+
 
         schedule(newSceneSchedule);
     }
@@ -143,6 +110,9 @@ public class TransitionScene extends SMScene {
         _isSendCleanupToScene = getDirector().isSendCleanupToScene();
 
         getDirector().replaceScene(_inScene);
+
+        // all job finish.
+        _inScene.onTransitionReplaceSceneDidFinish();
         _outScene.setVisible(true);
     }
 

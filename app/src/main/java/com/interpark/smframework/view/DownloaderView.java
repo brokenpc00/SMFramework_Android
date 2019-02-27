@@ -85,8 +85,8 @@ public class DownloaderView extends _UIContainerView {
      * it simply passes the existing Canvas to the super method
      */
     @Override
-    public void render(float a) {
-        super.render(a);
+    public void draw(float a) {
+        super.draw(a);
 
         if ((!mIsDrawn) && (mImagePath != null)) {
 

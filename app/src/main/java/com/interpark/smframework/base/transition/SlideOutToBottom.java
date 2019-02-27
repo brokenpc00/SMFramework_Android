@@ -10,6 +10,8 @@ import com.interpark.smframework.util.Size;
 import com.interpark.smframework.util.Vec2;
 import com.interpark.smframework.view.SMSolidRectView;
 
+import androidx.work.impl.model.DependencyDao_Impl;
+
 public class SlideOutToBottom extends BaseSceneTransition {
     public SlideOutToBottom(IDirector director) {
         super(director);
@@ -25,7 +27,7 @@ public class SlideOutToBottom extends BaseSceneTransition {
     }
 
     @Override
-    public void render(float a) {
+    protected void draw(float a) {
         if (isDimLayerEnable() && _lastProgress > 0 && _dimLayer==null) {
             _dimLayer = new SMSolidRectView(getDirector());
             _dimLayer.setContentSize(new Size(getDirector().getWidth(), getDirector().getHeight()));
@@ -36,66 +38,26 @@ public class SlideOutToBottom extends BaseSceneTransition {
 
         if (_isInSceneOnTop) {
             // new scene entered!!
-            _director.pushProjectionMatrix();
-            {
-                _outScene.transformMatrix(_director.getProjectionMatrix());
-                _director.updateProjectionMatrix();
-                _outScene.renderFrame(a);
-            }
-            _director.popProjectionMatrix();
-
+            _outScene.visit(a);
             if (_lastProgress>0.0f && _lastProgress<1.0f && _dimLayer!=null) {
-                _director.pushProjectionMatrix();
-                {
-                    _dimLayer.transformMatrix(_director.getProjectionMatrix());
-                    _director.updateProjectionMatrix();
                     float alpha = 0.4f*_lastProgress;
                     _dimLayer.setTintColor(new Color4F(0, 0, 0, alpha));
-                    _dimLayer.renderFrame(a);
-                }
-                _director.popProjectionMatrix();
-
-
+                _dimLayer.visit(a);
             }
 
-            _director.pushProjectionMatrix();
-            {
-                _inScene.transformMatrix(_director.getProjectionMatrix());
-                _director.updateProjectionMatrix();
-                _inScene.renderFrame(a);
-            }
-            _director.popProjectionMatrix();
-
+            _inScene.visit(a);
         } else {
             // top scene exist
-            _director.pushProjectionMatrix();
-            {
-                _inScene.transformMatrix(_director.getProjectionMatrix());
                 float minusScale = 0.6f*_lastProgress;
                 _inScene.setScale(1.6f-minusScale);
-                _director.updateProjectionMatrix();
-                _inScene.renderFrame(a);
-            }
-            _director.popProjectionMatrix();
+            _inScene.visit(a);
 
             if (_lastProgress>0.0f && _lastProgress<1.0f && _dimLayer!=null) {
 //                _dimLayer.setTintAlpha(0.4f * (1.0f-_lastProgress));
                 _dimLayer.setTintColor(new Color4F(0, 0, 0, 0.4f * (1.0f-_lastProgress)));
-                _director.pushProjectionMatrix();
-                {
-                    _dimLayer.transformMatrix(_director.getProjectionMatrix());
-                    _director.updateProjectionMatrix();
-                    _dimLayer.renderFrame(a);
-                }
-                _director.popProjectionMatrix();
+                _dimLayer.visit(a);
             }
-            _director.pushProjectionMatrix();
-            {
-                _outScene.transformMatrix(_director.getProjectionMatrix());
-                _director.updateProjectionMatrix();
-                _outScene.renderFrame(a);
-            }
-            _director.popProjectionMatrix();
+            _outScene.visit(a);
         }
     }
 

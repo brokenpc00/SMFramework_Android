@@ -13,7 +13,6 @@ import android.view.OrientationEventListener;
 import android.view.SurfaceHolder;
 
 import com.android.volley.RequestQueue;
-import com.interpark.smframework.base.Popup;
 import com.interpark.smframework.base.SMScene;
 import com.interpark.smframework.base.SMView;
 import com.interpark.smframework.base.SceneParams;
@@ -266,7 +265,7 @@ public class SMDirector implements IDirector, GLSurfaceView.Renderer {
                     return false;
                 }
             }
-            if (!scene.isVisibleAnimation()) {
+//            if (!scene.isVisibleAnimation()) {
                 boolean ret = scene.onBackPressed();
                 if (ret == false && _scenesStack.size() == 1) {
                     // last scene
@@ -274,7 +273,7 @@ public class SMDirector implements IDirector, GLSurfaceView.Renderer {
                     scene.onDestoryView();
                 }
                 return ret;
-            }
+//            }
         }
 
         return true;
@@ -430,7 +429,7 @@ public class SMDirector implements IDirector, GLSurfaceView.Renderer {
             if (_dimLayer==null) {
                 // 좌측 메뉴 열릴 때 메인 scene을 덮어줄 dim layer
                 _dimLayer = SMView.create(this, 0, 0, getWidth(), getHeight());
-                _dimLayer.setBackgroundColor(0, 0, 0, 1);
+                _dimLayer.setBackgroundColor(0, 0, 0, 0);
                 _dimLayer.setAlpha(0);
                 _dimLayer.setVisible(false);
             }
@@ -551,7 +550,8 @@ public class SMDirector implements IDirector, GLSurfaceView.Renderer {
             }
             _dimLayer.setContentSize(new Size(getWinSize().width-position, getWinSize().height));
             _dimLayer.setPositionX(position);
-            _dimLayer.setBackgroundColor(0, 0, 0, 0.5f*f);
+            _dimLayer.setAlpha(0.5f*f);
+//            _dimLayer.setBackgroundColor(0, 0, 0, 0.5f*f);
 
         } else {
             if (_dimLayer.isVisible()) {
@@ -1166,6 +1166,15 @@ public class SMDirector implements IDirector, GLSurfaceView.Renderer {
         bindTexture(null);
 
         calculateDeltaTime();
+        _globalTime += _deltaTime;
+
+
+        // schedule udpate 여기서 할것
+        if (_scheduler!=null) {
+            // update 전파
+            _scheduler.update(_deltaTime);
+        }
+
 
         synchronized (mRunOnDraw) {
             if (mRunOnDrawDelayed.size() > 0) {
@@ -1221,34 +1230,13 @@ public class SMDirector implements IDirector, GLSurfaceView.Renderer {
 
                 SMView drawLayer = _sharedLayer[i];
                 if (drawLayer!=null) {
-                    pushProjectionMatrix();
-                    {
-                        drawLayer.transformMatrix(mActiveMatrix);
-                        mShaderManager.setMatrix(mActiveMatrix);
-                        drawLayer.renderFrame(1);
-                    }
-                    popProjectionMatrix();
+                    drawLayer.visit(1);
                 }
 
                 if (layerId==SharedLayer.BETWEEN_MENU_AND_SCENE) {
                     // running scene을 그리자
                     if (_runningScene!=null) {
-                        pushProjectionMatrix();
-                        {
-                            _runningScene.transformMatrix(mActiveMatrix);
-                            mShaderManager.setMatrix(mActiveMatrix);
-                            _runningScene.renderFrame(1);
-                        }
-                        popProjectionMatrix();
-                    }
-
-
-                    _globalTime += _deltaTime;
-
-                    // schedule udpate 여기서 할것
-                    if (_scheduler!=null) {
-                        // update 전파
-                        _scheduler.update(_deltaTime);
+                        _runningScene.visit(1);
                     }
 
                     if (!mRootSceneInitialized) {
@@ -1265,6 +1253,10 @@ public class SMDirector implements IDirector, GLSurfaceView.Renderer {
         setColor(1,1,1,1);
         GLES20.glViewport(0, 0, getDeviceWidth(), getDeviceHeight());
         setProjectionMatrix(getFrameBufferMatrix());
+
+        // Todo... modify this line... after test.
+        GLES20.glClearColor(1, 1, 0, 1);
+        GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT);
 
         mFrameBuffer.drawScaleXY(0, getHeight(), 1, -1);
 
@@ -1595,13 +1587,13 @@ public class SMDirector implements IDirector, GLSurfaceView.Renderer {
                             }
                         }
                         topScene.setState(SMScene.STATE_FINISHING);
-                        topScene.hide();
+//                        topScene.hide();
                         if (secondScene!=null) {
                             secondScene.setState(SMScene.STATE_RESUMING);
                             secondScene.setVisible(false);
                             secondScene.onSceneResult(topScene.getSceneResult());
                             secondScene.onResume();
-                            secondScene.show();
+//                            secondScene.show();
                             _runningScene = secondScene;
                         }
                     }
@@ -1665,11 +1657,6 @@ public class SMDirector implements IDirector, GLSurfaceView.Renderer {
     @Override
     public RequestQueue getRequestQueue() {
         return mRequestQueue;
-    }
-
-    @Override
-    public void closePopupView(Popup view) {
-
     }
 
     @Override
@@ -1958,6 +1945,25 @@ public class SMDirector implements IDirector, GLSurfaceView.Renderer {
     @Override
     public Size getWinSize() {
         return new Size(mWidth, mHeight);
+    }
+
+    protected boolean _paused = false;
+    @Override
+    public void paused() {
+        if (_paused) {
+            return;
+        }
+
+
+    }
+    @Override
+    public void resume() {
+
+    }
+    @Override
+    public boolean isPaused()
+    {
+        return _paused;
     }
 
 }

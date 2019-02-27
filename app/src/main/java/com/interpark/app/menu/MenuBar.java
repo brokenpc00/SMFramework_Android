@@ -1,6 +1,7 @@
 package com.interpark.app.menu;
 
 import android.graphics.Paint;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MotionEvent;
 import android.widget.Toast;
@@ -32,20 +33,20 @@ import java.util.ArrayList;
 public class MenuBar extends SMView {
     public MenuBar(IDirector director) {
         super(director);
-        sDotMenu[0] = new DotPosition(new Vec2(-13, -13), new Vec2(-13, -13), AppConst.SIZE.DOT_DIAMETER);
-        sDotMenu[1] = new DotPosition(new Vec2(13, 13), new Vec2(13, 13), AppConst.SIZE.DOT_DIAMETER);
-        sDotMenu[2] = new DotPosition(new Vec2(-13, 13), new Vec2(-13, 13), AppConst.SIZE.DOT_DIAMETER);
-        sDotMenu[3] = new DotPosition(new Vec2(13, -13), new Vec2(13, -13), AppConst.SIZE.DOT_DIAMETER);
+        sDotMenu[0] = new DotPosition(new Vec2(-13, -13), new Vec2(-13, -13), AppConst.SIZE.DOT_DIAMETER); // Left-Top dot
+        sDotMenu[1] = new DotPosition(new Vec2(13, 13), new Vec2(13, 13), AppConst.SIZE.DOT_DIAMETER); // Right-Bottom dot
+        sDotMenu[2] = new DotPosition(new Vec2(-13, 13), new Vec2(-13, 13), AppConst.SIZE.DOT_DIAMETER); // Left-Bottom dot
+        sDotMenu[3] = new DotPosition(new Vec2(13, -13), new Vec2(13, -13), AppConst.SIZE.DOT_DIAMETER); // Right-Top dot
 
-        sDotClose[0] = new DotPosition(new Vec2(-20, 20), Vec2.ZERO, AppConst.SIZE.LINE_DIAMETER);
-        sDotClose[1] = new DotPosition(new Vec2(20, -20), Vec2.ZERO, AppConst.SIZE.LINE_DIAMETER);
-        sDotClose[2] = new DotPosition(new Vec2(-20, -20), Vec2.ZERO, AppConst.SIZE.LINE_DIAMETER);
-        sDotClose[3] = new DotPosition(new Vec2(20, 20), Vec2.ZERO, AppConst.SIZE.LINE_DIAMETER);
+        sDotClose[0] = new DotPosition(new Vec2(-20, -20), Vec2.ZERO, AppConst.SIZE.LINE_DIAMETER); // Left-Top to center (ZERO)
+        sDotClose[1] = new DotPosition(new Vec2(20, 20), Vec2.ZERO, AppConst.SIZE.LINE_DIAMETER); // Right-Bottom to center (ZERO)
+        sDotClose[2] = new DotPosition(new Vec2(-20, 20), Vec2.ZERO, AppConst.SIZE.LINE_DIAMETER); // Left-Bottom to center (ZERO)
+        sDotClose[3] = new DotPosition(new Vec2(20, -20), Vec2.ZERO, AppConst.SIZE.LINE_DIAMETER); // Right-Top to center (ZERO)
 
-        sDotBack[0] = new DotPosition(new Vec2(-16, 16), Vec2.ZERO, AppConst.SIZE.LINE_DIAMETER);
-        sDotBack[1] = new DotPosition(new Vec2(16, -16), Vec2.ZERO, AppConst.SIZE.LINE_DIAMETER);
-        sDotBack[2] = new DotPosition(new Vec2(-16, -12), new Vec2(-16, 16), AppConst.SIZE.LINE_DIAMETER);
-        sDotBack[3] = new DotPosition(new Vec2(12, 16), new Vec2(-16, 16), AppConst.SIZE.LINE_DIAMETER);
+        sDotBack[0] = new DotPosition(new Vec2(-16, -16), Vec2.ZERO, AppConst.SIZE.LINE_DIAMETER); // Left-Top to center (ZERO)
+        sDotBack[1] = new DotPosition(new Vec2(16, +16), Vec2.ZERO, AppConst.SIZE.LINE_DIAMETER); // Rgith-Bottom to center (ZERO)
+        sDotBack[2] = new DotPosition(new Vec2(-16, +12), new Vec2(-16, -16), AppConst.SIZE.LINE_DIAMETER); // Left-Bottom middle to Left-Top
+        sDotBack[3] = new DotPosition(new Vec2(12, -16), new Vec2(-16, -16), AppConst.SIZE.LINE_DIAMETER); // Right middle-Top to Left-Top
 
         sDotDot[0] = new DotPosition(Vec2.ZERO, Vec2.ZERO, AppConst.SIZE.LINE_DIAMETER);
         sDotDot[1] = new DotPosition(Vec2.ZERO, Vec2.ZERO, AppConst.SIZE.LINE_DIAMETER);
@@ -67,8 +68,8 @@ public class MenuBar extends SMView {
         Size s = getDirector().getWinSize();
 
         setContentSize(s.width, AppConst.SIZE.MENUBAR_HEIGHT);
-        setAnchorPoint(new Vec2(0, 0));
-        setPosition(new Vec2(0, 0));
+        setAnchorPoint(Vec2.ZERO);
+        setPosition(Vec2.ZERO);
 
 //        _contentView = SMView.create(getDirector(), 0, 0, 0, getContentSize().width, getContentSize().height);
 //        _contentView.setBackgroundColor(Color4F.TOAST_RED);
@@ -94,6 +95,7 @@ public class MenuBar extends SMView {
         _mainButton.setAnchorPoint(Vec2.MIDDLE);
         _mainButton.setButtonColor(STATE.NORMAL, MakeColor4F(0x222222, 1.0f));
         _mainButton.setButtonColor(STATE.PRESSED, MakeColor4F(0xadafb3, 1.0f));
+        _mainButton.setBackgroundColor(Color4F.XADAFB3);
 
 
         _buttonContainer = SMView.create(getDirector());
@@ -103,6 +105,7 @@ public class MenuBar extends SMView {
 
         for (int i=0; i<4; i++) {
             _menuLine[i] = SMRoundLine.create(getDirector());
+            _menuLine[i].setAnchorPoint(Vec2.MIDDLE);
             _menuCircle[i] = SMSolidCircleView.create(getDirector());
             _buttonContainer.addChild(_menuLine[i]);
             _buttonContainer.addChild(_menuCircle[i]);
@@ -134,7 +137,7 @@ public class MenuBar extends SMView {
         }
 
         if (_listener!=null) {
-            if (_listener.onMenuBarClick(view)) {
+            if (_listener.func1(view)) {
                 // already process for click
                 return;
             }
@@ -158,9 +161,11 @@ public class MenuBar extends SMView {
         }
     }
 
+    // func1 -> onMenuBarClick;
+    // func2 -> onMenuBarTouch;
     public interface MenuBarListener {
-        public boolean onMenuBarClick(SMView view);
-        public void onMenuBarTouch();
+        public boolean func1(SMView view);
+        public void func2();
     }
 
     public static DotPosition[] sDotMenu = new DotPosition[4];
@@ -341,6 +346,16 @@ public class MenuBar extends SMView {
     }
 
         if (_menuButtonType==MenuType.NONE || immediate) {
+            if (menuButtonType==MenuType.ALARM) {
+                for (int i=0; i<4; i++) {
+                    _menuLine[i].setVisible(false);
+                    _menuCircle[i].setVisible(false);
+                }
+
+                _menuImage.setVisible(true);
+                _menuImage.setScale(1.0f);
+                showAlarmBadge();
+            } else {
             for (int i=0; i<4; i++) {
                 SMRoundLine l = _menuLine[i];
                 l.setLineWidth(to[i].diameter);
@@ -355,6 +370,8 @@ public class MenuBar extends SMView {
                     _menuCircle[i].setVisible(false);
                 }
             }
+            }
+
 
         float angle = 0;
         switch (menuButtonType) {
@@ -855,7 +872,7 @@ public class MenuBar extends SMView {
 
     public DropDown getDropDownState() {return _dropdown;}
 
-    void setActionBarListener(MenuBarListener l) {_listener = l;}
+    public void setMenuBarListener(MenuBarListener l) {_listener = l;}
 
     @Override
     public int dispatchTouchEvent(MotionEvent event) {
@@ -864,7 +881,7 @@ public class MenuBar extends SMView {
         int action = event.getAction();
         if (action==MotionEvent.ACTION_DOWN) {
             if (_listener!=null) {
-                _listener.onMenuBarTouch();
+                _listener.func2();
             }
         }
 
@@ -1107,9 +1124,9 @@ public class MenuBar extends SMView {
         }
 
         public Color4F BG = new Color4F(Color4F.WHITE);
-        public Color4F TEXT = SMView.MakeColor4F(0x222222, 01.f);
-        public Color4F NORMAL = SMView.MakeColor4F(0x222222, 01.f);
-        public Color4F PRESS = SMView.MakeColor4F(0xadafb3, 01.f);
+        public Color4F TEXT = SMView.MakeColor4F(0x222222, 1.0f);
+        public Color4F NORMAL = SMView.MakeColor4F(0x222222, 1.0f);
+        public Color4F PRESS = SMView.MakeColor4F(0xadafb3, 1.0f);
 
         public boolean equals(ColorSet set) {
             return BG.equals(set.BG) && TEXT.equals(set.TEXT) && NORMAL.equals(set.NORMAL) && PRESS.equals(set.PRESS);
@@ -1127,10 +1144,10 @@ public class MenuBar extends SMView {
         }
 
         public static final ColorSet WHITE = new ColorSet();
-        public static final ColorSet WHITE_TRANSULANT = new ColorSet(new Color4F(1, 1, 1, 0.7f), SMView.MakeColor4F(0x222222, 01.f), SMView.MakeColor4F(0x222222, 01.f), SMView.MakeColor4F(0xadafb3, 01.f));
-        public static final ColorSet BLACK = new ColorSet(SMView.MakeColor4F(0x222222, 01.f), Color4F.WHITE, Color4F.WHITE, SMView.MakeColor4F(0xadafb3, 01.f));
+        public static final ColorSet WHITE_TRANSULANT = new ColorSet(new Color4F(1, 1, 1, 0.7f), SMView.MakeColor4F(0x222222, 1.0f), SMView.MakeColor4F(0x222222, 1.0f), SMView.MakeColor4F(0xadafb3, 1.0f));
+        public static final ColorSet BLACK = new ColorSet(SMView.MakeColor4F(0x222222, 1.0f), Color4F.WHITE, Color4F.WHITE, SMView.MakeColor4F(0xadafb3, 1.0f));
         public static final ColorSet NONE = new ColorSet(Color4F.WHITE, Color4F.WHITE, Color4F.WHITE, Color4F.WHITE);
-        public static final ColorSet TRANSULANT = new ColorSet(new Color4F(1, 1, 1, 0), SMView.MakeColor4F(0x222222, 01.f), SMView.MakeColor4F(0x222222, 01.f), SMView.MakeColor4F(0xadafb3, 01.f));
+        public static final ColorSet TRANSULANT = new ColorSet(new Color4F(1, 1, 1, 0), SMView.MakeColor4F(0x222222, 1.0f), SMView.MakeColor4F(0x222222, 1.0f), SMView.MakeColor4F(0xadafb3, 1.0f));
     }
 
     public class DotPosition {
@@ -1168,8 +1185,10 @@ public class MenuBar extends SMView {
         protected boolean init() {
 
             stub[0] = new SMView(getDirector());
+            stub[0].setAnchorPoint(Vec2.MIDDLE);
             stub[0].setCascadeAlphaEnable(true);
             stub[1] = new SMView(getDirector());
+            stub[1].setAnchorPoint(Vec2.MIDDLE);
             stub[1].setCascadeAlphaEnable(true);
 
             return true;
@@ -1201,15 +1220,25 @@ public class MenuBar extends SMView {
 
         @Override
         public void onStart() {
+            float lineWidth = 1.0f;
+
             for (int i=0; i<4; i++) {
                 SMRoundLine line = _menuBar._menuLine[i];
                 _from[i] = line.getFromPosition();
                 _to[i] = line.getToPosition();
+                if (_menuButtonType==MenuType.MENU && isFirstMenu) {
+                    _diameter[i] = 1.0f;
+                } else {
                 _diameter[i] = line.getLineWidth();
+                }
 
                 _menuBar._menuCircle[i].setVisible(false);
                 _menuBar._menuLine[i].setVisible(true);
             }
+            if (_menuButtonType==MenuType.MENU && isFirstMenu) {
+                isFirstMenu = false;
+            }
+
 
             switch (_menuButtonType) {
                 case CLOSE:
@@ -1237,11 +1266,13 @@ public class MenuBar extends SMView {
             _fromAngle = _menuBar._buttonContainer.getRotation();
 
             if (_menuButtonType==MenuType.BACK) {
-                float diff = (float)(_fromAngle % 90.0f);
-                _fromAngle = _toAngle - 45 - (90+diff);
+                float diff = _fromAngle % 90.0f;
+                // make 180 degrees bottom -> left bottom -> left
+                _fromAngle = _toAngle - 45 - (90 + diff);
             }
             if (_fromType==MenuType.BACK) {
                 _fromAngle = SMView.getShortestAngle(0, _fromAngle);
+                _toAngle = 90;
             }
             if (_toAngle < _fromAngle) {
                 _fromAngle -= 360;
@@ -1381,13 +1412,13 @@ public class MenuBar extends SMView {
             _menuBar._mainButton.setTag(menuTypeToInt(_fromType));
         }
 
-        public void setMenuType(final MenuType fromMenuType, final MenuType menuType, final float duration) {
+        public void setMenuType(final MenuType fromMenuType, final MenuType toMenuType, final float duration) {
             setTimeValue(duration, 0);
 
             _fromType = fromMenuType;
-            _menuButtonType = menuType;
+            _menuButtonType = toMenuType;
 
-            switch (menuType) {
+            switch (toMenuType) {
                 case MENU:
                 {
                     _dst = sDotMenu;
@@ -1417,14 +1448,15 @@ public class MenuBar extends SMView {
         }
 
 
+        public boolean isFirstMenu = true;
         public Vec2[] _from = new Vec2[4];
         public Vec2[] _to = new Vec2[4];
         public float[] _diameter = new float[4];
-        public float _fromAngle;
-        public float _toAngle;
+        public float _fromAngle = 0.0f;
+        public float _toAngle = 0.0f;
         public DotPosition[] _dst = null;
-        public MenuType _menuButtonType;
-        public MenuType _fromType;
+        public MenuType _menuButtonType = MenuType.NONE;
+        public MenuType _fromType = MenuType.MENU;
         public MenuBar _menuBar = null;
     }
 
