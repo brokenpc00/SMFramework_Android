@@ -1254,9 +1254,10 @@ public class SMDirector implements IDirector, GLSurfaceView.Renderer {
         GLES20.glViewport(0, 0, getDeviceWidth(), getDeviceHeight());
         setProjectionMatrix(getFrameBufferMatrix());
 
-        // Todo... modify this line... after test.
-        GLES20.glClearColor(1, 1, 0, 1);
-        GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT);
+
+//        // Todo... modify this line... after test.
+//        GLES20.glClearColor(0, 0, 0, 0);
+//        GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT);
 
         mFrameBuffer.drawScaleXY(0, getHeight(), 1, -1);
 

@@ -135,7 +135,7 @@ public class HellowInterparkScene extends SMScene {
         _menuNames.add("View");
         _menuNames.add("Controls");
 
-        _tableView = SMTableView.createMultiColumn(getDirector(), SMTableView.Orientation.VERTICAL, 1, 0, AppConst.SIZE.TOP_MENU_HEIGHT, s.width, s.height-AppConst.SIZE.TOP_MENU_HEIGHT);
+        _tableView = SMTableView.createMultiColumn(getDirector(), SMTableView.Orientation.VERTICAL, 1, 0, AppConst.SIZE.MENUBAR_HEIGHT, s.width, s.height-AppConst.SIZE.MENUBAR_HEIGHT);
         _tableView.cellForRowAtIndexPath = new CellForRowAtIndexPath() {
             @Override
             public SMView onFunc(IndexPath indexPath) {
@@ -172,34 +172,17 @@ public class HellowInterparkScene extends SMScene {
                                 {
                                     // shapes.
                                     scene = ShapeScene.create(getDirector(), _menuBar);
-//                                    scene = ShapeScene.create(getDirector(), new SceneParams(), SwipeType.BACK);
-//                                    _uiLayer = getDirector().getSharedLayer(IDirector.SharedLayer.BETWEEN_SCENE_AND_UI);
-//                                    _menuBar.changeParent(_uiLayer);
                                 }
                                 break;
                                 case 1:
                                 {
                                     // view
-//                                    _menuBar.changeParent(_contentView);
                                     _menuBar.showToast("test", Color4F.TOAST_RED, 2.0f);
                                 }
                                 break;
                                 case 2:
                                 {
                                     // controls
-                                    if (arrowView!=null) {
-                                        RotateTo rotateTo = (RotateTo) arrowView.getActionByTag(AppConst.TAG.USER + 17);
-                                        if (rotateTo != null) {
-                                            arrowView.stopAction(rotateTo);
-                                        }
-                                        if (arrowView.getRotation() == 0) {
-                                            rotateTo = RotateTo.create(getDirector(), 0.45f, 315);
-                                        } else {
-                                            rotateTo = RotateTo.create(getDirector(), 0.45f, 0);
-                                        }
-                                        rotateTo.setTag(AppConst.TAG.USER+17);
-                                        arrowView.runAction(rotateTo);
-                                    }
                                 }
                                 break;
                             }
@@ -242,57 +225,14 @@ public class HellowInterparkScene extends SMScene {
                 return _menuNames.size();
             }
         };
-//        _tableView.setScissorEnable(true);
-//        _tableView.setScissorRect(new Rect(50, 50, s.width-100, _tableView.getContentSize().height-100));
+        _tableView.setScissorEnable(true);
+//        _tableView.setScissorRect(new Rect(200, 200, s.width-400, _tableView.getContentSize().height-400));
 //
 //        _tableView.setAnchorPoint(Vec2.MIDDLE);
-//        _tableView.setPosition(new Vec2(s.width/2, s.height/2+AppConst.SIZE.TOP_MENU_HEIGHT/2));
+//        _tableView.setPosition(new Vec2(s.width/2, s.height/2+AppConst.SIZE.MENUBAR_HEIGHT/2));
         _contentView.addChild(_tableView);
         _contentView.setLocalZOrder(-10);
 
-//        float centerX = s.width/2;
-//        float centerY = s.height/2;
-//
-//        arrowView = SMView.create(getDirector());
-//        arrowView.setContentSize(s);
-//        arrowView.setAnchorPoint(Vec2.MIDDLE);  // like in button view
-//        arrowView.setPosition(centerX, centerY); // like in button view
-//        addChild(arrowView);
-//
-//
-//        SMRoundLine line1 = SMRoundLine.create(getDirector());
-//        line1.setBackgroundColor(Color4F.ALARM_BADGE_RED);
-//        line1.setLocalZOrder(100);
-//        line1.setLineWidth(50);
-//        line1.line(-160+centerX, -160+centerY, 0+centerX, 0+centerY);
-//        arrowView.addChild(line1);
-//
-//        SMRoundLine line2 = SMRoundLine.create(getDirector());
-//        line2.setBackgroundColor(Color4F.ALARM_BADGE_RED);
-//        line2.setLocalZOrder(100);
-//        line2.setLineWidth(50);
-//        line2.line(160+centerX, 160+centerY, 0+centerX, 0+centerY);
-//        arrowView.addChild(line2);
-//
-//        SMRoundLine line3 = SMRoundLine.create(getDirector());
-//        line3.setBackgroundColor(Color4F.ALARM_BADGE_RED);
-//        line3.setLocalZOrder(100);
-//        line3.setLineWidth(50);
-//        line3.line(-160+centerX, 120+centerY, -160+centerX, -160+centerY);
-//        arrowView.addChild(line3);
-//
-//        SMRoundLine line4 = SMRoundLine.create(getDirector());
-//        line4.setBackgroundColor(Color4F.ALARM_BADGE_RED);
-//        line4.setLocalZOrder(100);
-//        line4.setLineWidth(50);
-//        line4.line(120+centerX, -160+centerY, -160+centerX, -160+centerY);
-//        arrowView.addChild(line4);
-
-
-//        sDotBack[0] = new DotPosition(new Vec2(-16, -16), Vec2.ZERO, AppConst.SIZE.LINE_DIAMETER); // Left-Top to center (ZERO)
-//        sDotBack[1] = new DotPosition(new Vec2(16, +16), Vec2.ZERO, AppConst.SIZE.LINE_DIAMETER); // Rgith-Bottom to center (ZERO)
-//        sDotBack[2] = new DotPosition(new Vec2(-16, +12), new Vec2(-16, -16), AppConst.SIZE.LINE_DIAMETER); // Left-Bottom middle to Left-Top
-//        sDotBack[3] = new DotPosition(new Vec2(12, -16), new Vec2(-16, -16), AppConst.SIZE.LINE_DIAMETER); // Right middle-Top to Left-Top
 
         return true;
     }

@@ -365,7 +365,6 @@ public class SMView extends Ref {
     protected float _rotationZ_Y = 0.0f;
 
     protected float _alpha = 1.0f;
-//    protected float _scale = 1.0f;
     protected float _scaleX = 1.0f;
     protected float _scaleY = 1.0f;
     protected float _scaleZ = 1.0f;
@@ -404,8 +403,6 @@ public class SMView extends Ref {
     private boolean mLongClickable = false;
     private boolean mDoubleClickable = false;
 
-//    private Animator mShowAnimator, mHideAnimator;
-//    private ArrayList<Animator> mAnimator;
     private float mScaledDoubleTouchSlope;
 
     public static SMView create(IDirector director) {
@@ -2274,6 +2271,10 @@ public class SMView extends Ref {
         transformMatrix(_director.getProjectionMatrix());
         _director.updateProjectionMatrix();
 
+        if (_scissorEnable) {
+            enableScissorTest(true);
+        }
+
         // base property... draw first me...
         renderOwn(a);
 
@@ -2303,14 +2304,15 @@ public class SMView extends Ref {
             draw(a);
         }
 
+        if (_scissorEnable) {
+            enableScissorTest(false);
+        }
+
         _director.popProjectionMatrix();
 
         }
 
     private void renderOwn(float  alpha) {
-        if (_scissorEnable) {
-            enableScissorTest(true);
-        }
 
         if (_alpha < .001f)
             return;
@@ -2358,9 +2360,6 @@ public class SMView extends Ref {
 
         }
 
-        if (_scissorEnable) {
-            enableScissorTest(false);
-        }
     }
 
     protected void draw(float a) { }

@@ -95,7 +95,7 @@ public class MenuBar extends SMView {
         _mainButton.setAnchorPoint(Vec2.MIDDLE);
         _mainButton.setButtonColor(STATE.NORMAL, MakeColor4F(0x222222, 1.0f));
         _mainButton.setButtonColor(STATE.PRESSED, MakeColor4F(0xadafb3, 1.0f));
-        _mainButton.setBackgroundColor(Color4F.XADAFB3);
+//        _mainButton.setBackgroundColor(Color4F.XADAFB3);
 
 
         _buttonContainer = SMView.create(getDirector());
