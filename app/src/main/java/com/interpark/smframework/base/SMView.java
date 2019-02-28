@@ -202,6 +202,7 @@ public class SMView extends Ref {
             child.cleanup();
         }
 
+        releaseGLResources();
 
         if (_smoothFlags > 0) {
             _smoothFlags = 0;
@@ -759,7 +760,7 @@ public class SMView extends Ref {
 
         if (immediate ) {
             _realAlpha = _newAlpha = alpha;
-            _bgColor[3] =_alpha = alpha * _animAlpha;
+            _bgColor[3] = _alpha = alpha * _animAlpha;
 
         } else {
             if (_newAlpha==alpha) {
@@ -2728,7 +2729,7 @@ public class SMView extends Ref {
         if (_tintColor==null) {
             _tintColor = new float[]{1, 1, 1, 1};
         }
-        _tintColor[3] = _realAlpha * alpha;
+        _tintColor[3] = _realTintAlpha * alpha;
         updateTintColor();
 
         if (_cascadeAlphaEnabled) {

@@ -68,8 +68,4 @@ public class ShapeScene extends SMMenuTransitionScene {
         return false;
     }
 
-//    @Override
-//    public void onEnter() {
-//        super.onEnter();
-//    }
 }

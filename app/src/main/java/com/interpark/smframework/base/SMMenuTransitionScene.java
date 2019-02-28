@@ -130,6 +130,7 @@ public class SMMenuTransitionScene extends SMScene {
             if (_menuBar==null) {
                 return;
             }
+
                 SMView layer = _director.getSharedLayer(IDirector.SharedLayer.BETWEEN_SCENE_AND_UI);
             if (layer==null) return;
             _menuBar.changeParent(layer);

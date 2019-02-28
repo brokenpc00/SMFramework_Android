@@ -118,21 +118,11 @@ public class HellowInterparkScene extends SMScene {
         _menuBar.setLocalZOrder(999);
         _menuBar.setMenuBarListener(_menuBarListener);
 
-//        _menuBar.setMenuBarListener(new MenuBar.MenuBarListener() {
-//            @Override
-//            public boolean func1(SMView view) {
-//                return onMenuClick(view);
-//            }
-//
-//            @Override
-//            public void func2() {
-//                onMenuTouchg();
-//            }
-//        });
+
         _contentView.addChild(_menuBar);
 
         _menuNames.add("Shapes");
-        _menuNames.add("View");
+        _menuNames.add("Views");
         _menuNames.add("Controls");
 
         _tableView = SMTableView.createMultiColumn(getDirector(), SMTableView.Orientation.VERTICAL, 1, 0, AppConst.SIZE.MENUBAR_HEIGHT, s.width, s.height-AppConst.SIZE.MENUBAR_HEIGHT);
@@ -151,7 +141,7 @@ public class HellowInterparkScene extends SMScene {
                     SMLabel title = SMLabel.create(getDirector(), str, 55, MakeColor4F(0x222222, 1.0f));
                     title.setAnchorPoint(Vec2.MIDDLE);
                     title.setPosition(new Vec2(s.width/2, cell.getContentSize().height/2));
-                    title.setTintAlpha(0.0f);
+                    title.setTintAlpha(0.6f);
                     cell.addChild(title);
 
                     SMRoundLine line = SMRoundLine.create(getDirector());
@@ -292,13 +282,13 @@ public class HellowInterparkScene extends SMScene {
     @Override
     public void onTransitionComplete(final Transition type, final int tag) {
         if (type == Transition.RESUME) {
+            bringMenuBarFromLayer();
         } else if (type == Transition.OUT) {
 
         }
     }
 
-    @Override
-    public void onTransitionReplaceSceneDidFinish() {
+    protected void bringMenuBarFromLayer() {
         SMView layer = _director.getSharedLayer(IDirector.SharedLayer.BETWEEN_SCENE_AND_UI);
         if (layer==null) return;
 
@@ -312,5 +302,10 @@ public class HellowInterparkScene extends SMScene {
 
         _menuBar.setMenuBarListener(_menuBarListener);
     }
+
+//    @Override
+//    public void onTransitionReplaceSceneDidFinish() {
+////        bringMenuBarFromLayer();
+//    }
 }
 

@@ -11,15 +11,18 @@ import com.interpark.smframework.base.types.Color4F;
 import com.interpark.smframework.util.Size;
 import com.interpark.smframework.util.Vec2;
 
+import org.apache.http.cookie.SM;
+
+import java.util.ArrayList;
+
 public class SMLabel extends _UIContainerView {
 
     private TextSprite _textSprite = null;
     private float _fontSize = 0.0f;
 //    private Color4F _fontColor = new Color4F(Color4F.TEXT_BLACK);
     private String _text = "";
-    private boolean _isSep = false;
     private SMView _letterConainerView = null;
-    private SMLabel[] _letters = null;
+    private ArrayList<SMLabel> _letters = null;
     private Align _align = Align.CENTER;
     private boolean _bold = false;
     private boolean _italic = false;
@@ -74,9 +77,7 @@ public class SMLabel extends _UIContainerView {
     }
 
     private void makeTextSprite() {
-        if (_textSprite!=null) {
-            _textSprite.releaseResources();
-        }
+        releaseGLResources();
         _textSprite = TextSprite.createTextSprite(getDirector(), _text, _fontSize, _align, _bold, _italic, _strike, _maxWidth, _maxLines);
         setContentSize(new Size(_textSprite.getWidth(), _textSprite.getHeight()));
     }
@@ -112,48 +113,49 @@ public class SMLabel extends _UIContainerView {
         makeTextSprite();
     }
 
-    public void makeSeparate() {
-        makeSeparate(true);
-    }
-    public void makeSeparate(boolean make) {
-        _isSep = make;
-
-        int len = _text.length();
-
+    public void clearSeparate() {
         if (_letterConainerView!=null) {
             if (_letters!=null) {
-                for (int i=0; i<len; i++) {
-                    if (_letters[i]!=null) {
-                        _letters[i].removeFromParent();
-                        _letters[i] = null;
-                    }
+                for (SMLabel label : _letters) {
+                    label.removeFromParent();
+                    label = null;
                 }
+                _letters.clear();
                 _letters = null;
             }
             _letterConainerView.removeAllChildren();
             _letterConainerView.removeFromParent();
             _letterConainerView = null;
         }
+    }
 
-        if (_isSep) {
+    public void makeSeparate() {
+        clearSeparate();
+
+        int len = _text.length();
+        if (len==0) {
+            return;
+        }
+
             _letterConainerView = SMView.create(getDirector());
             _letterConainerView.setAnchorPoint(new Vec2(0, 0));
             _letterConainerView.setPosition(new Vec2(0, 0));
             _letterConainerView.setContentSize(_contentSize);
             addChild(_letterConainerView);
 
-            _letters = new SMLabel[len];
-            float posX = 0.0f;
+        _letters = new ArrayList<SMLabel>(len);
+        float padding = 4.0f;
+        float posX = padding;
             for (int i=0; i<len; i++) {
-                String str = _textSprite.getText().substring(i, i=1);
+            String str = _text.substring(i, i+1);
                 SMLabel letter = SMLabel.create(getDirector(), str, _fontSize, new Color4F(_tintColor));
                 letter.setAnchorPoint(Vec2.MIDDLE);
-                posX += letter.getContentSize().width/2;
+            float letterSize = letter.getContentSize().width - padding*2;
+            posX += letterSize/2;
                 letter.setPosition(new Vec2(posX, _letterConainerView.getContentSize().height/2));
                 _letterConainerView.addChild(letter);
-                posX += letter.getContentSize().width/2;
-                _letters[i] = letter;
-            }
+            posX += letterSize/2;
+            _letters.add(letter);
         }
     }
 
@@ -165,18 +167,25 @@ public class SMLabel extends _UIContainerView {
         return _textSprite.getText();
     }
 
-    public boolean isSeparateMode() {return _isSep;}
+    public int getSeparateCount() {
+        if (_letters!=null && _letters.size()>0) {
+            return _letters.size();
+        }
+
+        return 0;
+    }
 
     public void setText(final String text) {
-        _textSprite.setText(text);
+        _text = text;
+        makeTextSprite();
     }
 
     public SMLabel getLetter(int index) {
-        if (!_isSep) return null;
+        if (_letters==null || index>_letters.size()-1 || index<0) {
+            return null;
+        }
 
-        if (index>_letters.length-1) return null;
-
-        return _letters[index];
+        return _letters.get(index);
     }
 
     public void setFontColor(final Color4F color) {
@@ -193,6 +202,18 @@ public class SMLabel extends _UIContainerView {
 //    }
 
     @Override
+    public void releaseGLResources() {
+        if (_textSprite!=null) {
+            _textSprite.releaseResources();
+            _textSprite = null;
+        }
+    }
+
+    public void setTestBgColor(Color4F color) {
+        super.setBackgroundColor(color);
+    }
+
+    @Override
     public void setBackgroundColor(final Color4F color) {
         setTintColor(color);
     }
@@ -204,7 +225,9 @@ public class SMLabel extends _UIContainerView {
 
     @Override
     protected void draw(float a) {
-        if (_isSep) return;
+        if (_letters!=null && _letters.size()>0) {
+            return;
+        }
 
         setRenderColor(a);
 
