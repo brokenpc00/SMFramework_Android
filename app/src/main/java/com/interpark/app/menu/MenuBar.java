@@ -469,17 +469,17 @@ public class MenuBar extends SMView {
         }
 
         if (_textTransType==TextTransition.ELASTIC) {
-            _textTransform.setElasticType();
             // for separate text animation... make letter
             _textTransform.makeTextSeparate();
+            _textTransform.setElasticType();
         } else {
             _textTransform.setFadeType();
         }
 
 //        // for ElasticTest
 //        if (_textTransType==TextTransition.SWIPE) {
-//            _textTransform.makeTextSeparate();
 //            _textTransform.setElasticType();
+//            _textTransform.makeTextSeparate();
 //        }
 
         _textTransform.setTextIndex(_textIndex);
@@ -1551,20 +1551,45 @@ public class MenuBar extends SMView {
                 }
             } else {
                 t = tweenfunc.cubicEaseOut(t);
-                t *= _duration;
+                if (t<0)t=0;
+                if (t>1)t=1;
 
-                // out text
+                // out text... start 0.4... end 0.8f
+                float outValue = 0;
+                float outStart = 0.4f;
+                float outEnd = 0.8f;
+                if (t>=outStart && t<=outEnd) {
+                    outValue = t-outStart;
+                    if (outValue>0) {
+                        outValue /= 0.4f;
+                    }
+                }
+                if (t>outEnd)outValue=1;
+                // in text... start 0.6... end 1.0f
+                float inValue = 0;
+                float inStart = 0.5f;
+                float inEnd = 0.9f;
+                if (t>=inStart && t<inEnd) {
+                    inValue = t-inStart;
+                    if (inValue>0) {
+                        inValue /= 0.4f;
+                    }
+                }
+                if (t>inEnd)inValue=1;
+
+                if (t>=outStart) {
+                    // out text label stride moving.
                 SMLabel label = _menuBar._textLabel[1-_toIndex];
                 if (label!=null) {
-                    if (label.getSeparateCount()>0 && label.getSeparateCount()>0) {
-                        int len = label.getSeparateCount();
-                        for (int i=0; i<len; i++) {
-                            float tt = t - i*(AppConst.Config.TEXT_TRANS_DELAY/2);
-                            if (tt>0) {
-                                float f = tt / (AppConst.Config.TEXT_TRANS_DURATION/2);
-                                if (f>1) f = 1.0f;
+                        if (label.getSeparateCount()>0) {
+                            for (int i=0; i<label.getSeparateCount(); i++) {
                                 SMLabel letter = label.getLetter(i);
                                 if (letter!=null) {
+                                    float tt = outValue - i*(AppConst.Config.TEXT_TRANS_DELAY/2);
+                                    if (tt>0) {
+                                        float f = tt / (AppConst.Config.TEXT_TRANS_DURATION/2);
+                                        if (f>1)f=1;
+
                                     f = 1.0f - f;
                                     letter.setScale(f);
                                     letter.setTintAlpha(f);
@@ -1572,38 +1597,66 @@ public class MenuBar extends SMView {
                             }
                         }
                     } else {
-                        label.setVisible(false);
+                            label.setTintAlpha(1-t);
                     }
                 }
 
-                if (t>_gap*0.6f) {
-                    t -= _gap * 0.6f;
-
-                    // in text
                     label = _menuBar._textLabel[_toIndex];
                     if (label!=null) {
-                        // in label
                         if (label.getSeparateCount()>0) {
-                            int len = label.getStringLength();
-                            for (int i=0; i<len; i++) {
-                                float tt = t - i*(AppConst.Config.TEXT_TRANS_DELAY);
+                            for (int i=0; i<label.getSeparateCount(); i++) {
+                                SMLabel letter = label.getLetter(i);
+                                if (letter!=null) {
+                                    float tt = inValue - i*(AppConst.Config.TEXT_TRANS_DELAY);
                                 if (tt>0) {
                                     if (!label.isVisible()) {
                                         label.setVisible(true);
                                     }
                                     float f = tt / AppConst.Config.TEXT_TRANS_DURATION;
-                                    if (f>1.0f) f = 1.0f;
-                                    SMLabel letter = label.getLetter(i);
-                                    if (letter!=null) {
+                                        if (f>1)f=1;
+
                                         float newScale = 0.5f + 0.5f*f;
-                                        if (newScale>0.9f) newScale = 1.0f;
                                         letter.setScale(newScale);
                                         letter.setTintAlpha(f);
                                     }
                                 }
                             }
                         } else {
-                            label.setVisible(true);
+                            label.setTintAlpha(t);
+                        }
+                    }
+                } else {
+                    // not animation...yet...
+
+                    // out text
+                    SMLabel label = _menuBar._textLabel[1-_toIndex];
+                    if (label!=null) {
+                        if (label.getSeparateCount()>0) {
+                            for (int i=0; i<label.getSeparateCount(); i++) {
+                                SMLabel letter = label.getLetter(i);
+                                if (letter!=null) {
+                                    letter.setScale(1);
+                                    letter.setTintAlpha(1);
+                                }
+                            }
+                        } else {
+                            label.setTintAlpha(1);
+                        }
+                    }
+
+                    // in text
+                    label = _menuBar._textLabel[_toIndex];
+                    if (label!=null) {
+                        if (label.getSeparateCount()>0) {
+                            for (int i=0; i<label.getSeparateCount(); i++) {
+                                SMLabel letter = label.getLetter(i);
+                                if (letter!=null) {
+                                    letter.setScale(0);
+                                    letter.setTintAlpha(0);
+                                }
+                            }
+                        } else {
+                            label.setTintAlpha(0);
                         }
                     }
                 }
