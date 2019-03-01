@@ -39,7 +39,6 @@ public class SMRoundRectView extends SMShapeView {
 
     public SMRoundRectView (IDirector director, float tickness, LineType type, float round, Color4F color) {
         this (director, tickness, type, round);
-//        roundColor = color;
         setTintColor(color);
     }
 
@@ -66,11 +65,6 @@ public class SMRoundRectView extends SMShapeView {
         setTintColor(r, g, b, a);
     }
 
-//    @Override
-//    public void updateTintColor() {
-//        roundColor.set(new Color4F(_tintColor));
-//    }
-
     public void setLineColor(Color4F color) {
         setTintColor(color);
     }
@@ -79,7 +73,6 @@ public class SMRoundRectView extends SMShapeView {
     protected Texture lineTexture = null;
     private float mRound;
     private LineType mType = LineType.Solid;
-//    private Color4F roundColor = new Color4F(0, 0, 0, 1);
 
     @Override
     protected void draw(float a) {

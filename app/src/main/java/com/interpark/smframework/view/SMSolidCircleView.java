@@ -19,14 +19,8 @@ public class SMSolidCircleView extends SMShapeView {
 
     public SMSolidCircleView(IDirector director, Color4F color) {
         this(director);
-//        bgColor = color;
         setTintColor(color);
     }
-
-//    @Override
-//    public void updateTintColor() {
-//        bgColor.set(new Color4F(_tintColor));
-//    }
 
     @Override
     public void setBackgroundColor(final Color4F color) {
@@ -40,7 +34,6 @@ public class SMSolidCircleView extends SMShapeView {
 
 
     protected PrimitiveCircle bgShape = null;
-//    private Color4F bgColor = new Color4F(0, 0, 0, 1);
 
     @Override
     protected void draw(float a) {

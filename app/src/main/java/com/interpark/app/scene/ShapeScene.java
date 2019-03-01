@@ -31,6 +31,7 @@ public class ShapeScene extends SMMenuTransitionScene {
 
     private SMTableView _tableView = null;
     private SMView _contentView = null;
+    private ArrayList<String> _menuNames = new ArrayList<>();
 
     public static ShapeScene create(IDirector director, MenuBar menuBar) {
         ShapeScene scene = new ShapeScene(director);
@@ -49,6 +50,19 @@ public class ShapeScene extends SMMenuTransitionScene {
 
         setMenuBarTitle("Shapes.");
 
+        Size s = getDirector().getWinSize();
+
+        _contentView = SMView.create(getDirector(), 0, 0, AppConst.SIZE.MENUBAR_HEIGHT, s.width, s.height-AppConst.SIZE.MENUBAR_HEIGHT);
+        addChild(_contentView);
+
+        _menuNames.add("DOT");
+        _menuNames.add("LINE");
+        _menuNames.add("RECT");
+        _menuNames.add("ROUNDEDRECT");
+        _menuNames.add("CIRCLE");
+        _menuNames.add("SOLID-RECT");
+        _menuNames.add("SOLID-ROUNDEDRECT");
+        _menuNames.add("SOLID_CIRCLE");
 
 
         return true;

@@ -101,15 +101,9 @@ public class HellowInterparkScene extends SMScene {
     protected boolean init() {
         super.init();
 
-        setBackgroundColor(1, 1, 0, 1);
+        setBackgroundColor(1, 1, 1, 1);
 
         _mainScene = this;
-
-        Size s = getContentSize();
-
-        _contentView = SMView.create(getDirector(), 0, 0, s.width, s.height);
-        _contentView.setBackgroundColor(AppConst.COLOR._WHITE);
-        addChild(_contentView);
 
         _menuBar = MenuBar.create(getDirector());
         _menuBar.setMenuButtonType(MenuBar.MenuType.MENU, true);
@@ -117,15 +111,19 @@ public class HellowInterparkScene extends SMScene {
         _menuBar.setColorSet(MenuBar.ColorSet.WHITE_TRANSULANT, true);
         _menuBar.setLocalZOrder(999);
         _menuBar.setMenuBarListener(_menuBarListener);
+        addChild(_menuBar);
 
+        Size s = getContentSize();
+        _contentView = SMView.create(getDirector(), 0, AppConst.SIZE.MENUBAR_HEIGHT, s.width, s.height-AppConst.SIZE.MENUBAR_HEIGHT);
+        _contentView.setBackgroundColor(AppConst.COLOR._WHITE);
+        addChild(_contentView);
 
-        _contentView.addChild(_menuBar);
 
         _menuNames.add("Shapes");
         _menuNames.add("Views");
         _menuNames.add("Controls");
 
-        _tableView = SMTableView.createMultiColumn(getDirector(), SMTableView.Orientation.VERTICAL, 1, 0, AppConst.SIZE.MENUBAR_HEIGHT, s.width, s.height-AppConst.SIZE.MENUBAR_HEIGHT);
+        _tableView = SMTableView.createMultiColumn(getDirector(), SMTableView.Orientation.VERTICAL, 1, 0, 0, s.width, _contentView.getContentSize().height);
         _tableView.cellForRowAtIndexPath = new CellForRowAtIndexPath() {
             @Override
             public SMView onFunc(IndexPath indexPath) {
@@ -231,7 +229,6 @@ public class HellowInterparkScene extends SMScene {
 
     public boolean onMenuClick(SMView view) {
         MenuBar.MenuType type = MenuBar.intToMenuType(view.getTag());
-        Log.i("HelloScene", "[[[[[ on Menu click!!! " + type);
         switch (type) {
             case MENU:
             {
@@ -295,7 +292,7 @@ public class HellowInterparkScene extends SMScene {
         ArrayList<SMView> children = layer.getChildren();
         for (SMView child : children) {
             if (child==_menuBar) {
-                _menuBar.changeParent(_contentView);
+                _menuBar.changeParent(this);
                 break;
             }
         }
@@ -303,9 +300,5 @@ public class HellowInterparkScene extends SMScene {
         _menuBar.setMenuBarListener(_menuBarListener);
     }
 
-//    @Override
-//    public void onTransitionReplaceSceneDidFinish() {
-////        bringMenuBarFromLayer();
-//    }
 }
 

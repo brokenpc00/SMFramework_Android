@@ -26,12 +26,6 @@ public class SMSolidRectView extends SMShapeView {
     protected PrimitiveRect bgShape = null;
 
     private float lineWidth = 1.0f;
-//    private Color4F solidColor = new Color4F(0, 0, 0, 1);
-
-//    @Override
-//    public void updateTintColor() {
-//        solidColor.set(new Color4F(_tintColor));
-//    }
 
     @Override
     public void setBackgroundColor(final float r, final float g, final float b, final float a) {
@@ -45,7 +39,6 @@ public class SMSolidRectView extends SMShapeView {
 
     public SMSolidRectView(IDirector director, Color4F solidcolor) {
         this(director);
-//        solidColor = solidcolor;
         setTintColor(solidcolor);
     }
 

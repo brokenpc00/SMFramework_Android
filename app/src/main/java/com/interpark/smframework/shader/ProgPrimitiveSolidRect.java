@@ -4,7 +4,7 @@ import android.opengl.GLES20;
 
 import java.nio.FloatBuffer;
 
-public class ProgPrimitiveAARect extends ProgPrimitive {
+public class ProgPrimitiveSolidRect extends ProgPrimitive {
     private static final String NAME_TEXTURECOORD = "inputTextureCoordinate";
 
     private static final String NAME_DIMEN = "dimension";

@@ -16,7 +16,7 @@ import com.android.volley.RequestQueue;
 import com.interpark.smframework.base.SMScene;
 import com.interpark.smframework.base.SMView;
 import com.interpark.smframework.base.SceneParams;
-import com.interpark.smframework.base.shape.PrimitiveAARect;
+import com.interpark.smframework.base.shape.PrimitiveSolidRect;
 import com.interpark.smframework.base.shape.PrimitiveCircle;
 import com.interpark.smframework.base.shape.PrimitiveLine;
 import com.interpark.smframework.base.shape.PrimitiveRect;
@@ -145,7 +145,7 @@ public class SMDirector implements IDirector, GLSurfaceView.Renderer {
     private PrimitiveRect mPrimHollowBox;
     private PrimitiveLine mPrimLine;
     private PrimitiveCircle mPrimCircle;
-    private PrimitiveAARect mPrimAARect;
+    private PrimitiveSolidRect mPrimSolidRect;
     private ShaderManager mShaderManager;
     public ShaderManager getShaderManager() {return mShaderManager;}
     private TextureManager mTextureManager;
@@ -1435,16 +1435,16 @@ public class SMDirector implements IDirector, GLSurfaceView.Renderer {
     }
 
     @Override
-    public void drawAARect(float x, float y, float width, float height, float round) {
-        drawAARect(x, y, width, height, round, 1f);
+    public void drawSolidRect(float x, float y, float width, float height, float round) {
+        drawSolidRect(x, y, width, height, round, 1f);
     }
 
     @Override
-    public void drawAARect(float x, float y, float width, float height, float round, float border) {
-        if (mPrimAARect == null) {
-            mPrimAARect = new PrimitiveAARect(this);
+    public void drawSolidRect(float x, float y, float width, float height, float round, float border) {
+        if (mPrimSolidRect == null) {
+            mPrimSolidRect = new PrimitiveSolidRect(this);
         }
-        mPrimAARect.drawRect(x, y, width, height, round, border);
+        mPrimSolidRect.drawRect(x, y, width, height, round, border);
     }
 
     @Override

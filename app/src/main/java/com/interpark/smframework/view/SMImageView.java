@@ -46,7 +46,6 @@ public class SMImageView extends _UIContainerView {
     private float mImageScale = 1f;
     private float mScaleX, mScaleY;
     private final RectF mContentsBounds;
-//    private Color4F _spriteColor = new Color4F(0, 0, 0, 0);
 
     public static SMImageView create(IDirector director, String assetName) {
         SMImageView imageView = new SMImageView(director, assetName);
@@ -83,12 +82,6 @@ public class SMImageView extends _UIContainerView {
         setSprite(sprite);
     }
 
-//    public SMImageView(IDirector director, Texture texture, float cx, float cy) {
-//        this(director);
-//        Sprite sprite = new Sprite(director, texture, cx, cy);
-//        setSprite(sprite, true);
-//    }
-
     public SMImageView(IDirector director, Texture texture) {
         this(director);
         Sprite sprite = new Sprite(director, texture, 0, 0);
@@ -107,14 +100,6 @@ public class SMImageView extends _UIContainerView {
     }
 
 
-//    public SMImageView(IDirector director, float x, float y, float width, float height, float cx, float cy) {
-//        this(director);
-//        setPosition(x, y);
-//        setContentSize(width, height);
-////        setBounds(x, y, width, height, cx, cy);
-//    }
-
-
     public void setSprite(DrawNode sprite) {
         setSprite(sprite, false);
     }
@@ -127,12 +112,6 @@ public class SMImageView extends _UIContainerView {
             computeContentsBounds();
         }
     }
-
-//    @Override
-//    public void setBounds(float x, float y, float width, float height, float cx, float cy) {
-//        super.setBounds(x, y, width, height, cx, cy);
-//        computeContentsBounds();
-//    }
 
     @Override
     public void setContentSize(Size size) {
@@ -188,8 +167,6 @@ public class SMImageView extends _UIContainerView {
     public void computeContentsBounds() {
         final float vw = _contentSize.width;
         final float vh = _contentSize.height;
-//        final float vcx = getCX();
-//        final float vcy = getCY();
         final float vcx = 0;
         final float vcy = 0;
         final float sw, sh;

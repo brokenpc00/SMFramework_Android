@@ -33,12 +33,14 @@ public class ShaderManager {
         /** Ring **/
         PrimitiveRing(5, "glsl/sprite.vsh", "glsl/primitive_ring.fsh", new ProgPrimitiveRing()),
         /** AA Rounded Rectangle */
-        PrimitiveAARect(6, "glsl/sprite.vsh", "glsl/primitive_aarect.fsh", new ProgPrimitiveAARect()),
+        PrimitiveSolidRect(6, "glsl/sprite.vsh", "glsl/primitive_solidrect.fsh", new ProgPrimitiveSolidRect()),
+        /** Triangle **/
+        PrimitiveTriangle(7, "/glsl/sprite.vsh", "glsl/primitive_triangle.fsh", new ProgPrimitiveTriangle()),
         /** 3D 스프라이트 */
-        Sprite3D(7, "glsl/sprite3d.vsh", "glsl/sprite3d.fsh", new ProgSprite3D()),
+        Sprite3D(8, "glsl/sprite3d.vsh", "glsl/sprite3d.fsh", new ProgSprite3D()),
         /** yuv2rgb */
         // 속도 때문에 yuv로 받아야 한다. argb로 받으면 겁나 느림..
-        CameraPreview(8, "glsl/sprite.vsh", "glsl/yuv2rgb.fsh", new ProgCameraPreview());
+        CameraPreview(9, "glsl/sprite.vsh", "glsl/yuv2rgb.fsh", new ProgCameraPreview());
 
 
         private int key;

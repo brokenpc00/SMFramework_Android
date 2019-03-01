@@ -38,11 +38,6 @@ public class SMCircleView extends SMShapeView {
         setTintColor(color);
     }
 
-//    @Override
-//    public void updateTintColor() {
-//        lineColor.set(new Color4F(_tintColor));
-//    }
-
     protected PrimitiveCircle bgShape = null;
 
     @Override

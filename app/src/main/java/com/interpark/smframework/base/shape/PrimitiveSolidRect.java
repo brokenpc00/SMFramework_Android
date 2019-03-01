@@ -4,20 +4,20 @@ import android.opengl.GLES20;
 
 import com.interpark.smframework.IDirector;
 import com.interpark.smframework.base.DrawNode;
+import com.interpark.smframework.shader.ProgPrimitiveSolidRect;
 import com.interpark.smframework.shader.ShaderManager;
 import com.interpark.smframework.shader.ShaderProgram;
-import com.interpark.smframework.shader.ProgPrimitiveAARect;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
 
-public class PrimitiveAARect extends DrawNode {
+public class PrimitiveSolidRect extends DrawNode {
     protected FloatBuffer uv;
 
     private float mRound, mBorder, mWidth, mHeight;
 
-    public PrimitiveAARect(IDirector director) {
+    public PrimitiveSolidRect(IDirector director) {
         this.director = director;
         drawMode = GLES20.GL_TRIANGLE_STRIP;
         numVertices = 4;
@@ -44,7 +44,7 @@ public class PrimitiveAARect extends DrawNode {
         this.uv.put(uv);
         this.uv.position(0);
 
-        setProgramType(ShaderManager.ProgramType.PrimitiveCircle);
+        setProgramType(ShaderManager.ProgramType.PrimitiveSolidRect);
     }
 
     protected void _draw(float[] modelMatrix) {
@@ -52,8 +52,8 @@ public class PrimitiveAARect extends DrawNode {
         if (program != null) {
             switch (program.getType()) {
                 default:
-                case PrimitiveAARect:
-                    if( ((ProgPrimitiveAARect)program).setDrawParam(sMatrix, v, uv, mWidth, mHeight, mRound, mBorder)) {
+                case PrimitiveSolidRect:
+                    if( ((ProgPrimitiveSolidRect)program).setDrawParam(sMatrix, v, uv, mWidth, mHeight, mRound, mBorder)) {
                         GLES20.glDrawArrays(drawMode, 0, numVertices);
                     }
                     break;
@@ -62,7 +62,7 @@ public class PrimitiveAARect extends DrawNode {
     }
 
     public void drawRect(float x, float y, float width, float height, float round, float border) {
-        setProgramType(ShaderManager.ProgramType.PrimitiveAARect);
+        setProgramType(ShaderManager.ProgramType.PrimitiveSolidRect);
         mWidth = width;
         mHeight = height;
         mRound = round;

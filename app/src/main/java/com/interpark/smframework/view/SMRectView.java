@@ -24,27 +24,16 @@ public class SMRectView extends SMShapeView {
 
     protected PrimitiveRect bgShape = null;
 
-//    private float xScale = 1.0f;
-//    private float yScale = 1.0f;
-//    private Color4F outlineColor = new Color4F(0, 0, 0, 1);
-
     public SMRectView(IDirector director, Color4F outlinecolor) {
         this(director);
-//        outlineColor = outlinecolor;
         setTintColor(outlinecolor);
     }
 
     public SMRectView(IDirector director, Color4F outlinecolor, float linewidth) {
         this(director);
-//        outlineColor = outlinecolor;
         setTintColor(outlinecolor);
         _lineWidth = linewidth;
     }
-
-//    @Override
-//    public void updateTintColor() {
-//        outlineColor.set(new Color4F(_tintColor));
-//    }
 
     @Override
     public void setBackgroundColor(final float r, final float g, final float b, final float a) {
