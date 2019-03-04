@@ -58,4 +58,12 @@ public class MainActivity extends FragmentActivity {
         }
     }
 
+    @Override
+    public void onBackPressed() {
+        if (mSurfaceView == null || !mSurfaceView.onBackPressed()) {
+            mSurfaceView = null;
+            super.onBackPressed();
+        }
+    }
+
 }

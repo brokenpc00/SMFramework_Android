@@ -60,8 +60,11 @@ public class SMMenuTransitionScene extends SMScene {
     protected void onMenuBarTouch() { }
 
     protected boolean initWithMenuBar(MenuBar menuBar) {
+        return initWithMenuBar(menuBar, SwipeType.BACK);
+    }
+    protected boolean initWithMenuBar(MenuBar menuBar, SwipeType type) {
         // We must use only SwipeType BACK !!!
-        super.initWithSceneParams(null, SwipeType.BACK);
+        super.initWithSceneParams(null, type);
         Size size = new Size(getDirector().getWidth(), getDirector().getHeight());
 
         _fromMenuType = menuBar.getMenuButtonType();

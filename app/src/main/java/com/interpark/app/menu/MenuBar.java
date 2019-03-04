@@ -304,7 +304,12 @@ public class MenuBar extends SMView {
         setMenuButtonType(menuButtonType, immediate, false);
     }
     public void setMenuButtonType(MenuType menuButtonType, boolean immediate, boolean swipe) {
-        if (_menuButtonType==menuButtonType) return;
+        if (_menuButtonType==menuButtonType) {
+            if (_menuTransform!=null) {
+                _menuTransform.setMenuType(_menuButtonType, menuButtonType, 0.0f);
+            }
+            return;
+        }
 
         DotPosition[] to = null;
 
@@ -1246,6 +1251,7 @@ public class MenuBar extends SMView {
                 isFirstMenu = false;
             }
 
+            _fromAngle = _menuBar._buttonContainer.getRotation();
 
             switch (_menuButtonType) {
                 case CLOSE:
@@ -1260,7 +1266,12 @@ public class MenuBar extends SMView {
                 break;
                 case BACK:
                 {
+                    if (_fromType!=MenuType.BACK) {
                     _toAngle = 315;// 180, 90, 45
+                    } else {
+                        // on rotate back to back
+                        _toAngle = _fromAngle;
+                    }
                 }
                 break;
                 default:
@@ -1270,16 +1281,19 @@ public class MenuBar extends SMView {
                 break;
             }
 
-            _fromAngle = _menuBar._buttonContainer.getRotation();
 
             if (_menuButtonType==MenuType.BACK) {
                 float diff = _fromAngle % 90.0f;
                 // make 180 degrees bottom -> left bottom -> left
+                if (_fromType!=_menuButtonType) {
                 _fromAngle = _toAngle - 45 - (90 + diff);
             }
+            }
             if (_fromType==MenuType.BACK) {
+                if (_fromType!=_menuButtonType) {
                 _fromAngle = SMView.getShortestAngle(0, _fromAngle);
                 _toAngle = 90;
+            }
             }
             if (_toAngle < _fromAngle) {
                 _fromAngle -= 360;
@@ -1367,7 +1381,7 @@ public class MenuBar extends SMView {
                 break;
                 case BACK:
                 {
-                    _toAngle = 315; // 180, 90, 45
+                    _toAngle = 315;
                 }
                 break;
                 default:
@@ -1415,7 +1429,9 @@ public class MenuBar extends SMView {
             }
 
             // restore angle
+            if (_fromAngle!=_toAngle) {
             _menuBar._buttonContainer.setRotation(_fromAngle);
+            }
             _menuBar._mainButton.setTag(menuTypeToInt(_fromType));
         }
 

@@ -41,7 +41,7 @@ public class AppConst {
 
     public static class SIZE {
         public static final float EDGE_SWIPE_MENU = 80.0f;
-        public static final float EDGE_SWIPE_TOP = 100.0f;
+        public static final float EDGE_SWIPE_TOP = 130.0f;
         public static final float LEFT_SIDE_MENU_WIDTH = 550.0f;
         public static final float TOP_MENU_HEIGHT = 130.0f;
         public static final float TOP_MENU_BUTTON_HEIGHT = 120.0f;

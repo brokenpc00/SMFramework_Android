@@ -202,7 +202,7 @@ public class SMView extends Ref {
             child.cleanup();
         }
 
-        releaseGLResources();
+//        releaseGLResources();
 
         if (_smoothFlags > 0) {
             _smoothFlags = 0;
@@ -1621,6 +1621,8 @@ public class SMView extends Ref {
             child.cleanup();
         }
 
+        releaseGLResources();
+
         child._parent = null;
         _children.remove(childIndex);
         child.onRemoveFromParent(this);
@@ -2499,15 +2501,15 @@ public class SMView extends Ref {
 
     public void onInitView() {}
 
-    public void onDestoryView() {
-        if (_children != null) {
-            int numChildCount = getChildCount();
-            for (int i = 0; i < numChildCount; i++) {
-                SMView child = getChild(i);
-                child.onDestoryView();
-            }
-        }
-    }
+//    public void onDestoryView() {
+//        if (_children != null) {
+//            int numChildCount = getChildCount();
+//            for (int i = 0; i < numChildCount; i++) {
+//                SMView child = getChild(i);
+//                child.onDestoryView();
+//            }
+//        }
+//    }
 
     public void onResume() {
         if (_children != null) {

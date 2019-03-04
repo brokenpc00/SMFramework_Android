@@ -67,11 +67,6 @@ public class DownloaderView extends _UIContainerView {
         mDownloadThread = null;
     }
 
-    @Override
-    public void onDestoryView() {
-        super.onDestoryView();
-        releaseResource();
-    }
 
     @Override
     protected void onRemoveFromParent(SMView parent) {

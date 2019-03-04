@@ -14,6 +14,7 @@ import com.interpark.smframework.base.SMScene;
 
 public class SMSurfaceView extends GLSurfaceView {
     private SMDirector mDirector;
+    FragmentActivity mActivity = null;
 
     public SMSurfaceView(FragmentActivity activity) {
         this(activity, false);
@@ -21,7 +22,7 @@ public class SMSurfaceView extends GLSurfaceView {
 
     public SMSurfaceView(FragmentActivity activity, boolean transulant) {
         super(activity, null);
-
+        mActivity = activity;
         init(activity, transulant);
     }
     private void init(FragmentActivity activity, boolean transulant) {
@@ -61,6 +62,12 @@ public class SMSurfaceView extends GLSurfaceView {
     }
 
     public void startSMFrameWorkScene(SMScene scene) {
+        if (mDirector==null) {
+            mDirector= new SMDirector(mActivity);
+
+            setRenderer(mDirector);
+            setRenderMode(GLSurfaceView.RENDERMODE_CONTINUOUSLY);
+        }
         mDirector.runWithScene(scene);
 //        mDirector.setRootScene(scene);
     }
@@ -232,7 +239,11 @@ public class SMSurfaceView extends GLSurfaceView {
     }
 
     public boolean onBackPressed() {
-        return mDirector.onBackPressd();
+        boolean ret = mDirector.onBackPressd();
+        if (!ret) {
+            mDirector = null;
+        }
+        return ret;
     }
 
     public void onSaveInstanceState(Bundle outState) {

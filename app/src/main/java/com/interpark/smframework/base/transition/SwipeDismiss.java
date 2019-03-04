@@ -23,8 +23,8 @@ public class SwipeDismiss extends SwipeBack {
 
     @Override
     protected void draw(float a) {
-        _lastProgress = -(_outScene.getY()-getDirector().getWinSize().height/2) / getDirector().getWinSize().height;
-
+        float progress = (_outScene.getY()-getDirector().getWinSize().height/2) / getDirector().getWinSize().height;
+        updateProgress(progress);
         if (_menuDrawContainer!=null) {
             // Todo... If you need another menu
         }
@@ -33,6 +33,13 @@ public class SwipeDismiss extends SwipeBack {
     }
 
     @Override
+    public void onEnter() {
+        _outScene.setPosition(getDirector().getWinSize().width/2, getDirector().getWinSize().height/2);
+        _inScene.setPosition(getDirector().getWinSize().width/2, getDirector().getWinSize().height/2);
+        super.onEnter();
+    }
+
+        @Override
     protected boolean isNewSceneEnter() {
         return false;
     }

@@ -229,6 +229,8 @@ public class SMLabel extends _UIContainerView {
             return;
         }
 
+        if (_textSprite==null) return;;
+
         setRenderColor(a);
 
         _textSprite.draw(_textSprite.getWidth()/2, _textSprite.getHeight()/2);

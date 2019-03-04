@@ -222,19 +222,6 @@ public class HellowInterparkScene extends SMScene {
         _contentView.addChild(_tableView);
         _contentView.setLocalZOrder(-10);
 
-        Vec2 p0 = new Vec2(100, 100);
-        Vec2 p1 = new Vec2(120, 230);
-        Vec2 p2 = new Vec2(300, 300);
-
-        SMTriangleView testView = SMTriangleView.create(getDirector(), new Size(s.width/2, s.height/2));
-        testView.setContentSize(s.width/2, s.height/2);
-        testView.setAnchorPoint(Vec2.MIDDLE);
-        testView.setPosition(s.width/2, s.height/2);
-        testView.setTriangle(0.005f, p0, p1, p2);
-        testView.setLocalZOrder(100);
-        testView.setTintColor(new Color4F(1, 0, 0, 1));
-        addChild(testView);
-
         return true;
     }
 

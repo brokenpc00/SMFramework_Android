@@ -360,16 +360,19 @@ public class SMScene extends SMView implements BackPressable {
      */
     @Override
     public boolean onBackPressed() {
-        if (isInitialized() && mState == STATE_ACTIVATE) {
-            return sceneFinish();
-        }
+//        if (isRunning()) {
+//            return finsh();
+//        }
+        if (_director.getPreviousScene()!=null) {
+            finishScene();
+            return true;
+        } else {
+            removeFromParent();
+            _director.popScene();
+            // running scene is last scene
         return false;
     }
-
-    public boolean sceneFinish() {
-        return _director.sceneFinish(this, getSceneResult());
     }
-
 
     public SceneParams getSceneResult() {
         return _sceneResult;

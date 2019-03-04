@@ -13,6 +13,7 @@ import android.view.OrientationEventListener;
 import android.view.SurfaceHolder;
 
 import com.android.volley.RequestQueue;
+import com.interpark.smframework.NativeImageProcess.ImageProcessing;
 import com.interpark.smframework.base.SMScene;
 import com.interpark.smframework.base.SMView;
 import com.interpark.smframework.base.SceneParams;
@@ -162,7 +163,6 @@ public class SMDirector implements IDirector, GLSurfaceView.Renderer {
     protected boolean _sendCleanupToScene = false;
     private final Stack<SMScene> _scenesStack = new Stack<SMScene>();
 
-    private boolean mTouckLock = false;
     private boolean mTimerUpdate = true;
     private long mCurrentTime = 0;
 
@@ -253,7 +253,6 @@ public class SMDirector implements IDirector, GLSurfaceView.Renderer {
 
     public boolean onBackPressd() {
         // 터치가 가능하면
-        if (!mTouckLock) {
 
             // 아니면 하위 scene부터 view에게 전달함.
             final SMScene scene;
@@ -265,20 +264,33 @@ public class SMDirector implements IDirector, GLSurfaceView.Renderer {
                     return false;
                 }
             }
-//            if (!scene.isVisibleAnimation()) {
+
+        if (scene.isRunning()) {
                 boolean ret = scene.onBackPressed();
                 if (ret == false && _scenesStack.size() == 1) {
                     // last scene
-                    scene.onPause();
-                    scene.onDestoryView();
+                scene.onExit();
+                scene.onEnterTransitionDidFinish();
+                finishApplication();
+                return false;
                 }
                 return ret;
-//            }
         }
 
-        return true;
+        return false;
     }
 
+
+
+    private void finishApplication() {
+        mActivity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mActivity.finish();
+
+            }
+        });
+    }
 
     public void onResume() {
         mOrientationListener.enable();
@@ -512,13 +524,7 @@ public class SMDirector implements IDirector, GLSurfaceView.Renderer {
                 });
             }
 
-            _sideMenu.setSwipeLayer(_menuSwipe);
-            _sideMenu._sideMenuUpdateCallback = new SideMenu.SIDE_MENU_UPDATE_CALLBACK() {
-                @Override
-                public void Func(SIDE_MENU_STATE state, float position) {
-                    onSideMenuUpdateCallback(state, position);
-                }
-            };
+            setMenuSwipe();
 
             if (_swipeLayer==null) {
                 _swipeLayer = SMView.create(this);
@@ -531,6 +537,21 @@ public class SMDirector implements IDirector, GLSurfaceView.Renderer {
                 mFrameBuffer = CanvasSprite.createCanvasSprite(this, mWidth, mHeight, "FRAME_BUFFER");
             }
         }
+    }
+
+    protected void setMenuSwipe() {
+        if (_sideMenu==null) {
+            _sideMenu = SideMenu.GetSideMenu();
+            _sideMenu.setSideMenuListener(null);
+        }
+
+        _sideMenu.setSwipeLayer(_menuSwipe);
+        _sideMenu._sideMenuUpdateCallback = new SideMenu.SIDE_MENU_UPDATE_CALLBACK() {
+            @Override
+            public void Func(SIDE_MENU_STATE state, float position) {
+                onSideMenuUpdateCallback(state, position);
+            }
+        };
     }
 
     private SMView _touchMotionTarget = null;
@@ -1551,58 +1572,58 @@ public class SMDirector implements IDirector, GLSurfaceView.Renderer {
         }
     }
 
-    @Override
-    public boolean sceneFinish(SMScene scene, final SceneParams params) {
-        synchronized (_scenesStack) {
-            final SMScene topScene = getTopScene();
-            if (params == null || params.getPopStackCount() <= 1) {
-                if (getSecondScene() == null) {
-                    return false;
-                }
-            } else {
-                if (_scenesStack.size()-params.getPopStackCount() < 0) {
-                    return false;
-                }
-            }
-
-            if (topScene == scene) {
-                runOnDraw(new Runnable() {
-                    @Override
-                    public void run() {
-                        SMScene secondScene = null;
-                        synchronized (_scenesStack) {
-                            if (params == null || params.getPopStackCount() <= 1) {
-                                secondScene = getSecondScene();
-                            } else {
-                                int popCount = params.getPopStackCount();
-                                params.setPopStackCount(1);
-                                for (int i = 0; i < popCount; i++) {
-                                    secondScene = getSecondScene();
-                                    if (i < popCount-1) {
-                                        // 즉시 제거;
-                                        secondScene.onPause();
-                                        secondScene.onDestoryView();
-                                        _scenesStack.remove(secondScene);
-                                    }
-                                }
-                            }
-                        }
-                        topScene.setState(SMScene.STATE_FINISHING);
-//                        topScene.hide();
-                        if (secondScene!=null) {
-                            secondScene.setState(SMScene.STATE_RESUMING);
-                            secondScene.setVisible(false);
-                            secondScene.onSceneResult(topScene.getSceneResult());
-                            secondScene.onResume();
-//                            secondScene.show();
-                            _runningScene = secondScene;
-                        }
-                    }
-                });
-            }
-        }
-        return true;
-    }
+//    @Override
+//    public boolean sceneFinish(SMScene scene, final SceneParams params) {
+//        synchronized (_scenesStack) {
+//            final SMScene topScene = getTopScene();
+//            if (params == null || params.getPopStackCount() <= 1) {
+//                if (getSecondScene() == null) {
+//                    return false;
+//                }
+//            } else {
+//                if (_scenesStack.size()-params.getPopStackCount() < 0) {
+//                    return false;
+//                }
+//            }
+//
+//            if (topScene == scene) {
+//                runOnDraw(new Runnable() {
+//                    @Override
+//                    public void run() {
+//                        SMScene secondScene = null;
+//                        synchronized (_scenesStack) {
+//                            if (params == null || params.getPopStackCount() <= 1) {
+//                                secondScene = getSecondScene();
+//                            } else {
+//                                int popCount = params.getPopStackCount();
+//                                params.setPopStackCount(1);
+//                                for (int i = 0; i < popCount; i++) {
+//                                    secondScene = getSecondScene();
+//                                    if (i < popCount-1) {
+//                                        // 즉시 제거;
+//                                        secondScene.onPause();
+//                                        secondScene.onDestoryView();
+//                                        _scenesStack.remove(secondScene);
+//                                    }
+//                                }
+//                            }
+//                        }
+//                        topScene.setState(SMScene.STATE_FINISHING);
+////                        topScene.hide();
+//                        if (secondScene!=null) {
+//                            secondScene.setState(SMScene.STATE_RESUMING);
+//                            secondScene.setVisible(false);
+//                            secondScene.onSceneResult(topScene.getSceneResult());
+//                            secondScene.onResume();
+////                            secondScene.show();
+//                            _runningScene = secondScene;
+//                        }
+//                    }
+//                });
+//            }
+//        }
+//        return true;
+//    }
 
     @Override
     public TextureManager getTextureManager() {
@@ -1741,11 +1762,13 @@ public class SMDirector implements IDirector, GLSurfaceView.Renderer {
 
     @Override
     public void setSideMenuOpenPosition(float position) {
+        setMenuSwipe();
         SideMenu.GetSideMenu().setOpenPosition(position);
     }
 
     @Override
     public SIDE_MENU_STATE getSideMenuState() {
+        setMenuSwipe();
         return SideMenu.GetSideMenu().getState();
     }
 
@@ -1820,6 +1843,8 @@ public class SMDirector implements IDirector, GLSurfaceView.Renderer {
         int c = _scenesStack.size();
         if (c==0) {
             // app finish
+            _sideMenu.removeFromParent();
+            _sideMenu = null;
             end();
         } else {
             _sendCleanupToScene = true;
@@ -1829,6 +1854,8 @@ public class SMDirector implements IDirector, GLSurfaceView.Renderer {
 
     public void end() {
         // app finish
+        SideMenu.GetSideMenu().clearMenu();
+        mActivity.finish();
     }
 
     @Override

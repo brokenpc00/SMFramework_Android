@@ -39,6 +39,16 @@ void Java_com_interpark_smframework_NativeImageProcess_ImageProcessing_callTest(
 }
 
 JNIEXPORT
+void Java_com_interpark_smframework_NativeImageProcess_ImageProcessing_exitApp(
+        JNIEnv *env,
+        jclass thiz
+)
+{
+    exit(0);
+}
+
+
+JNIEXPORT
 void JNICALL Java_com_interpark_smframework_NativeImageProcess_ImageProcessing_glGrabPixels(
         JNIEnv *env,
         jclass obj,

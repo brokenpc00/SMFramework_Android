@@ -9,6 +9,8 @@ import com.interpark.smframework.base.SMScene;
 import com.interpark.smframework.base.SMTableView;
 import com.interpark.smframework.base.SMView;
 import com.interpark.smframework.base.SceneParams;
+import com.interpark.smframework.base.transition.SlideInToLeft;
+import com.interpark.smframework.base.transition.SlideInToTop;
 import com.interpark.smframework.base.transition.SlideOutToRight;
 import com.interpark.smframework.base.types.Action;
 import com.interpark.smframework.base.types.BGColorTo;
@@ -63,9 +65,138 @@ public class ShapeScene extends SMMenuTransitionScene {
         _menuNames.add("SOLID-RECT");
         _menuNames.add("SOLID-ROUNDEDRECT");
         _menuNames.add("SOLID_CIRCLE");
+        _menuNames.add("SOLID_TRIANGLE");
 
 
+        _tableView = SMTableView.createMultiColumn(getDirector(), SMTableView.Orientation.VERTICAL, 1, 0, 0, s.width, _contentView.getContentSize().height);
+        _tableView.cellForRowAtIndexPath = new SMTableView.CellForRowAtIndexPath() {
+            @Override
+            public SMView onFunc(IndexPath indexPath) {
+                int index = indexPath.getIndex();
+                String cellID = "CELL" + index;
+                Size s = _tableView.getContentSize();
+                SMView cell = _tableView.dequeueReusableCellWithIdentifier(cellID);
+                if (cell==null) {
+                    cell = SMView.create(getDirector(), 0, 0, 0, s.width, 200);
+                    cell.setBackgroundColor(Color4F.WHITE);
+
+                    String str = _menuNames.get(index);
+                    SMLabel title = SMLabel.create(getDirector(), str, 55, MakeColor4F(0x222222, 1.0f));
+                    title.setAnchorPoint(Vec2.MIDDLE);
+                    title.setPosition(new Vec2(s.width/2, cell.getContentSize().height/2));
+                    title.setTintAlpha(0.6f);
+                    cell.addChild(title);
+
+                    SMRoundLine line = SMRoundLine.create(getDirector());
+                    line.setBackgroundColor(MakeColor4F(0xdbdcdf, 1.0f));
+                    line.setLineWidth(2);
+                    line.line(20, 198, s.width-20, 198);
+                    line.setLengthScale(1);
+                    cell.addChild(line);
+
+                    cell.setTag(index);
+                    cell.setOnClickListener(new OnClickListener() {
+                        @Override
+                        public void onClick(SMView view) {
+                            onShapeClick(view);
+                        }
+                    });
+
+                    cell.setOnStateChangeListener(new OnStateChangeListener() {
+                        @Override
+                        public void onStateChange(SMView view, STATE state) {
+                            Action action = view.getActionByTag(0xfffffe);
+                            if (action!=null) {
+                                action.stop();;
+                            }
+                            if (state==STATE.PRESSED) {
+//                                view.setBackgroundColor(new Color4F(new Color4B(0xee, 0xef, 0xf1, 0xff)));
+                                BGColorTo color = BGColorTo.create(getDirector(), 0.15f, MakeColor4F(0xeeeff1, 1.0f));
+                                color.setTag(0xfffffe);
+                                view.runAction(color);
+                            } else {
+//                                view.setBackgroundColor(Color4F.WHITE);
+                                BGColorTo color = BGColorTo.create(getDirector(), 0.15f, Color4F.WHITE);
+                                color.setTag(0xfffffe);
+                                view.runAction(color);
+                            }
+                        }
+                    });
+                }
+                return cell;
+            }
+        };
+
+        _tableView.numberOfRowsInSection = new SMTableView.NumberOfRowsInSection() {
+            @Override
+            public int onFunc(int section) {
+                return _menuNames.size();
+            }
+        };
+        _tableView.setScissorEnable(true);
+
+        _contentView.addChild(_tableView);
+        _contentView.setLocalZOrder(-10);
         return true;
+    }
+
+    protected void onShapeClick(SMView view) {
+        int tag = view.getTag();
+        switch (tag) {
+            case 0:
+            {
+                // DOT
+            }
+            break;
+            case 1:
+            {
+                // LINE
+            }
+            break;
+            case 2:
+            {
+                // RECT
+            }
+            break;
+            case 3:
+            {
+                // ROUNDEDRECT
+            }
+            break;
+            case 4:
+            {
+                // CIRCLE
+            }
+            break;
+            case 5:
+            {
+                // SOLID-RECT
+            }
+            break;
+            case 6:
+            {
+                // SOLID-ROUNDEDRECT
+            }
+            break;
+            case 7:
+            {
+                // SOLID-CIRCLE
+            }
+            break;
+            case 8:
+            {
+                // SOLID-TRIANGLE
+            }
+            break;
+        }
+
+        ShapeDisplayScene scene = ShapeDisplayScene.create(getDirector(), _menuBar);
+        if (scene!=null) {
+            SlideInToTop top = SlideInToTop.create(getDirector(), 0.3f, scene);
+            getDirector().pushScene(top);
+//            SlideInToLeft left = SlideInToLeft.create(getDirector(), 0.3f, scene);
+//            getDirector().pushScene(left);
+        }
     }
 
     @Override

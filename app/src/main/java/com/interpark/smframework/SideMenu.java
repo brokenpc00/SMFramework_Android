@@ -60,10 +60,18 @@ public class SideMenu extends SMView {
     };
     public MENU_OPEN_CLOSE _callback = null;
 
-    private static final SideMenu _instance = new SideMenu(SMDirector.getDirector());
+    private static SideMenu _instance = null;
 
     public static SideMenu GetSideMenu() {
+        if (_instance==null) {
+            _instance = new SideMenu(SMDirector.getDirector());
+        }
         return _instance;
+    }
+
+    public void clearMenu() {
+        _instance.removeFromParent();
+        _instance = null;
     }
 
     public static void OpenMenu(SMScene mainScene) {
@@ -71,7 +79,9 @@ public class SideMenu extends SMView {
     }
     public static void OpenMenu(SMScene mainScene, final MENU_OPEN_CLOSE callback) {
         SideMenu.GetSideMenu()._callback = callback;
+        if (SideMenu.GetSideMenu()._swipeLayer!=null) {
         SideMenu.GetSideMenu()._swipeLayer.open(false);
+    }
     }
 
     public static void CloseMenu() {
@@ -79,7 +89,9 @@ public class SideMenu extends SMView {
     }
     public static void CloseMenu(final MENU_OPEN_CLOSE callback) {
         SideMenu.GetSideMenu()._callback = callback;
+        if (SideMenu.GetSideMenu()._swipeLayer!=null) {
         SideMenu.GetSideMenu()._swipeLayer.close(false);
+    }
     }
 
     protected void menuClick(SMView view) {
@@ -160,7 +172,7 @@ public class SideMenu extends SMView {
 
     private SMView cellForRowsAtIndexPath (final IndexPath indexPath) {
         int index = indexPath.getIndex();
-        String cellID = "CELL" + index;
+        String cellID = "SIDE MENU : " + index;
         SMView convertView = _sideMenuTableView.dequeueReusableCellWithIdentifier(cellID);
 
         SideMenuCell cell = null;

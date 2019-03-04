@@ -18,4 +18,6 @@ public class ImageProcessing {
         System.loadLibrary("native-lib");
     }
 
+    public static native void exitApp();
+
 }

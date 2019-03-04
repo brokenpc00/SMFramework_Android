@@ -122,7 +122,7 @@ public interface IDirector {
 
     public TextureManager getTextureManager();
 
-    public boolean sceneFinish(SMScene scene, SceneParams result);
+//    public boolean sceneFinish(SMScene scene, SceneParams result);
 
     public void showProgress(boolean show, RectF bounds);
     public void showUploadProgress(boolean show, int status, RectF bounds);
