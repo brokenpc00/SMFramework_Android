@@ -4,7 +4,7 @@ uniform vec2 u_p0;
 uniform vec2 u_p1;
 uniform vec2 u_p2;
 uniform lowp vec4 inputColor;
-uniform float border;
+uniform float u_aaWidth;
 
 varying vec2 textureCoordinate;
 
@@ -32,8 +32,8 @@ float fillTriangle(vec2 p, vec2 p0, vec2 p1, vec2 p2)
 void main()
 {
     float dist = fillTriangle(textureCoordinate, u_p0, u_p1, u_p2);
-    float d = smoothstep(0.0, border, dist);
-    float c = 1.0 - d;//clamp( dist/(border/1.0), 0.0, 1.0 );
+    float d = smoothstep(0.0, u_aaWidth, dist);
+    float c = 1.0 - d;
 
     gl_FragColor = inputColor * c;
 }

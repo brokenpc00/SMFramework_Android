@@ -35,7 +35,7 @@ public class ShaderManager {
         /** AA Rounded Rectangle */
         PrimitiveSolidRect(6, "glsl/sprite.vsh", "glsl/primitive_solidrect.fsh", new ProgPrimitiveSolidRect()),
         /** Triangle **/
-        PrimitiveTriangle(7, "/glsl/sprite.vsh", "glsl/primitive_triangle.fsh", new ProgPrimitiveTriangle()),
+        PrimitiveTriangle(7, "glsl/sprite.vsh", "glsl/primitive_triangle.fsh", new ProgPrimitiveTriangle()),
         /** 3D 스프라이트 */
         Sprite3D(8, "glsl/sprite3d.vsh", "glsl/sprite3d.fsh", new ProgSprite3D()),
         /** yuv2rgb */

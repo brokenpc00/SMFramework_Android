@@ -828,7 +828,7 @@ public class SMButton extends _UIContainerView {
                     if (_iconView[i]!=null) {
                         // 둘중에 큰거
                         Size s = new Size(_iconView[i].getContentSize().width()*_iconScale, _iconView[i].getContentSize().height()*_iconScale);
-                        iconSize.setSize(Math.max(iconSize.width(), s.width()), Math.max(iconSize.height(), s.height()));
+                        iconSize.set(Math.max(iconSize.width(), s.width()), Math.max(iconSize.height(), s.height()));
                         isContainedIcon = true;
                     }
                 }

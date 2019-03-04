@@ -2,27 +2,32 @@ package com.interpark.smframework.shader;
 
 import android.opengl.GLES20;
 
+import com.interpark.smframework.util.Vec2;
+
 import java.nio.FloatBuffer;
 
 public class ProgPrimitiveTriangle extends ProgPrimitive {
     private static final String NAME_TEXTURECOORD = "inputTextureCoordinate";
 
-    private static final String NAME_DIMEN = "dimension";
-    private static final String NAME_ROUND = "round";
-    private static final String NAME_BORDER = "border";
+    private static final String NAME_P0 = "u_p0";
+    private static final String NAME_P1 = "u_p1";
+    private static final String NAME_P2 = "u_p2";
+    private static final String NAME_AAWIDTH = "u_aaWidth";
 
     private int attrTextureCoordinate;
-    private int uniformDimen;
-    private int uniformRound;
-    private int uniformBorder;
+    private int uniformP0;
+    private int uniformP1;
+    private int uniformP2;
+    private int uniformAAWidth;
 
     @Override
     public void complete() {
         super.complete();
         attrTextureCoordinate = GLES20.glGetAttribLocation(programId, NAME_TEXTURECOORD);
-        uniformDimen = GLES20.glGetUniformLocation(programId, NAME_DIMEN);
-        uniformRound = GLES20.glGetUniformLocation(programId, NAME_ROUND);
-        uniformBorder = GLES20.glGetUniformLocation(programId, NAME_BORDER);
+        uniformP0 = GLES20.glGetUniformLocation(programId, NAME_P0);
+        uniformP1 = GLES20.glGetUniformLocation(programId, NAME_P1);
+        uniformP2 = GLES20.glGetUniformLocation(programId, NAME_P2);
+        uniformAAWidth = GLES20.glGetUniformLocation(programId, NAME_AAWIDTH);
     }
 
     @Override
@@ -37,25 +42,18 @@ public class ProgPrimitiveTriangle extends ProgPrimitive {
         GLES20.glDisableVertexAttribArray(attrTextureCoordinate);
     }
 
-    public boolean setDrawParam(float[] modelMatrix, FloatBuffer v, FloatBuffer uv, float width, float height, float roundPixels, float borderPixels) {
-        if (width > 0 && height > 0 && super.setDrawParam(modelMatrix, v)) {
-            GLES20.glVertexAttribPointer(attrTextureCoordinate, 2, GLES20.GL_FLOAT, false, 0, uv);
+    public boolean setDrawParam(float[] modelMatrix, FloatBuffer v, FloatBuffer uv, Vec2 p0, Vec2 p1, Vec2 p2, float aaWidth) {
 
-            final float r, b;
-            if (width > height) {
-                GLES20.glUniform2f(uniformDimen, .5f, .5f*height/width);
-                r = roundPixels / width;
-                b = borderPixels / width;
-            } else {
-                GLES20.glUniform2f(uniformDimen, .5f*width/height, .5f);
-                r = roundPixels / height;
-                b = borderPixels / height;
-            }
-
-            GLES20.glUniform1f(uniformRound, r);
-            GLES20.glUniform1f(uniformBorder, b);
+        if (super.setDrawParam(modelMatrix, v)) {
+            GLES20.glVertexAttribPointer(attrTextureCoordinate, 2, GLES20.GL_FLOAT, false, 0, uv); //00 10, 01 11
+            GLES20.glUniform2f(uniformP0, p0.x, p0.y);
+            GLES20.glUniform2f(uniformP1, p1.x, p1.y);
+            GLES20.glUniform2f(uniformP2, p2.x, p2.y);
+            GLES20.glUniform1f(uniformAAWidth, aaWidth);
             return true;
         }
+
         return false;
     }
+
 }

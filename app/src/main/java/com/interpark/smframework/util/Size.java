@@ -44,15 +44,15 @@ public final class Size implements Cloneable  {
         this.height = height;
     }
 
-    public void setSize(Size v) {
-        this.width = v.width;
-        this.height = v.height;
-    }
-
-    public void setSize(float width, float height) {
-        this.width = width;
-        this.height = height;
-    }
+//    public void setSize(Size v) {
+//        this.width = v.width;
+//        this.height = v.height;
+//    }
+//
+//    public void setSize(float width, float height) {
+//        this.width = width;
+//        this.height = height;
+//    }
 
 
     public void setWidth(float width) {

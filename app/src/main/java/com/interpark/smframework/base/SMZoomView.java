@@ -190,7 +190,7 @@ public class SMZoomView extends _UIContainerView {
 
     public void setContentSize(final Size size)
     {
-        _innerSize.setSize(size.width-_paddingLeft-_paddingRight, size.height-_paddingTop-_paddingBottom);
+        _innerSize.set(size.width-_paddingLeft-_paddingRight, size.height-_paddingTop-_paddingBottom);
         super.setContentSize(size);
 
         registerUpdate(FLAG_ZOOM_UPDATE);

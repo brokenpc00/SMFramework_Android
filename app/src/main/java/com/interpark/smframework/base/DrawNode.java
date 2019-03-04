@@ -16,6 +16,29 @@ import java.nio.FloatBuffer;
 public abstract class DrawNode implements Cloneable {
     protected static float[] sMatrix = new float[16];
 
+    public static float[][] _texCoordConst =  new float[][] {
+            {  0,  0,   1,  0,   0,  1,   1,  1 }, // ALL
+            {  0,  0,  .5f,  0,   0,  1,  .5f,  1 }, // LEFT_HALF
+            { .5f,  0,   1,  0,  .5f,  1,   1,  1 }, // RIGHT_HALF
+            {  0, .5f,   1, .5f,   0,  1,   1,  1 }, // TOP_HALF
+            {  0,  0,   1,  0,   0, .5f,   1, .5f }, // BOTTOM_HALF
+            {  0, .5f,  .5f, .5f,   0,  1,  .5f,  1 }, // LEFT_TOP
+            {  0,  0,  .5f,  0,   0, .5f,  .5f, .5f }, // LEFT_BOTTOM
+            { .5f, .5f,   1, .5f,  .5f,  1,   1,  1 }, // RIGHT_TOP
+            { .5f,  0,   1,  0,  .5f, .5f,   1, .5f }, // RIGHT_BOTTOM
+    };
+
+    public static final int Quadrant_ALL = 0;
+    public static final int Quadrant_LEFT_HALF = 1;
+    public static final int Quadrant_RIGHT_HALF = 2;
+    public static final int Quadrant_TOP_HALF = 3;
+    public static final int Quadrant_BOTTOM_HALF = 4;
+    public static final int Quadrant_LEFT_TOP = 5;
+    public static final int Quadrant_LEFT_BOTTOM = 6;
+    public static final int Quadrant_RIGHT_TOP =  7;
+    public static final int Quadrant_RIGHT_BOTTOM = 8;
+
+
     protected Texture texture = null;
     protected float _w;
     protected float _h;
@@ -23,7 +46,7 @@ public abstract class DrawNode implements Cloneable {
     protected float cy;
     protected FloatBuffer v;
     protected int numVertices;
-    protected int drawMode;
+    protected int drawMode = GLES20.GL_TRIANGLE_STRIP;
 
     protected IDirector director;
     protected ProgramType programType;

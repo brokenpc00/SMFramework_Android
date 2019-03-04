@@ -30,19 +30,12 @@ public class PrimitiveCircle extends DrawNode {
                 1,  1,
         };
 
-        final float[] uv = {
-                0,  0,
-                1,  0,
-                0,  1,
-                1,  1,
-        };
-
         this.v = ByteBuffer.allocateDirect(v.length * 4).order(ByteOrder.nativeOrder()).asFloatBuffer();
         this.v.put(v);
         this.v.position(0);
 
         this.uv = ByteBuffer.allocateDirect(v.length * 4).order(ByteOrder.nativeOrder()).asFloatBuffer();
-        this.uv.put(uv);
+        this.uv.put(_texCoordConst[Quadrant_ALL]);
         this.uv.position(0);
 
         setProgramType(ShaderManager.ProgramType.PrimitiveRing);

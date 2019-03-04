@@ -111,6 +111,6 @@ public class SMShapeView extends SMView {
     protected Color4F _shapeColor = new Color4F(Color4F.BLANK);
     protected float _cornerRadius = 0.0f;
     protected float _lineWidth = 1.0f;
-    protected float _aaWidth = 1.0f;
+    protected float _aaWidth = 0.015f;
     protected int _quadrant;
 }
