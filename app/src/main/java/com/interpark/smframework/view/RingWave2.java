@@ -84,7 +84,7 @@ public class RingWave2 extends SMView {
             ring.setContentSize(new Size(outR*2, outR*2));
             ring.setLineWidth(outR-inR);
 
-            ring.setTintAlpha(1.0f - tweenfunc.sineEaseIn(t));
+            ring.setAlpha(1.0f - tweenfunc.sineEaseIn(t));
         }
 
         private float _minRadius = 0;

@@ -31,6 +31,7 @@ import com.interpark.smframework.base.transition.SwipeBack;
 import com.interpark.smframework.base.transition.SwipeDismiss;
 import com.interpark.smframework.base.transition.TransitionScene;
 import com.interpark.smframework.base.types.ActionManager;
+import com.interpark.smframework.base.types.Color4F;
 import com.interpark.smframework.shader.ShaderManager;
 import com.interpark.smframework.shader.ShaderProgram;
 import com.interpark.smframework.util.AppConst;
@@ -441,7 +442,7 @@ public class SMDirector implements IDirector, GLSurfaceView.Renderer {
             if (_dimLayer==null) {
                 // 좌측 메뉴 열릴 때 메인 scene을 덮어줄 dim layer
                 _dimLayer = SMView.create(this, 0, 0, getWidth(), getHeight());
-                _dimLayer.setBackgroundColor(0, 0, 0, 0);
+                _dimLayer.setBackgroundColor(Color4F.BLACK);
                 _dimLayer.setAlpha(0);
                 _dimLayer.setVisible(false);
             }
@@ -572,7 +573,6 @@ public class SMDirector implements IDirector, GLSurfaceView.Renderer {
             _dimLayer.setContentSize(new Size(getWinSize().width-position, getWinSize().height));
             _dimLayer.setPositionX(position);
             _dimLayer.setAlpha(0.5f*f);
-//            _dimLayer.setBackgroundColor(0, 0, 0, 0.5f*f);
 
         } else {
             if (_dimLayer.isVisible()) {

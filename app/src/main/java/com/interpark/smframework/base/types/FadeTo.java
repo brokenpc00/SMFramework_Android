@@ -36,7 +36,7 @@ public class FadeTo extends ActionInterval {
     public void update(float t) {
         if (_target!=null) {
             float deltaAlpha = _toAlpha - _fromAlpha;
-            _target.setTintAlpha(_fromAlpha + deltaAlpha*t);
+            _target.setAlpha(_fromAlpha + deltaAlpha*t);
         }
     }
 

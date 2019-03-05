@@ -127,7 +127,7 @@ public class SMToastBar extends SMView {
         TransformAction action = TransformAction.create(getDirector());
         action.toAlpha(1).toScale(1).setTweenFunc(tweenfunc.TweenType.Back_EaseOut);
         action.setTimeValue(0.2f, 0.1f);
-        _label[_labelIndex].setTintAlpha(0.0f);
+        _label[_labelIndex].setAlpha(0.0f);
         _label[_labelIndex].setScale(0.8f);
         _label[_labelIndex].runAction(action);
     }

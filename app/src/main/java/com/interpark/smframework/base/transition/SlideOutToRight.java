@@ -50,7 +50,7 @@ public class SlideOutToRight extends BaseSceneTransition {
             _dimLayer.setContentSize(new Size(getDirector().getWidth(), getDirector().getHeight()));
             _dimLayer.setAnchorPoint(Vec2.MIDDLE);
             _dimLayer.setPosition(new Vec2(getDirector().getWinSize().width/2, getDirector().getWinSize().height/2));
-            _dimLayer.setTintColor(new Color4F(0, 0, 0, 0));
+            _dimLayer.setColor(Color4F.TRANSPARENT);
         }
 
         if (_isInSceneOnTop) {
@@ -59,7 +59,7 @@ public class SlideOutToRight extends BaseSceneTransition {
 
             if (_lastProgress>0.0f && _lastProgress<1.0f && _dimLayer!=null) {
                     float alpha = 0.4f*_lastProgress;
-                    _dimLayer.setTintColor(new Color4F(0, 0, 0, alpha));
+                _dimLayer.setColor(new Color4F(0, 0, 0, alpha));
                 _dimLayer.visit(a);
             }
 
@@ -72,8 +72,7 @@ public class SlideOutToRight extends BaseSceneTransition {
             _inScene.visit(a);
 
             if (_lastProgress>0.0f && _lastProgress<1.0f && _dimLayer!=null) {
-//                _dimLayer.setTintAlpha(0.4f * (1.0f-_lastProgress));
-                _dimLayer.setTintColor(new Color4F(0, 0, 0, 0.4f * (1.0f-_lastProgress)));
+                _dimLayer.setColor(new Color4F(0, 0, 0, 0.4f * (1.0f-_lastProgress)));
                 _dimLayer.visit(a);
         }
             _outScene.visit(a);

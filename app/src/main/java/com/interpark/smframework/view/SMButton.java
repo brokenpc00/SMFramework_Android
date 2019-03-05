@@ -7,7 +7,7 @@ import android.view.MotionEvent;
 import com.interpark.smframework.IDirector;
 import com.interpark.smframework.base.DrawNode;
 import com.interpark.smframework.base.SMView;
-import com.interpark.smframework.base._UIContainerView;
+import com.interpark.smframework.base.UIContainerView;
 import com.interpark.smframework.base.transition.StateTransitionAction;
 import com.interpark.smframework.base.shape.ShapeConstant.LineType;
 import com.interpark.smframework.base.sprite.BitmapSprite;
@@ -25,7 +25,7 @@ import com.interpark.smframework.util.Size;
 import com.interpark.smframework.util.Vec2;
 import com.interpark.smframework.util.Vec3;
 
-public class SMButton extends _UIContainerView {
+public class SMButton extends UIContainerView {
     public enum STYLE {
         DEFAULT,
         RECT,
@@ -294,14 +294,14 @@ public class SMButton extends _UIContainerView {
                 if (srcView!=null) {
                     Color4F tintColor = new Color4F(srcColor);
                     tintColor.a = srcAlpha;
-                    srcView.setTintColor(tintColor);
+                    srcView.setColor(tintColor);
                 }
             }
             if (dstColor!=null) {
                 dstAlpha *= dstColor.a;
                 Color4F tintColor = new Color4F(dstColor);
                 tintColor.a = dstAlpha;
-                dstView.setTintColor(tintColor);
+                dstView.setColor(tintColor);
             }
             if (srcView!=null) {
                 srcView.setVisible(srcAlpha>0.0f);
@@ -310,10 +310,10 @@ public class SMButton extends _UIContainerView {
                 dstView.setVisible(dstAlpha>0.0f);
             }
         } else if (srcView!=null) {
-            Color4F sc = new Color4F(srcColor!=null?srcColor:Color4F.BLANK);
+            Color4F sc = new Color4F(srcColor!=null?srcColor:Color4F.TRANSPARENT);
             Color4F dc = new Color4F(dstColor!=null?dstColor:_style==STYLE.DEFAULT?Color4F.WHITE:sc);
             Color4F rc = new Color4F(sc.multiply(srcAlpha).add(dc.multiply(dstAlpha)));
-            srcView.setTintColor(rc);
+            srcView.setColor(rc);
         }
     }
 
@@ -378,45 +378,46 @@ public class SMButton extends _UIContainerView {
         setPosition(x, y);
         setAnchorPoint(anchorX, anchorY);
         setContentSize(new Size(width, height));
-        _style = style;
         setTag(tag);
 
         setClickable(true);
-        init(director);
+        initWithStyle(style);
     }
 
-    private void init(IDirector director) {
+    protected boolean initWithStyle(STYLE style) {
+        _style = style;
+
         SMView buttonView = null;
 
         switch (_style) {
             case RECT:
             {
-                buttonView = new SMRectView(director);
+                buttonView = new SMRectView(getDirector());
             }
             break;
             case SOLID_RECT:
             {
-                buttonView = new SMSolidRectView(director);
+                buttonView = new SMSolidRectView(getDirector());
             }
             break;
             case ROUNDRECT:
             {
-                buttonView = new SMRoundRectView(director, 1.0f, LineType.Solid);
+                buttonView = new SMRoundRectView(getDirector(), 1.0f, LineType.Solid);
             }
             break;
             case SOLID_ROUNDRECT:
             {
-                buttonView = new SMSolidRoundRectView(director);
+                buttonView = new SMSolidRoundRectView(getDirector());
             }
             break;
             case CIRCLE:
             {
-                buttonView = new SMCircleView(director);
+                buttonView = new SMCircleView(getDirector());
             }
             break;
             case SOLID_CIRCLE:
             {
-                buttonView = new SMSolidCircleView(director);
+                buttonView = new SMSolidCircleView(getDirector());
             }
             break;
             default:
@@ -434,17 +435,19 @@ public class SMButton extends _UIContainerView {
             _shapeAntiAliasWidth = 1.0f;
             _shapeOutlineWidth = AppConst.DEFAULT_VALUE.LINE_WIDTH;
 
-            buttonView.setBackgroundColor(0, 0, 0, 0);
+//            buttonView.setBackgroundColor(0, 0, 0, 0);
+            buttonView.setBackgroundColor(Color4F.TRANSPARENT);
             buttonView.setAnchorPoint(Vec2.MIDDLE);
 //            buttonView.setPivot(getContentSize().width/2, getContentSize().height/2);
             buttonView.setPosition(getContentSize().width/2, getContentSize().height/2);
             buttonView.setContentSize(getContentSize());
 
             setButton(STATE.NORMAL, buttonView);
-            setButtonColor(STATE.NORMAL, AppConst.COLOR._WHITE);
+            setButtonColor(STATE.NORMAL, Color4F.WHITE);
         }
-    }
 
+        return true;
+    }
 
     @Override
     public boolean isClickable() {
@@ -667,11 +670,11 @@ public class SMButton extends _UIContainerView {
 
     public void setText(final String text, final float fontSize) {
         if (_textLabel==null) {
-            _textLabel = SMLabel.create(getDirector(), text, fontSize, new Color4F(0, 0, 0, 1));
+            _textLabel = SMLabel.create(getDirector(), text, fontSize, Color4F.BLACK);
             _textLabel.setAnchorPoint(Vec2.MIDDLE);
             _uiContainer.addChild(_textLabel, AppConst.ZOrder.BUTTON_TEXT);
             if (_textColor==null || _textColor[0]==null) {
-                setTextColor(STATE.NORMAL, AppConst.COLOR._BLACK);
+                setTextColor(STATE.NORMAL, Color4F.BLACK);
             }
         } else {
             // 중간에 바꾸는건 text만 가능하다

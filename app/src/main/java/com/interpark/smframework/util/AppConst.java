@@ -30,15 +30,6 @@ public class AppConst {
         public static final float LINE_WIDTH = 2.0f;
     }
 
-    public static class COLOR {
-        public static final Color4F _BLACK = new Color4F(0, 0, 0, 1);
-        public static final Color4F _WHITE = new Color4F(1, 1, 1, 1);
-        public static final Color4F _EEEFF1 = new Color4F(0xee, 0xef, 0xf1);
-        public static final Color4F _DBDCDF = new Color4F(0xdb, 0xdc, 0xdf);
-        public static final Color4F _ADAFB3 = new Color4F(0xad, 0xaf, 0xb3);
-        public static final Color4F _00A1E4 = new Color4F(0x00, 0xa1, 0xe4);
-    }
-
     public static class SIZE {
         public static final float EDGE_SWIPE_MENU = 80.0f;
         public static final float EDGE_SWIPE_TOP = 130.0f;

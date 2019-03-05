@@ -114,7 +114,7 @@ public class Color4F implements Cloneable {
     }
 
     public boolean equals(Color4F color) {
-        return  (r==color.r && g==color.g && b==color.b);
+        return  (r==color.r && g==color.g && b==color.b && a==color.a);
     }
 
     public float r = 1.0f;
@@ -123,7 +123,7 @@ public class Color4F implements Cloneable {
     public float a = 0.0f;
 
     public static final Color4F WHITE = new Color4F(1, 1, 1, 1);
-    public static final Color4F BLANK = new Color4F(0, 0, 0, 0);
+    public static final Color4F TRANSPARENT = new Color4F(0, 0, 0, 0);
     public static final Color4F BLACK = new Color4F(0, 0, 0, 1);
 
     public static final Color4F XDBDCDF = SMView.MakeColor4F(0xdbdcdf, 1.0f);

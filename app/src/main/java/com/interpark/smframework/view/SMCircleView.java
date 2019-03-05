@@ -26,7 +26,7 @@ public class SMCircleView extends SMShapeView {
 
     public SMCircleView(IDirector director, final float linewidth, final Color4F color) {
         this(director, linewidth);
-        setTintColor(color);
+        setColor(color);
     }
 
     @Override
@@ -35,7 +35,7 @@ public class SMCircleView extends SMShapeView {
     }
 
     public void setLineColor(final Color4F color) {
-        setTintColor(color);
+        setColor(color);
     }
 
     protected PrimitiveCircle bgShape = null;

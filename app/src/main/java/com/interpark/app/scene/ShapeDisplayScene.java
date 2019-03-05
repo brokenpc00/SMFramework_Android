@@ -6,6 +6,8 @@ import com.interpark.smframework.base.SMMenuTransitionScene;
 import com.interpark.smframework.base.SMTableView;
 import com.interpark.smframework.base.SMView;
 import com.interpark.smframework.base.types.Color4F;
+import com.interpark.smframework.util.AppConst;
+import com.interpark.smframework.util.Size;
 
 import java.util.ArrayList;
 
@@ -36,6 +38,12 @@ public class ShapeDisplayScene extends SMMenuTransitionScene {
         getRootView().setBackgroundColor(Color4F.XEEEFF1);
 
         setMenuBarTitle("Display Shape");
+
+        Size s = getDirector().getWinSize();
+
+        _contentView = SMView.create(getDirector(), 0, 0, 0, s.width, s.height);
+        _contentView.setBackgroundColor(Color4F.WHITE);
+        addChild(_contentView);
 
         return true;
     }

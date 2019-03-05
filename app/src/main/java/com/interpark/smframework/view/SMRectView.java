@@ -26,24 +26,25 @@ public class SMRectView extends SMShapeView {
 
     public SMRectView(IDirector director, Color4F outlinecolor) {
         this(director);
-        setTintColor(outlinecolor);
+        setColor(outlinecolor);
     }
 
     public SMRectView(IDirector director, Color4F outlinecolor, float linewidth) {
         this(director);
-        setTintColor(outlinecolor);
+        setColor(outlinecolor);
         _lineWidth = linewidth;
     }
 
     @Override
     public void setBackgroundColor(final float r, final float g, final float b, final float a) {
-        setTintColor(r, g, b, a);
+        setColor(r, g, b, a);
     }
 
     @Override
     public void setBackgroundColor(final Color4F color) {
-        setTintColor(color);
+        setColor(color);
     }
+
 
     @Override
     public void setLineWidth(final float lineWidth) {

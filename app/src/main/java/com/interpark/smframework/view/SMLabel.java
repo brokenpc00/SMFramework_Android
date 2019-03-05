@@ -5,7 +5,7 @@ import android.util.Log;
 
 import com.interpark.smframework.IDirector;
 import com.interpark.smframework.base.SMView;
-import com.interpark.smframework.base._UIContainerView;
+import com.interpark.smframework.base.UIContainerView;
 import com.interpark.smframework.base.sprite.TextSprite;
 import com.interpark.smframework.base.types.Color4F;
 import com.interpark.smframework.util.Size;
@@ -15,11 +15,10 @@ import org.apache.http.cookie.SM;
 
 import java.util.ArrayList;
 
-public class SMLabel extends _UIContainerView {
+public class SMLabel extends UIContainerView {
 
     private TextSprite _textSprite = null;
     private float _fontSize = 0.0f;
-//    private Color4F _fontColor = new Color4F(Color4F.TEXT_BLACK);
     private String _text = "";
     private SMView _letterConainerView = null;
     private ArrayList<SMLabel> _letters = null;
@@ -64,8 +63,7 @@ public class SMLabel extends _UIContainerView {
     public void initWithFont(final String text, final float fontSize, final Color4F fontColor, Align align, boolean bold, boolean italic, boolean strike, int maxWidth, int maxLines) {
         _text = text;
         _fontSize = fontSize;
-//        _fontColor.set(fontColor);
-        setTintColor(fontColor);
+        setColor(fontColor);
         _align = align;
         _bold = bold;
         _italic = italic;
@@ -148,7 +146,7 @@ public class SMLabel extends _UIContainerView {
         float posX = padding;
             for (int i=0; i<len; i++) {
             String str = _text.substring(i, i+1);
-                SMLabel letter = SMLabel.create(getDirector(), str, _fontSize, new Color4F(_tintColor));
+            SMLabel letter = SMLabel.create(getDirector(), str, _fontSize, new Color4F(_displayedColor));
                 letter.setAnchorPoint(Vec2.MIDDLE);
             float letterSize = letter.getContentSize().width - padding*2;
             posX += letterSize/2;
@@ -189,17 +187,8 @@ public class SMLabel extends _UIContainerView {
     }
 
     public void setFontColor(final Color4F color) {
-        setTintColor(color);
-    }
-
-    public void setColor(final Color4F color) {
-        setTintColor(color);
-    }
-
-//    @Override
-//    public void updateTintColor() {
-//        _fontColor.set(new Color4F(_tintColor));
-//    }
+    setColor(color);
+}
 
     @Override
     public void releaseGLResources() {
@@ -215,12 +204,7 @@ public class SMLabel extends _UIContainerView {
 
     @Override
     public void setBackgroundColor(final Color4F color) {
-        setTintColor(color);
-    }
-
-    @Override
-    public void setBackgroundColor(float r, float g, float b, float a) {
-        setTintColor(r, g, b, a);
+        setColor(color);
     }
 
     @Override

@@ -84,7 +84,7 @@ public class ShapeScene extends SMMenuTransitionScene {
                     SMLabel title = SMLabel.create(getDirector(), str, 55, MakeColor4F(0x222222, 1.0f));
                     title.setAnchorPoint(Vec2.MIDDLE);
                     title.setPosition(new Vec2(s.width/2, cell.getContentSize().height/2));
-                    title.setTintAlpha(0.6f);
+                    title.setAlpha(0.6f);
                     cell.addChild(title);
 
                     SMRoundLine line = SMRoundLine.create(getDirector());
@@ -105,20 +105,10 @@ public class ShapeScene extends SMMenuTransitionScene {
                     cell.setOnStateChangeListener(new OnStateChangeListener() {
                         @Override
                         public void onStateChange(SMView view, STATE state) {
-                            Action action = view.getActionByTag(0xfffffe);
-                            if (action!=null) {
-                                action.stop();;
-                            }
                             if (state==STATE.PRESSED) {
-//                                view.setBackgroundColor(new Color4F(new Color4B(0xee, 0xef, 0xf1, 0xff)));
-                                BGColorTo color = BGColorTo.create(getDirector(), 0.15f, MakeColor4F(0xeeeff1, 1.0f));
-                                color.setTag(0xfffffe);
-                                view.runAction(color);
+                                view.setBackgroundColor(MakeColor4F(0xeeeff1, 1), 0.15f);
                             } else {
-//                                view.setBackgroundColor(Color4F.WHITE);
-                                BGColorTo color = BGColorTo.create(getDirector(), 0.15f, Color4F.WHITE);
-                                color.setTag(0xfffffe);
-                                view.runAction(color);
+                                view.setBackgroundColor(MakeColor4F(0xffffff, 1), 0.15f);
                             }
                         }
                     });

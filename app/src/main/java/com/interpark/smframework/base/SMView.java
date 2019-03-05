@@ -30,6 +30,7 @@ import com.interpark.smframework.util.Rect;
 import com.interpark.smframework.util.Size;
 import com.interpark.smframework.util.Vec2;
 import com.interpark.smframework.util.Vec3;
+import com.interpark.smframework.view.SMSolidRectView;
 import com.interpark.smframework.view.ViewConfig;
 
 import java.nio.ByteBuffer;
@@ -221,6 +222,26 @@ public class SMView extends Ref {
         }
     }
 
+    protected SMView _bgView = null;
+    public SMView getBackgroundView() {return _bgView;}
+    public void setBackgroundView(SMView bgView) {
+        if (_bgView!=null) {
+            removeChild(_bgView);
+        }
+
+        if (bgView!=null) {
+            _bgView = bgView;
+
+            _bgView.setContentSize(_contentSize);
+            _bgView.setPosition(Vec2.ZERO);
+            _bgView.setColor(_bgColor);
+            _bgView.setAlpha(_bgColor.a);
+            _bgView.setVisible(_bgColor.a!=0);
+
+            addChild(_bgView, AppConst.ZOrder.BG, "");
+        }
+    }
+
 
     // touch motion event target
     protected SMView _touchMotionTarget = null;
@@ -329,6 +350,7 @@ public class SMView extends Ref {
     private int mId;
 
     // alpha
+    protected float _displayedAlpha = 1.0f;
     protected float _realAlpha = 1.0f;
     protected float _newAlpha = 1.0f;
 
@@ -339,6 +361,8 @@ public class SMView extends Ref {
     // scale
     protected float _realScale = 1.0f;
     protected float _newScale = 1.0f;
+
+
 
     // content Size
     protected Size _newContentSize = new Size(0, 0);
@@ -351,8 +375,6 @@ public class SMView extends Ref {
     protected Color4F _newColor= new Color4F(0, 0, 0, 0);
 
     // for animation
-    protected float _animAlpha = 1.0f;
-    protected float _newAnimAlpha = 1.0f;
     protected Vec3 _animOffset = new Vec3(0, 0, 0);
     protected Vec3 _newAnimOffset = new Vec3(0, 0, 0);
     protected float _animScale = 1.0f;
@@ -365,13 +387,14 @@ public class SMView extends Ref {
     protected float _rotationZ_X = 0.0f;
     protected float _rotationZ_Y = 0.0f;
 
-    protected float _alpha = 1.0f;
     protected float _scaleX = 1.0f;
     protected float _scaleY = 1.0f;
     protected float _scaleZ = 1.0f;
 
     protected Vec2 _position = new Vec2(0, 0);
     protected float _positionZ = 0.0f;
+
+    protected Vec2 _newAnchorPoint = new Vec2(0, 0);
 
     protected Vec2 _anchorPoint = new Vec2(0, 0);
     protected Vec2 _anchorPointInPoints = new Vec2(0, 0);
@@ -382,8 +405,31 @@ public class SMView extends Ref {
     protected Size _contentSize = new Size(0, 0);
     protected boolean _contentSizeDirty = true;
 
-    protected float[] _bgColor, _newBgColor, _tintColor, _realTintColor;
+    protected Color4F _displayedColor = new Color4F(Color4F.WHITE), _realColor = new Color4F(Color4F.WHITE);
 
+    public final Color4F getColor() {
+        return _realColor;
+    }
+
+    public final Color4F getDisplayedColor() {
+        return _displayedColor;
+    }
+
+    public void setColor(float r, float g, float b, float a) {
+        setColor(new Color4F(r, g, b, a));
+    }
+
+    public void setColor(final Color4F color) {
+        // for child... tint Color
+        _realColor = new Color4F(color);
+        _displayedColor = new Color4F(color);
+
+        setAlpha(color.a);
+
+        updateCascadeColor();
+    }
+
+    protected Color4F _bgColor = new Color4F(Color4F.TRANSPARENT);
 
     public static final int VISIBLE = View.VISIBLE;
     public static final int INVISIBLE = View.INVISIBLE;
@@ -479,6 +525,26 @@ public class SMView extends Ref {
     }
 
     public void setContentSize(Size size, boolean immediate) {
+
+        if (immediate) {
+            if (! size.equals(_contentSize))
+            {
+                _contentSize = new Size(size);
+
+                _anchorPointInPoints.set(_contentSize.width * _anchorPoint.x, _contentSize.height * _anchorPoint.y);
+                _transformUpdated = _transformDirty = _inverseDirty = _contentSizeDirty = true;
+            }
+            if (_bgView != null) {
+                _bgView.setContentSize(size);
+            }
+            _newContentSize = size;
+        } else {
+            if (!size.equals(_newContentSize)) {
+                _newContentSize = size;
+                scheduleSmoothUpdate(VIEWFLAG_CONTENT_SIZE);
+            }
+        }
+
 
         if (!size.equals(_contentSize)) {
             if (immediate) {
@@ -593,8 +659,6 @@ public class SMView extends Ref {
     public float getBottom() {
         return _position.y + _contentSize.height;
     }
-
-    public void setAlpha(float alpha) {setAlpha(alpha, true);}
 
     public void setScaleX(float scale) {
         if (_scaleX==scale) return;
@@ -753,22 +817,6 @@ public class SMView extends Ref {
             _newRotation = new Vec3(rotate.x, rotate.y, rotate.z);
 
             scheduleSmoothUpdate(VIEWFLAG_ROTATE);
-        }
-    }
-
-    public void setAlpha(float alpha, boolean immediate) {
-
-        if (immediate ) {
-            _realAlpha = _newAlpha = alpha;
-            _bgColor[3] = _alpha = alpha * _animAlpha;
-
-        } else {
-            if (_newAlpha==alpha) {
-                return;
-            }
-
-            _newAlpha = alpha;
-            scheduleSmoothUpdate(VIEWFLAG_COLOR);
         }
     }
 
@@ -953,18 +1001,22 @@ public class SMView extends Ref {
         }
     }
 
-//    public void setAnchorPoint(Vec2 point, boolean immediate) {
-//        if (immediate) {
-//            if (!point.equals(_anchorPoint)) {
-//                _anchorPoint = point;
-//                _anchorPointInPoints.set(_contentSize.width*_anchorPoint.x, _contentSize.height*_anchorPoint.y);
-//            }
-//
-//        } else {
-//
-//        }
-//
-//    }
+    public void setAnchorPoint(Vec2 point, boolean immediate) {
+        if (immediate) {
+            if (! point.equals(_anchorPoint))
+            {
+                _anchorPoint = point;
+                _anchorPointInPoints.set(_contentSize.width * _anchorPoint.x, _contentSize.height * _anchorPoint.y);
+                _transformUpdated = _transformDirty = _inverseDirty = true;
+            }
+            _newAnchorPoint = point;
+        } else {
+            if (!point.equals(_newAnchorPoint)) {
+                _newAnchorPoint = point;
+                scheduleSmoothUpdate(VIEWFLAG_CONTENT_SIZE);
+            }
+        }
+    }
 
     public void setAnimOffset(Vec2 pos) {
         setAnimOffset(pos, false);
@@ -1003,20 +1055,6 @@ public class SMView extends Ref {
             _animOffset.x = _newAnimOffset.x;
             _animOffset.y = _newAnimOffset.y;
             _animOffset.z = _newAnimOffset.z;
-        }
-    }
-
-
-    public void setAnimAlpha(float alpha) {setAnimAlpha(alpha, true);}
-
-    public void setAnimAlpha(float alpha, boolean immediate) {
-        if (_newAnimAlpha!=alpha) {
-            _newAnimAlpha = alpha;
-            scheduleSmoothUpdate(VIEWFLAG_ANIM_COLOR);
-        }
-
-        if (immediate) {
-            _animAlpha = _newAnimAlpha;
         }
     }
 
@@ -1211,8 +1249,9 @@ public class SMView extends Ref {
         return angleX + _rotationZ_X;
     }
 
+    public float getDisplayedAlpha() {return _displayedAlpha;}
     public float getAlpha() {
-        return _alpha;
+        return _realAlpha;
     }
 
     public void setCancelIfTouchOutside(boolean cancelIfTouchOutside) {
@@ -1559,9 +1598,13 @@ public class SMView extends Ref {
             detachChild(child, index, cleanup);
         }
 
-        if (child!=null && child==_touchMotionTarget) {
+        if (child!=null) {
+            if (child==_bgView) {
+                _bgView = null;
+            } else if (child==_touchMotionTarget) {
             _touchMotionTarget = null;
         }
+    }
     }
 
     public SMView getChildByTag(int tag) {
@@ -1626,10 +1669,6 @@ public class SMView extends Ref {
         child._parent = null;
         _children.remove(childIndex);
         child.onRemoveFromParent(this);
-
-        if (_internal_current_update_child_ != null && _internal_current_update_child_ == child) {
-            _internal_this_child_removed_ = true;
-        }
     }
 
     public void removeAllChildren() {
@@ -1643,9 +1682,13 @@ public class SMView extends Ref {
     };
 
 
-    private boolean _internal_this_child_removed_ = false;
-
     public void removeAllChildrenWithCleanup(boolean cleanup) {
+
+        if (_bgView!=null) {
+            removeChild(_bgView);
+        }
+
+
         for (final SMView child : _children) {
             if (_running) {
                 child.onExitTransitionDidStart();
@@ -1662,6 +1705,12 @@ public class SMView extends Ref {
         }
 
         _children.clear();
+
+
+        if (_bgView!=null) {
+            addChild(_bgView, AppConst.ZOrder.BG);
+        }
+
         _touchMotionTarget = null;
     }
 
@@ -2052,16 +2101,26 @@ public class SMView extends Ref {
 
             boolean needUpdate = false;
 
+            InterpolateRet ret1 = smoothInterpolate(_anchorPoint.x, _newAnchorPoint.x, AppConst.Config.TOLERANCE_SCALE);
+            needUpdate |= ret1.retB;
+            _anchorPoint.x = ret1.retF;
+            InterpolateRet ret2 = smoothInterpolate(_anchorPoint.y, _newAnchorPoint.y, AppConst.Config.TOLERANCE_SCALE);
+            needUpdate |= ret2.retB;
+            _anchorPoint.y = ret2.retF;
 
             Size s = new Size(_contentSize);
-            InterpolateRet ret1 = smoothInterpolate(s.width, _newContentSize.width, AppConst.Config.TOLERANCE_POSITION);
-            needUpdate |= ret1.retB;
-            s.width = ret1.retF;
-            InterpolateRet ret2 = smoothInterpolate(s.height, _newContentSize.height, AppConst.Config.TOLERANCE_POSITION);
-            needUpdate |= ret2.retB;
-            s.height = ret2.retF;
+            InterpolateRet ret3 = smoothInterpolate(s.width, _newContentSize.width, AppConst.Config.TOLERANCE_POSITION);
+            needUpdate |= ret3.retB;
+            s.width = ret3.retF;
+            InterpolateRet ret4 = smoothInterpolate(s.height, _newContentSize.height, AppConst.Config.TOLERANCE_POSITION);
+            needUpdate |= ret4.retB;
+            s.height = ret4.retF;
 
             setContentSize(s, true);
+
+            if (_bgView!=null) {
+                _bgView.setContentSize(s);
+            }
 
             if (!needUpdate) {
                 unscheduleSmoothUpdate(VIEWFLAG_CONTENT_SIZE);
@@ -2076,32 +2135,32 @@ public class SMView extends Ref {
             animColor = true;
             // 일단 color는 나중에 alpha 부터
 
-            boolean needUpdate = false;
-            InterpolateRet ret1 = smoothInterpolate(_animAlpha, _newAnimAlpha, AppConst.Config.TOLERANCE_SCALE);
-            needUpdate |= ret1.retB;
-            _animAlpha = ret1.retF;
-
-            if (!needUpdate) {
-                unscheduleSmoothUpdate(VIEWFLAG_ANIM_COLOR);
-            }
+//            boolean needUpdate = false;
+//            InterpolateRet ret1 = smoothInterpolate(_animAlpha, _newAnimAlpha, AppConst.Config.TOLERANCE_SCALE);
+//            needUpdate |= ret1.retB;
+//            _animAlpha = ret1.retF;
+//
+//            if (!needUpdate) {
+//                unscheduleSmoothUpdate(VIEWFLAG_ANIM_COLOR);
+//            }
         }
 
         if (isSmoothUpdate(VIEWFLAG_COLOR) || animColor) {
             flags |= VIEWFLAG_COLOR;
 
-            // color는 나중에
-            // 일단 alpha부터
-            boolean needUpdate = false;
-            InterpolateRet ret1 = smoothInterpolate(_realAlpha, _newAlpha, AppConst.Config.TOLERANCE_SCALE);
-            needUpdate |= ret1.retB;
-            _realAlpha = ret1.retF;
+//            // color는 나중에
+//            // 일단 alpha부터
+//            boolean needUpdate = false;
+//            InterpolateRet ret1 = smoothInterpolate(_realAlpha, _newAlpha, AppConst.Config.TOLERANCE_SCALE);
+//            needUpdate |= ret1.retB;
+//            _realAlpha = ret1.retF;
+//
+//            if (!needUpdate && !animColor) {
+//                unscheduleSmoothUpdate(VIEWFLAG_COLOR);
+//            }
 
-            if (!needUpdate && !animColor) {
-                unscheduleSmoothUpdate(VIEWFLAG_COLOR);
-            }
-
-            _bgColor[3] = _alpha = _realAlpha * _animAlpha;
-
+//            _displayedColor.r = _displayedAlpha = _realAlpha * _animAlpha;
+//            _bgColor[3] = _alpha = _realAlpha * _animAlpha;
 
             _transformUpdated = true;
         }
@@ -2245,15 +2304,7 @@ public class SMView extends Ref {
         onSmoothUpdate(flags, dt);
     }
 
-
-
-//    public boolean isVisibleAnimation() {
-//        return (mShowAnimator != null && mShowAnimator.hasStarted()) || (mHideAnimator != null && mHideAnimator.hasStarted());
-//    }
-
     public void update(float dt) {}
-
-    private SMView _internal_current_update_child_ = null;
 
     public void sortAllChildren() {
         if (_reorderChildDirty) {
@@ -2261,8 +2312,6 @@ public class SMView extends Ref {
             _reorderChildDirty = false;
         }
     }
-
-    public void updateTintColor() {}
 
     public void visit(float a) {
 
@@ -2316,16 +2365,6 @@ public class SMView extends Ref {
         }
 
     private void renderOwn(float  alpha) {
-
-        if (_alpha < .001f)
-            return;
-
-        // alpha는 여기서 쓰임...
-        final float a = _alpha*alpha;
-
-        if (_newBgColor != null) {
-            drawBackground(_bgColor[0]*a, _bgColor[1]*a, _bgColor[2]*a, a);
-        }
 
         if (_updateFlags>0) {
             onUpdateOnVisit();
@@ -2436,10 +2475,11 @@ public class SMView extends Ref {
 
 
 
-    protected void drawBackground(float r, float g, float b, float a) {
-        _director.setColor(r, g, b, a);
-        _director.drawFillRect(0, 0, _contentSize.width, _contentSize.height);
-    }
+    // old backgroundcolor
+//    protected void drawBackground(float r, float g, float b, float a) {
+//        _director.setColor(r, g, b, a);
+//        _director.drawFillRect(0, 0, _contentSize.width, _contentSize.height);
+//    }
 
     protected long _updateFlags = 0;
 
@@ -2498,18 +2538,6 @@ public class SMView extends Ref {
             }
         }
     }
-
-    public void onInitView() {}
-
-//    public void onDestoryView() {
-//        if (_children != null) {
-//            int numChildCount = getChildCount();
-//            for (int i = 0; i < numChildCount; i++) {
-//                SMView child = getChild(i);
-//                child.onDestoryView();
-//            }
-//        }
-//    }
 
     public void onResume() {
         if (_children != null) {
@@ -2578,16 +2606,6 @@ public class SMView extends Ref {
         }
     }
 
-    public Color4F getTintColor() {
-        if (_tintColor==null) {
-            _tintColor = new float[]{1, 1, 1, 1};
-        }
-        if (_realTintColor==null) {
-            _realTintColor = new float[]{1, 1, 1, 1};
-        }
-
-        return new Color4F(_realTintColor[0], _realTintColor[1], _realTintColor[2], _realAlpha);
-    }
 
     protected boolean _cascadeColorEnabled = false;
 
@@ -2617,24 +2635,20 @@ public class SMView extends Ref {
         }
     }
 
+    public void updateColor() {}
+
     public void updateDisplayedColor(Color4F parentColor) {
-        if (_tintColor==null) {
-            _tintColor = new float[]{1, 1, 1, 1};
-        }
-        if (_realTintColor==null) {
-            _realTintColor = new float[]{1, 1, 1, 1};
-        }
 
-        _tintColor[0] = _realTintColor[0] * parentColor.r;
-        _tintColor[1] = _realTintColor[1] * parentColor.g;
-        _tintColor[2] = _realTintColor[2] * parentColor.b;
-        _tintColor[3] = _realTintColor[3] * parentColor.a;
+        _displayedColor.r = _realColor.r * parentColor.r;
+        _displayedColor.g = _realColor.g * parentColor.g;
+        _displayedColor.b = _realColor.b * parentColor.b;
+        _displayedColor.a = _realColor.a * parentColor.a;
 
-        updateTintColor();
+        updateColor();
 
         if (_cascadeColorEnabled) {
             for (SMView view : _children) {
-                view.updateDisplayedColor(new Color4F(_tintColor));
+                view.updateDisplayedColor(_displayedColor);
             }
         }
     }
@@ -2642,57 +2656,21 @@ public class SMView extends Ref {
     public boolean isCascadeColorEnabled() {return _cascadeColorEnabled;}
 
     public void updateCascadeColor() {
-        Color4F parentColor = new Color4F(Color4F.WHITE);
+        Color4F paretColor = new Color4F(Color4F.WHITE);
         if (_parent!=null && _parent.isCascadeColorEnabled()) {
-            parentColor = _parent.getTintColor();
-        }
-        updateDisplayedColor(parentColor);
+            paretColor.set(_parent.getDisplayedColor());
     }
 
-    public void setTintColor(float r, float g, float b, float a) {
-        if (_realTintColor==null) {
-            _realTintColor = new float[] {r, g, b, a};
-        } else {
-            _realTintColor[0] = r;
-            _realTintColor[1] = g;
-            _realTintColor[2] = b;
-            _realTintColor[3] = a;
-        }
-        if (_tintColor==null) {
-            _tintColor = new float[]{r, g, b, a};
-        } else {
-            _tintColor[0] = r;
-            _tintColor[1] = g;
-            _tintColor[2] = b;
-            _tintColor[3] = a;
-        }
-
-        setTintAlpha(a);
-
-        updateCascadeColor();
+        updateDisplayedColor(paretColor);
     }
 
-    public void setTintColor(float[] color) {
-        if (color==null || color.length!=4) return;;
-
-        setTintColor(color[0], color[1], color[2], color[3]);
+    public void setBackgroundAlpha(float alpha, float changeDurationTime) {
+        setBackgroundColor(new Color4F(_bgColor.r, _bgColor.g, _bgColor.b, alpha), changeDurationTime);
     }
 
-    public void setTintColor(Color4F color) {
-        setTintColor(color.r, color.g, color.b, color.a);
-    }
-
-    public void setTintColor(Color4B color) {
-        setTintColor(new Color4F(color));
-    }
-
-    protected float _realTintAlpha = 1.0f;
-
-    public float getDisplayedAlpha() {return _tintColor[3];}
-    public float getTintAlpha() {return _realTintAlpha;}
-
-    public void setTintAlpha(float alpha) {
-        _tintColor[3] = _realTintAlpha = alpha;
+    public void setAlpha(float alpha) {
+        _displayedAlpha = _realAlpha = alpha;
+        _displayedColor.a = _realColor.a = alpha;
 
         updateCascadeAlpha();
     }
@@ -2721,46 +2699,59 @@ public class SMView extends Ref {
     }
 
     public void disableCascadeAlpha() {
-        _tintColor[3] = _realAlpha;
+        _displayedAlpha = _realAlpha;
+        _displayedColor.a = _realAlpha;
         for (SMView child : _children) {
             child.updateDisplayedAlpha(1.0f);
         }
     }
 
-    public void updateDisplayedAlpha(float alpha) {
-        if (_tintColor==null) {
-            _tintColor = new float[]{1, 1, 1, 1};
-        }
-        _tintColor[3] = _realTintAlpha * alpha;
-        updateTintColor();
+    public void updateDisplayedAlpha(float parentAlpha) {
+        _displayedAlpha = _realAlpha * parentAlpha;
+        _displayedColor.a = _realColor.a * parentAlpha;
+        updateColor();
 
         if (_cascadeAlphaEnabled) {
             for (SMView child : _children) {
-                child.updateDisplayedAlpha(_tintColor[3]);
+                child.updateDisplayedAlpha(_displayedAlpha);
             }
         }
     }
 
     protected void setRenderColor(float a) {
-        if (_tintColor==null) {
-            _tintColor = new float[]{1, 1, 1, 1};
+        // color setting is here!!!!
+        getDirector().setColor(a*_displayedColor.r, a*_displayedColor.g, a*_displayedColor.b, a*_displayedColor.a);
         }
-        getDirector().setColor(a*_tintColor[0], a*_tintColor[1], a*_tintColor[2], a*_tintColor[3]);
+
+    public Color4F getBackgroundColor() {return new Color4F(_bgColor);}
+
+    public void setBackgroundColor(float r, float g, float b, float a) {
+        setBackgroundColor(new Color4F(r, g, b, a));
     }
 
-//    public void updateTintAlpha(){}
+    public void setBackgroundColor(final Color4F color) {
+        if (_bgColor.equals(color)) return;
 
-    public Color4F getBackgroundColor() {
-        if (_newBgColor == null) {
-            _newBgColor = new float[]{1, 1, 1, 1};
+        _bgColor.set(color);
+
+        if (_bgView==null) {
+            if (color.a==0) {
+                return;
         }
-        if (_bgColor == null) {
-            _bgColor = new float[]{1, 1, 1, 1};
+
+            _bgView = SMSolidRectView.create(getDirector());
+            _bgView.setContentSize(_contentSize);
+            _bgView.setPosition(Vec2.ZERO);
+
+            addChild(_bgView, AppConst.ZOrder.BG, "");
         }
-        return new Color4F(_bgColor[0], _bgColor[1], _bgColor[2], _bgColor[3]);
+
+        _bgView.setColor(_bgColor);
+        _bgView.setAlpha(_bgColor.a);
+        _bgView.setVisible(_bgColor.a!=0);
     }
 
-    public void setBackgroundColor(final Color4F color, final float changeDurationTime) {
+    public void setBackgroundColor(final Color4F color, float changeDurationTime) {
         Action action = getActionByTag(AppConst.TAG.ACTION_BG_COLOR);
         if (action!=null) {
             stopAction(action);
@@ -2772,39 +2763,6 @@ public class SMView extends Ref {
             runAction(action);
         } else {
             setBackgroundColor(color);
-        }
-    }
-
-    public void setBackgroundColor(final Color4F color) {
-        setBackgroundColor(color.r, color.g, color.b, color.a, true);
-    }
-
-    public void setBackgroundColor(final Color4F color, boolean immediate) {
-        setBackgroundColor(color.r, color.g, color.b, color.a, immediate);
-    }
-
-    public void setBackgroundColor(float r, float g, float b, float a) {
-        setBackgroundColor(r, g, b, a, true);
-    }
-
-
-    public void setBackgroundColor(float r, float g, float b, float a, boolean immediate) {
-        if (_newBgColor == null) {
-            _newBgColor = new float[]{ r, g, b, a };
-        } else {
-            _newBgColor[0] = r;
-            _newBgColor[1] = g;
-            _newBgColor[2] = b;
-            _newBgColor[3] = a;
-        }
-        if (_bgColor == null) {
-            _bgColor = new float[]{ r, g, b, a };
-            _alpha = a;
-        } else if (immediate) {
-            _bgColor[0] = r;
-            _bgColor[1] = g;
-            _bgColor[2] = b;
-            _bgColor[3] = _alpha = a;
         }
     }
 

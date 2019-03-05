@@ -6,7 +6,7 @@ import android.util.Log;
 
 import com.interpark.smframework.IDirector;
 import com.interpark.smframework.base.DrawNode;
-import com.interpark.smframework.base._UIContainerView;
+import com.interpark.smframework.base.UIContainerView;
 import com.interpark.smframework.base.sprite.BitmapSprite;
 import com.interpark.smframework.base.sprite.Sprite;
 import com.interpark.smframework.base.texture.BitmapTexture;
@@ -15,7 +15,7 @@ import com.interpark.smframework.base.types.Color4F;
 import com.interpark.smframework.util.Size;
 import com.interpark.smframework.util.Vec2;
 
-public class SMImageView extends _UIContainerView {
+public class SMImageView extends UIContainerView {
     public enum ScaleType {
         /**
          * 가운데 정렬
@@ -156,11 +156,8 @@ public class SMImageView extends _UIContainerView {
 
     protected void drawImage(float x, float y, float scaleX, float scaleY, float a) {
 
-        if (_tintColor == null) {
-            _director.setColor(a, a, a, a);
-        } else {
-            _director.setColor(a*_tintColor[0], a*_tintColor[1], a*_tintColor[2], a*_tintColor[3]);
-        }
+        setRenderColor(a);
+
         _sprite.drawScaleXY(x, y, scaleX, scaleY);
     }
 

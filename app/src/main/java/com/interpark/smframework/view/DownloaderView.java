@@ -2,14 +2,14 @@ package com.interpark.smframework.view;
 
 import com.interpark.smframework.IDirector;
 import com.interpark.smframework.base.SMView;
-import com.interpark.smframework.base._UIContainerView;
+import com.interpark.smframework.base.UIContainerView;
 import com.interpark.smframework.base.sprite.Sprite;
 import com.interpark.smframework.downloader.PhotoManager;
 import com.interpark.smframework.downloader.PhotoTask;
 
 import java.util.ArrayList;
 
-public class DownloaderView extends _UIContainerView {
+public class DownloaderView extends UIContainerView {
     public DownloaderView(IDirector director) {
         super(director);
     }

@@ -15,7 +15,7 @@ import com.interpark.smframework.base.SMTableView;
 import com.interpark.smframework.base.SMTableView.NumberOfRowsInSection;
 import com.interpark.smframework.base.SMTableView.CellForRowAtIndexPath;
 import com.interpark.smframework.base.SMZoomView;
-import com.interpark.smframework.base._UIContainerView;
+import com.interpark.smframework.base.UIContainerView;
 import com.interpark.smframework.base.shape.ShapeConstant.LineType;
 import com.interpark.smframework.base.sprite.BitmapSprite;
 import com.interpark.smframework.base.sprite.TextSprite;
@@ -116,7 +116,7 @@ public class HellowInterparkScene extends SMScene {
 
         Size s = getContentSize();
         _contentView = SMView.create(getDirector(), 0, AppConst.SIZE.MENUBAR_HEIGHT, s.width, s.height-AppConst.SIZE.MENUBAR_HEIGHT);
-        _contentView.setBackgroundColor(AppConst.COLOR._WHITE);
+        _contentView.setBackgroundColor(Color4F.WHITE);
         addChild(_contentView);
 
 
@@ -140,7 +140,6 @@ public class HellowInterparkScene extends SMScene {
                     SMLabel title = SMLabel.create(getDirector(), str, 55, MakeColor4F(0x222222, 1.0f));
                     title.setAnchorPoint(Vec2.MIDDLE);
                     title.setPosition(new Vec2(s.width/2, cell.getContentSize().height/2));
-                    title.setTintAlpha(0.6f);
                     cell.addChild(title);
 
                     SMRoundLine line = SMRoundLine.create(getDirector());
@@ -186,20 +185,10 @@ public class HellowInterparkScene extends SMScene {
                     cell.setOnStateChangeListener(new OnStateChangeListener() {
                         @Override
                         public void onStateChange(SMView view, STATE state) {
-                            Action action = view.getActionByTag(0xfffffe);
-                            if (action!=null) {
-                                action.stop();;
-                            }
                             if (state==STATE.PRESSED) {
-//                                view.setBackgroundColor(new Color4F(new Color4B(0xee, 0xef, 0xf1, 0xff)));
-                                BGColorTo color = BGColorTo.create(getDirector(), 0.15f, MakeColor4F(0xeeeff1, 1.0f));
-                                color.setTag(0xfffffe);
-                                view.runAction(color);
+                                view.setBackgroundColor(MakeColor4F(0xeeeff1, 1), 0.15f);
                             } else {
-//                                view.setBackgroundColor(Color4F.WHITE);
-                                BGColorTo color = BGColorTo.create(getDirector(), 0.15f, Color4F.WHITE);
-                                color.setTag(0xfffffe);
-                                view.runAction(color);
+                                view.setBackgroundColor(MakeColor4F(0xffffff, 1), 0.15f);
                             }
                         }
                     });

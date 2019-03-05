@@ -212,4 +212,8 @@ public final class Vec2 implements Cloneable {
     public static final Vec2 LEFT_BOTTOM = new Vec2(0.0f, 1.0f);
     public static final Vec2 RIGHT_TOP = new Vec2(1.0f, 0.0f);
     public static final Vec2 RIGHT_BOTTOM = new Vec2(1.0f, 1.0f);
+    public static final Vec2 MIDDLE_RIGHT = new Vec2(1, 0.5f);
+    public static final Vec2 MIDDLE_LEFT = new Vec2(0, 0.5f);
+    public static final Vec2 MIDDLE_TOP = new Vec2(0.5f, 0);
+    public static final Vec2 MIDDLE_BOTTOM = new Vec2(0.5f, 1);
 }

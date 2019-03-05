@@ -27,7 +27,7 @@ public class SMSolidRoundRectView extends SMShapeView {
 
     public SMSolidRoundRectView (IDirector director, float round, Color4F color) {
         this (director, round);
-        setTintColor(color);
+        setColor(color);
     }
 
     public void setCornerRadius(float radius) {
@@ -36,12 +36,12 @@ public class SMSolidRoundRectView extends SMShapeView {
 
     @Override
     public void setBackgroundColor(final Color4F color) {
-        setTintColor(color);
+        setColor(color);
     }
 
     @Override
     public void setBackgroundColor(float r, float g, float b, float a) {
-        setTintColor(r, g, b, a);
+        setColor(r, g, b, a);
     }
 
     protected PrimitiveSolidRect bgShape = null;

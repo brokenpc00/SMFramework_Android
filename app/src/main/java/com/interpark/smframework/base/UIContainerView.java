@@ -1,13 +1,11 @@
 package com.interpark.smframework.base;
 
-import android.util.Log;
-
 import com.interpark.smframework.IDirector;
 import com.interpark.smframework.util.Size;
 import com.interpark.smframework.util.Vec2;
 
-public class _UIContainerView extends SMView {
-    public _UIContainerView(IDirector director) {
+public class UIContainerView extends SMView {
+    public UIContainerView(IDirector director) {
         super(director);
         _uiContainer = SMView.create(director);
         _uiContainer.setAnchorPoint(new Vec2(0.5f, 0.5f));
@@ -57,5 +55,4 @@ public class _UIContainerView extends SMView {
     protected float _paddingRight = 0;
     protected float _paddingTop = 0;
     protected float _paddingBottom = 0;
-
 }

@@ -13,7 +13,7 @@ import com.interpark.smframework.util.Rect;
 import com.interpark.smframework.util.Size;
 import com.interpark.smframework.util.Vec2;
 
-public class SMZoomView extends _UIContainerView {
+public class SMZoomView extends UIContainerView {
     public static SMZoomView create(IDirector director) {
         return create(director, 0, 0, 0, 0);
     }

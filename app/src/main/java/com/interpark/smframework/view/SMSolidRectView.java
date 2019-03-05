@@ -29,17 +29,17 @@ public class SMSolidRectView extends SMShapeView {
 
     @Override
     public void setBackgroundColor(final float r, final float g, final float b, final float a) {
-        setTintColor(r, g, b, a);
+        setColor(r, g, b, a);
     }
 
     @Override
     public void setBackgroundColor(final Color4F color) {
-        setTintColor(color);
+        setColor(color);
     }
 
     public SMSolidRectView(IDirector director, Color4F solidcolor) {
         this(director);
-        setTintColor(solidcolor);
+        setColor(solidcolor);
     }
 
     @Override
