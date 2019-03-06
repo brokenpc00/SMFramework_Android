@@ -32,7 +32,9 @@ import com.interpark.smframework.base.transition.SwipeDismiss;
 import com.interpark.smframework.base.transition.TransitionScene;
 import com.interpark.smframework.base.types.ActionManager;
 import com.interpark.smframework.base.types.Color4F;
+import com.interpark.smframework.shader.Shader;
 import com.interpark.smframework.shader.ShaderManager;
+import com.interpark.smframework.shader.ShaderNode;
 import com.interpark.smframework.shader.ShaderProgram;
 import com.interpark.smframework.util.AppConst;
 import com.interpark.smframework.util.BackPressable;
@@ -1435,11 +1437,11 @@ public class SMDirector implements IDirector, GLSurfaceView.Renderer {
     }
 
     @Override
-    public void drawCircle(float x, float y, float radius, float border) {
+    public void drawCircle(float x, float y, float radius, float aaWidth) {
         if (mPrimCircle == null) {
             mPrimCircle = new PrimitiveCircle(this);
         }
-        mPrimCircle.drawCircle(x, y, radius, border);
+        mPrimCircle.drawCircle(x, y, radius, aaWidth);
     }
 
     @Override
@@ -1448,11 +1450,11 @@ public class SMDirector implements IDirector, GLSurfaceView.Renderer {
     }
 
     @Override
-    public void drawRing(float x, float y, float radius, float thickness, float border) {
+    public void drawRing(float x, float y, float radius, float thickness, float aaWidth) {
         if (mPrimCircle == null) {
             mPrimCircle = new PrimitiveCircle(this);
         }
-        mPrimCircle.drawRing(x, y, radius, thickness, border);
+        mPrimCircle.drawRing(x, y, radius, thickness, aaWidth);
     }
 
     @Override
@@ -1461,11 +1463,11 @@ public class SMDirector implements IDirector, GLSurfaceView.Renderer {
     }
 
     @Override
-    public void drawSolidRect(float x, float y, float width, float height, float round, float border) {
+    public void drawSolidRect(float x, float y, float width, float height, float round, float aaWidth) {
         if (mPrimSolidRect == null) {
             mPrimSolidRect = new PrimitiveSolidRect(this);
         }
-        mPrimSolidRect.drawRect(x, y, width, height, round, border);
+        mPrimSolidRect.drawRect(x, y, width, height, round, aaWidth);
     }
 
     @Override
@@ -1652,6 +1654,9 @@ public class SMDirector implements IDirector, GLSurfaceView.Renderer {
         mHeight = mDisplayRawHeight * BASE_SCREEN_WIDTH / mDisplayRawWidth;
 
         mDisplayAdjust = (float)BASE_SCREEN_WIDTH / mDisplayRawWidth;
+
+
+        ShaderNode.DEFAULT_ANTI_ALIAS_WIDTH = (float)((float)BASE_SCREEN_WIDTH / (float)displayRawWidth);
 
         beginProjectionMatrix();
     }

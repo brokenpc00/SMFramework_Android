@@ -8,6 +8,7 @@ import com.interpark.smframework.shader.ShaderManager;
 import com.interpark.smframework.shader.ShaderProgram;
 import com.interpark.smframework.shader.ProgPrimitiveCircle;
 import com.interpark.smframework.shader.ProgPrimitiveRing;
+import com.interpark.smframework.util.Vec2;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -16,7 +17,8 @@ import java.nio.FloatBuffer;
 public class PrimitiveCircle extends DrawNode {
     protected FloatBuffer uv;
 
-    private float mRadius, mThickness, mBorder;
+    private float _radius, _thickness, _aaWidth;
+    private Vec2 _anchor = new Vec2(Vec2.MIDDLE);
 
     public PrimitiveCircle(IDirector director) {
         this.director = director;
@@ -47,12 +49,12 @@ public class PrimitiveCircle extends DrawNode {
             switch (program.getType()) {
                 default:
                 case PrimitiveCircle:
-                    if( ((ProgPrimitiveCircle)program).setDrawParam(sMatrix, v, uv, mRadius, mBorder)) {
+                    if( ((ProgPrimitiveCircle)program).setDrawParam(sMatrix, v, uv, _radius, _aaWidth, _anchor)) {
                         GLES20.glDrawArrays(drawMode, 0, numVertices);
                     }
                     break;
                 case PrimitiveRing:
-                    if( ((ProgPrimitiveRing)program).setDrawParam(sMatrix, v, uv, mRadius, mThickness, mBorder)) {
+                    if( ((ProgPrimitiveRing)program).setDrawParam(sMatrix, v, uv, _radius, _thickness, _aaWidth, _anchor)) {
                         GLES20.glDrawArrays(drawMode, 0, numVertices);
                     }
                     break;
@@ -64,11 +66,16 @@ public class PrimitiveCircle extends DrawNode {
         drawRing(x, y, radius, thickness, 1.5f);
     }
 
-    public void drawRing(float x, float y, float radius, float thickness, float border) {
+    public void drawRing(float x, float y, float radius, float thickness, float aaWidth, Vec2 anchor) {
+        _anchor.set(anchor);
+        drawRing(x, y, radius, thickness, aaWidth);
+    }
+
+    public void drawRing(float x, float y, float radius, float thickness, float aaWidth) {
         setProgramType(ShaderManager.ProgramType.PrimitiveRing);
-        mRadius = radius;
-        mThickness = thickness;
-        mBorder = border;
+        _radius = radius;
+        _thickness = thickness;
+        _aaWidth = aaWidth;
         drawScale(x, y, radius);
     }
 
@@ -76,25 +83,29 @@ public class PrimitiveCircle extends DrawNode {
         drawCircle(x, y, radius, 1.5f);
     }
 
-    public void drawCircle(float x, float y, float radius, float border) {
+    public void drawCircle(float x, float y, float radius, float aaWidth, Vec2 anchor) {
+        _anchor.set(anchor);
+        drawCircle(x, y, radius, aaWidth);
+    }
+    public void drawCircle(float x, float y, float radius, float aaWidth) {
         setProgramType(ShaderManager.ProgramType.PrimitiveCircle);
-        mRadius = radius;
-        mBorder = border;
+        _radius = radius;
+        _aaWidth = aaWidth;
         drawScale(x, y, radius);
     }
 
-    public void drawRingRotateY(float x, float y, float radius, float thickness, float border, float rotateY) {
+    public void drawRingRotateY(float x, float y, float radius, float thickness, float aaWidth, float rotateY) {
         setProgramType(ShaderManager.ProgramType.PrimitiveRing);
-        mRadius = radius;
-        mThickness = thickness;
-        mBorder = border;
+        _radius = radius;
+        _thickness = thickness;
+        _aaWidth = aaWidth;
         drawScaleXYRotateY(x, y, -radius, radius, rotateY);
     }
 
-    public void drawCircleRotateY(float x, float y, float radius, float border, float rotateY) {
+    public void drawCircleRotateY(float x, float y, float radius, float aaWidth, float rotateY) {
         setProgramType(ShaderManager.ProgramType.PrimitiveCircle);
-        mRadius = radius;
-        mBorder = border;
+        _radius = radius;
+        _aaWidth = aaWidth;
         drawScaleXYRotateY(x, y, -radius, radius, rotateY);
     }
 }

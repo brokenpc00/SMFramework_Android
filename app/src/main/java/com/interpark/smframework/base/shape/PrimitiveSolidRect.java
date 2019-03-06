@@ -15,7 +15,7 @@ import java.nio.FloatBuffer;
 public class PrimitiveSolidRect extends DrawNode {
     protected FloatBuffer uv;
 
-    private float mRound, mBorder, mWidth, mHeight;
+    private float mRound, mAAWidth, mWidth, mHeight;
 
     public PrimitiveSolidRect(IDirector director) {
         this.director = director;
@@ -47,7 +47,7 @@ public class PrimitiveSolidRect extends DrawNode {
             switch (program.getType()) {
                 default:
                 case PrimitiveSolidRect:
-                    if( ((ProgPrimitiveSolidRect)program).setDrawParam(sMatrix, v, uv, mWidth, mHeight, mRound, mBorder)) {
+                    if( ((ProgPrimitiveSolidRect)program).setDrawParam(sMatrix, v, uv, mWidth, mHeight, mRound, mAAWidth)) {
                         GLES20.glDrawArrays(drawMode, 0, numVertices);
                     }
                     break;
@@ -55,12 +55,12 @@ public class PrimitiveSolidRect extends DrawNode {
         }
     }
 
-    public void drawRect(float x, float y, float width, float height, float round, float border) {
+    public void drawRect(float x, float y, float width, float height, float round, float aaWidth) {
         setProgramType(ShaderManager.ProgramType.PrimitiveSolidRect);
         mWidth = width;
         mHeight = height;
         mRound = round;
-        mBorder = border;
+        mAAWidth = aaWidth;
         drawScale(x, y, Math.max(width, height));
     }
 }

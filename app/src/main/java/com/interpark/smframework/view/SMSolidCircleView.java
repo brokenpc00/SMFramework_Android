@@ -34,6 +34,9 @@ public class SMSolidCircleView extends SMShapeView {
 
     protected PrimitiveCircle bgShape = null;
 
+    public void setAntiAliasWidth(float aaWidth) {_aaWidth=aaWidth;}
+    private float _aaWidth = 0.015f;
+
     @Override
     protected void draw(float a) {
         super.draw(a);
@@ -44,7 +47,7 @@ public class SMSolidCircleView extends SMShapeView {
         if (_contentSize.width>_contentSize.height) {
             radius = _contentSize.height/2;
         }
-        bgShape.drawCircle(x, y, radius, 1.5f);
+        bgShape.drawCircle(x, y, radius, _aaWidth);
     }
 
 

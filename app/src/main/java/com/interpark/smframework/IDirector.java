@@ -109,11 +109,11 @@ public interface IDirector {
     public void drawRect(float x1, float y1, float width, float height, float lineWidth);
     public void drawLine(float x1, float y1, float x2, float y2, float lineWidth);
     public void drawCircle(float x, float y, float radius);
-    public void drawCircle(float x, float y, float radius, float border);
+    public void drawCircle(float x, float y, float radius, float aaWidth);
     public void drawRing(float x, float y, float radius, float thickness);
-    public void drawRing(float x, float y, float radius, float thickness, float border);
+    public void drawRing(float x, float y, float radius, float thickness, float aaWidth);
     public void drawSolidRect(float x, float y, float width, float height, float round);
-    public void drawSolidRect(float x, float y, float width, float height, float round, float border);
+    public void drawSolidRect(float x, float y, float width, float height, float round, float aaWidth);
 
 
     public ShaderManager getShaderManager();

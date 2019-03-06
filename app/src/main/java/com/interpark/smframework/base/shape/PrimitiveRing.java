@@ -7,6 +7,7 @@ import com.interpark.smframework.base.DrawNode;
 import com.interpark.smframework.shader.ShaderManager;
 import com.interpark.smframework.shader.ShaderProgram;
 import com.interpark.smframework.shader.ProgPrimitiveRing;
+import com.interpark.smframework.util.Vec2;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -16,6 +17,7 @@ public class PrimitiveRing extends DrawNode {
     protected FloatBuffer uv;
 
     private float mRadius, mThickness;
+    private Vec2 _anchor = new Vec2(Vec2.MIDDLE);
 
     public PrimitiveRing(IDirector director) {
         this.director = director;
@@ -44,7 +46,7 @@ public class PrimitiveRing extends DrawNode {
         ShaderProgram program = useProgram();
         if (program != null) {
 
-            if( ((ProgPrimitiveRing)program).setDrawParam(sMatrix, v, uv, mRadius, mThickness, 1.5f)) {;
+            if( ((ProgPrimitiveRing)program).setDrawParam(sMatrix, v, uv, mRadius, mThickness, 1.5f, _anchor)) {;
                 GLES20.glDrawArrays(drawMode, 0, numVertices);
             }
         }

@@ -101,9 +101,9 @@ public class Sprite extends DrawNode {
                     float cx = (tx + .5f*_w)/tw;
                     float cy = (ty + .5f*_h)/th;
                     float radius = .5f * Math.min(_w/tw, _h/th);
-                    float border = 2.0f / tw;
+                    float aaWidth = 2.0f / tw;
 
-                    if (((ProgSpriteCircle)program).setDrawParam(texture, sMatrix, v, uv, cx, cy, radius, border)) {
+                    if (((ProgSpriteCircle)program).setDrawParam(texture, sMatrix, v, uv, cx, cy, radius, aaWidth)) {
                         GLES20.glDrawArrays(drawMode, 0, numVertices);
                     }
                 }

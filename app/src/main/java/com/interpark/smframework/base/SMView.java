@@ -993,26 +993,27 @@ public class SMView extends Ref {
     }
 
     public void setAnchorPoint(Vec2 point) {
-//        setAnchorPoint(point, true);
-        if (!point.equals(_anchorPoint)) {
-            _anchorPoint.set(point);
-            _anchorPointInPoints.set(_contentSize.width*_anchorPoint.x, _contentSize.height*_anchorPoint.y);
-            _transformUpdated = true;
-        }
+        setAnchorPoint(point, true);
+//        if (!point.equals(_anchorPoint)) {
+//            _anchorPoint.set(point);
+//            _anchorPointInPoints.set(_contentSize.width*_anchorPoint.x, _contentSize.height*_anchorPoint.y);
+//            _transformUpdated = true;
+//        }
     }
 
     public void setAnchorPoint(Vec2 point, boolean immediate) {
+
         if (immediate) {
             if (! point.equals(_anchorPoint))
             {
-                _anchorPoint = point;
+                _anchorPoint.set(point);
                 _anchorPointInPoints.set(_contentSize.width * _anchorPoint.x, _contentSize.height * _anchorPoint.y);
                 _transformUpdated = _transformDirty = _inverseDirty = true;
             }
-            _newAnchorPoint = point;
+            _newAnchorPoint.set(point);
         } else {
             if (!point.equals(_newAnchorPoint)) {
-                _newAnchorPoint = point;
+                _newAnchorPoint.set(point);
                 scheduleSmoothUpdate(VIEWFLAG_CONTENT_SIZE);
             }
         }
@@ -1299,16 +1300,16 @@ public class SMView extends Ref {
             }
 
 
-//            if (!_anchorPointInPoints.equals(Vec2.ZERO)) {
-//                matrix[12] += matrix[0] * -_anchorPointInPoints.x + matrix[4]*-_anchorPointInPoints.y + matrix[8]*-_anchorPointInPoints.z;
-//                matrix[13] += matrix[1] * -_anchorPointInPoints.x + matrix[5]*-_anchorPointInPoints.y + matrix[9]*-_anchorPointInPoints.z;
-//                matrix[14] += matrix[2] * -_anchorPointInPoints.x + matrix[6]*-_anchorPointInPoints.y + matrix[10]*-_anchorPointInPoints.z;
-//                // m[12 + mi] += m[mi] * x + m[4 + mi] * y + m[8 + mi] * z;
-//            }
+            if (!_anchorPointInPoints.equals(Vec2.ZERO)) {
+                matrix[12] += matrix[0] * -_anchorPointInPoints.x + matrix[4] * -_anchorPointInPoints.y;
+                matrix[13] += matrix[1] * -_anchorPointInPoints.x + matrix[5] * -_anchorPointInPoints.y;
+                matrix[14] += matrix[2] * -_anchorPointInPoints.x + matrix[6] * -_anchorPointInPoints.y;
+                // m[12 + mi] += m[mi] * x + m[4 + mi] * y + m[8 + mi] * z;
+            }
             // 아래와 동일함.
 
             // anchor point를 적용한 길이 x -> 0~width, y -> 1~height
-            android.opengl.Matrix.translateM(matrix, 0, -_anchorPointInPoints.x, -_anchorPointInPoints.y, 0);
+//            android.opengl.Matrix.translateM(matrix, 0, -_anchorPointInPoints.x, -_anchorPointInPoints.y, 0);
         }
     }
 
@@ -2126,7 +2127,8 @@ public class SMView extends Ref {
                 unscheduleSmoothUpdate(VIEWFLAG_CONTENT_SIZE);
             }
 
-            _transformUpdated = true;
+            _anchorPointInPoints.set(_contentSize.width * _anchorPoint.x, _contentSize.height * _anchorPoint.y);
+            _transformUpdated = _transformDirty = _inverseDirty = _contentSizeDirty = true;
         }
 
         boolean animColor = false;
