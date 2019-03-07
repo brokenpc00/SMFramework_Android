@@ -188,32 +188,14 @@ public class HellowInterparkScene extends SMScene implements SMTableView.CellFor
                         @Override
                         public void onClick(SMView view) {
                             int index = view.getTag();
-                            ShapeScene scene = null;
-                            switch (index) {
-                                case 0:
-                                {
-                                    // shapes.
-                                    scene = ShapeScene.create(getDirector(), _menuBar);
-                                }
-                                break;
-                                case 1:
-                                {
-                                    // view
-                                    _menuBar.showToast("test", Color4F.TOAST_RED, 2.0f);
-                                }
-                                break;
-                                case 2:
-                                {
-                                    // controls
-                                }
-                                break;
-                            }
 
-                            if (scene!=null) {
+        SMScene scene = null;
+        SceneParams params = new SceneParams();
+        params.putInt("SCENE_TYPE", index);
+        scene = ListScene.create(getDirector(), _menuBar, params);
                                 SlideInToLeft left = SlideInToLeft.create(getDirector(), 0.3f, scene);
                                 getDirector().pushScene(left);
                             }
-                        }
 
     protected SMView arrowView = null;
 
