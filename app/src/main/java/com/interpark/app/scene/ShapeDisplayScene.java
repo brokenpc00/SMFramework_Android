@@ -222,6 +222,16 @@ public class ShapeDisplayScene extends SMMenuTransitionScene implements SMSlider
         _colorASlider.setSliderValue(_shapeColor.a);
         _sliderBG.addChild(_colorASlider);
         switch (_shapeType) {
+            case 0:
+            {
+                // DOT
+                SMSolidCircleView dot = SMSolidCircleView.create(getDirector());
+                dot.setContentSize(new Size(10, 10));
+                dot.setColor(_shapeColor);
+                _shape = dot;
+
+            }
+            break;
             case 1:
             {
                 // LINE
@@ -293,6 +303,7 @@ public class ShapeDisplayScene extends SMMenuTransitionScene implements SMSlider
                 _shape = circle;
             }
             break;
+            default:
             case 8:
             {
                 // SOLID-TRIANGLE
@@ -306,18 +317,6 @@ public class ShapeDisplayScene extends SMMenuTransitionScene implements SMSlider
                 _shape = triangleBg;
             }
             break;
-            default:
-            case 0:
-            {
-                // DOT
-        SMSolidCircleView dot = SMSolidCircleView.create(getDirector());
-        dot.setContentSize(new Size(10, 10));
-                dot.setColor(_shapeColor);
-        _shape = dot;
-
-            }
-            break;
-
         }
 
         if (_shape!=null) {

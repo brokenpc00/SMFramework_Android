@@ -30,7 +30,7 @@ import com.interpark.smframework.view.SMToastBar;
 
 import java.util.ArrayList;
 
-public class MenuBar extends SMView {
+public class MenuBar extends SMView implements SMView.OnClickListener {
     public MenuBar(IDirector director) {
         super(director);
         sDotMenu[0] = new DotPosition(new Vec2(-13, -13), new Vec2(-13, -13), AppConst.SIZE.DOT_DIAMETER); // Left-Top dot
@@ -116,12 +116,7 @@ public class MenuBar extends SMView {
         }
 
         _mainButton.setButton(STATE.NORMAL, _buttonContainer);
-        _mainButton.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(SMView view) {
-                MainClick(view);
-            }
-        });
+        _mainButton.setOnClickListener(this);
         _mainButton.setPushDownScale(0.9f);
         _mainButton.setPushDownOffset(new Vec2(0, -3));
         addChild(_mainButton);
@@ -130,7 +125,8 @@ public class MenuBar extends SMView {
         return true;
     }
 
-    public void MainClick(SMView view) {
+    @Override
+    public void onClick(SMView view) {
         if (_mainButton.getActionByTag(AppConst.TAG.USER+1)!=null) {
             // in transform action...
             return;
@@ -574,12 +570,7 @@ public class MenuBar extends SMView {
                 button = SMButton.create(getDirector(), menuTypeToInt(MenuType.NONE), SMButton.STYLE.DEFAULT, 0, 0, AppConst.SIZE.TOP_MENU_BUTTON_HEIGHT, AppConst.SIZE.TOP_MENU_BUTTON_HEIGHT, 0.5f, 0.5f);
                 button.setIconColor(STATE.NORMAL, _activeColorSet.NORMAL);
                 button.setIconColor(STATE.PRESSED, _activeColorSet.PRESS);
-                button.setOnClickListener(new OnClickListener() {
-                    @Override
-                    public void onClick(SMView view) {
-                        MainClick(view);
-                    }
-                });
+                button.setOnClickListener(this);
                 button.setPushDownScale(0.9f);
                 button.setPushDownOffset(new Vec2(0, -3));
                 addChild(button);
@@ -677,12 +668,7 @@ public class MenuBar extends SMView {
         if (dropdown == DropDown.NOTHING) {
             _textContainer.setOnClickListener(null);
         } else {
-            _textContainer.setOnClickListener(new OnClickListener() {
-                @Override
-                public void onClick(SMView view) {
-                    MainClick(view);
-                }
-            });
+            _textContainer.setOnClickListener(this);
         }
 
         if (_dropdownButton!=null) {

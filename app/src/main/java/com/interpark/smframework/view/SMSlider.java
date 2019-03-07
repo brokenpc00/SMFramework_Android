@@ -17,7 +17,7 @@ import com.interpark.smframework.util.Vec2;
 
 import org.apache.http.cookie.SM;
 
-public class SMSlider extends UIContainerView {
+public class SMSlider extends UIContainerView implements SMView.OnTouchListener {
     public SMSlider(IDirector director) {
         super(director);
     }
@@ -132,12 +132,7 @@ public class SMSlider extends UIContainerView {
             minShadow.setAntiAliasWidth(20);
             minShadow.setPosition(60, 60-2);
             _minButton.setBackgroundColor(new Color4F(0, 0, 0, 0.2f));
-            _minButton.setOnTouchListener(new OnTouchListener() {
-                @Override
-                public int onTouch(SMView view, MotionEvent event) {
-                    return buttonTouch(view, event);
-                }
-            });
+            _minButton.setOnTouchListener(this);
             addChild(_minButton);
 
 
@@ -157,12 +152,7 @@ public class SMSlider extends UIContainerView {
             maxShadow.setAntiAliasWidth(20);
             maxShadow.setPosition(60, 60-2);
             _maxButton.setBackgroundColor(new Color4F(0, 0, 0, 0.2f));
-            _maxButton.setOnTouchListener(new OnTouchListener() {
-                @Override
-                public int onTouch(SMView view, MotionEvent event) {
-                    return buttonTouch(view, event);
-                }
-            });
+            _maxButton.setOnTouchListener(this);
             addChild(_maxButton);
 
             setSliderValue(_minValue, _maxValue);
@@ -182,12 +172,7 @@ public class SMSlider extends UIContainerView {
             shadow.setAntiAliasWidth(20);
             shadow.setPosition(60, 60-2);
             _knobButton.setBackgroundColor(new Color4F(0, 0, 0, 0.2f));
-            _knobButton.setOnTouchListener(new OnTouchListener() {
-                @Override
-                public int onTouch(SMView view, MotionEvent event) {
-                    return buttonTouch(view, event);
-                }
-            });
+            _knobButton.setOnTouchListener(this);
             addChild(_knobButton);
             setSliderValue(0);
         }
@@ -195,7 +180,8 @@ public class SMSlider extends UIContainerView {
         return true;
     }
 
-    public int buttonTouch(SMView view, MotionEvent event) {
+    @Override
+    public int onTouch(SMView view, MotionEvent event) {
         int action = event.getAction();
         Vec2 point = new Vec2(event.getX(), event.getY());
         switch (action) {

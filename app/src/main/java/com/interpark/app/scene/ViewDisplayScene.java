@@ -54,52 +54,53 @@ public class ViewDisplayScene extends SMMenuTransitionScene {
         switch (_viewType) {
             case 0:
             {
-
+                // Image View
             }
             break;
             case 1:
             {
-
+                // Zoom View
             }
             break;
             case 2:
             {
-
+                // Table View
             }
             break;
             case 3:
             {
-
+                // Page View
             }
             break;
             case 4:
             {
-
+                // Circular View
             }
             break;
             case 5:
             {
-
+                // Kenburn
             }
             break;
             case 6:
             {
-
+                // Wave & Pulse
             }
             break;
             case 7:
             {
-
+                // Stencil View
             }
             break;
             case 8:
             {
-
+                // Sticker View
             }
             break;
             case 9:
+            default:
             {
-
+                // Swipe View
             }
             break;
         }

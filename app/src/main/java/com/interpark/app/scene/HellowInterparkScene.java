@@ -123,6 +123,7 @@ public class HellowInterparkScene extends SMScene implements SMTableView.CellFor
         _menuNames.add("Shapes.");
         _menuNames.add("Views.");
         _menuNames.add("Controls.");
+        _menuNames.add("Etcetera.");
 
         _tableView = SMTableView.createMultiColumn(getDirector(), SMTableView.Orientation.VERTICAL, 1, 0, 0, s.width, _contentView.getContentSize().height);
         _tableView.cellForRowAtIndexPath = this;
@@ -152,7 +153,7 @@ public class HellowInterparkScene extends SMScene implements SMTableView.CellFor
                 Size s = _tableView.getContentSize();
                 SMView cell = _tableView.dequeueReusableCellWithIdentifier(cellID);
                 if (cell==null) {
-                    cell = SMView.create(getDirector(), 0, 0, 0, s.width, 300);
+            cell = SMView.create(getDirector(), 0, 0, 0, s.width, 250);
                     cell.setBackgroundColor(Color4F.WHITE);
 
                     String str = _menuNames.get(index);
@@ -164,7 +165,7 @@ public class HellowInterparkScene extends SMScene implements SMTableView.CellFor
                     SMRoundLine line = SMRoundLine.create(getDirector());
                     line.setBackgroundColor(MakeColor4F(0xdbdcdf, 1.0f));
                     line.setLineWidth(2);
-                    line.line(20, 298, s.width-20, 298);
+            line.line(20, 248, s.width-20, 248);
                     line.setLengthScale(1);
                     cell.addChild(line);
 
