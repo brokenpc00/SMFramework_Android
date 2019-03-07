@@ -372,7 +372,9 @@ public class SMView extends Ref {
     protected Vec3 _newRotation = new Vec3(0, 0, 0);
 
     // color
-    protected Color4F _newColor= new Color4F(0, 0, 0, 0);
+    protected Color4F _newColor= new Color4F(Color4F.TRANSPARENT);
+    protected Color4F _animColor= new Color4F(Color4F.TRANSPARENT);
+    protected Color4F _newAnimColor = new Color4F(Color4F.TRANSPARENT);
 
     // for animation
     protected Vec3 _animOffset = new Vec3(0, 0, 0);
@@ -416,17 +418,41 @@ public class SMView extends Ref {
     }
 
     public void setColor(float r, float g, float b, float a) {
-        setColor(new Color4F(r, g, b, a));
+        setColor(new Color4F(r, g, b, a), true);
+    }
+
+    public void setColor(float r, float g, float b, float a, boolean immediate) {
+        setColor(new Color4F(r, g, b, a), immediate);
     }
 
     public void setColor(final Color4F color) {
+        setColor(color, true);
+    }
+
+    public void setColor(final Color4F color, boolean immediate) {
+
+
+        if (immediate) {
+            if (!_realColor.equals(color)) {
+                _newColor.set(color);
+
         // for child... tint Color
+
         _realColor = new Color4F(color);
         _displayedColor = new Color4F(color);
 
         setAlpha(color.a);
 
         updateCascadeColor();
+
+                _transformUpdated = _transformDirty = _inverseDirty = _contentSizeDirty = true;
+            }
+        } else {
+            if (!_realColor.equals(color)) {
+                _newColor = new Color4F(color);
+                scheduleSmoothUpdate(VIEWFLAG_COLOR);
+            }
+        }
     }
 
     protected Color4F _bgColor = new Color4F(Color4F.TRANSPARENT);
@@ -545,17 +571,6 @@ public class SMView extends Ref {
             }
         }
 
-
-        if (!size.equals(_contentSize)) {
-            if (immediate) {
-                _contentSize = new Size(size);
-
-                _anchorPointInPoints.set(_contentSize.width*_anchorPoint.x, _contentSize.height*_anchorPoint.y);
-            } else {
-                _newContentSize = size;
-                scheduleSmoothUpdate(VIEWFLAG_CONTENT_SIZE);
-            }
-        }
     }
 
     public Size getContentSize() {
@@ -2135,36 +2150,67 @@ public class SMView extends Ref {
         if (isSmoothUpdate(VIEWFLAG_ANIM_COLOR)) {
             flags |= VIEWFLAG_ANIM_COLOR;
             animColor = true;
-            // 일단 color는 나중에 alpha 부터
 
-//            boolean needUpdate = false;
-//            InterpolateRet ret1 = smoothInterpolate(_animAlpha, _newAnimAlpha, AppConst.Config.TOLERANCE_SCALE);
-//            needUpdate |= ret1.retB;
-//            _animAlpha = ret1.retF;
-//
-//            if (!needUpdate) {
-//                unscheduleSmoothUpdate(VIEWFLAG_ANIM_COLOR);
-//            }
+
+            boolean needUpdate = false;
+            InterpolateRet ret1 = smoothInterpolate(_animColor.r, _newAnimColor.r, AppConst.Config.TOLERANCE_COLOR);
+            needUpdate |= ret1.retB;
+            _animColor.r = ret1.retF;
+
+            InterpolateRet ret2 = smoothInterpolate(_animColor.g, _newAnimColor.g, AppConst.Config.TOLERANCE_COLOR);
+            needUpdate |= ret2.retB;
+            _animColor.g = ret2.retF;
+
+            InterpolateRet ret3 = smoothInterpolate(_animColor.b, _newAnimColor.b, AppConst.Config.TOLERANCE_COLOR);
+            needUpdate |= ret3.retB;
+            _animColor.b = ret3.retF;
+
+            InterpolateRet ret4 = smoothInterpolate(_animColor.a, _newAnimColor.a, AppConst.Config.TOLERANCE_ALPHA);
+            needUpdate |= ret4.retB;
+            _animColor.a = ret4.retF;
+
+            if (!needUpdate) {
+                unscheduleSmoothUpdate(VIEWFLAG_ANIM_COLOR);
+            }
+
         }
 
         if (isSmoothUpdate(VIEWFLAG_COLOR) || animColor) {
             flags |= VIEWFLAG_COLOR;
 
-//            // color는 나중에
-//            // 일단 alpha부터
-//            boolean needUpdate = false;
-//            InterpolateRet ret1 = smoothInterpolate(_realAlpha, _newAlpha, AppConst.Config.TOLERANCE_SCALE);
-//            needUpdate |= ret1.retB;
-//            _realAlpha = ret1.retF;
-//
-//            if (!needUpdate && !animColor) {
-//                unscheduleSmoothUpdate(VIEWFLAG_COLOR);
-//            }
+            boolean needUpdate = false;
 
-//            _displayedColor.r = _displayedAlpha = _realAlpha * _animAlpha;
-//            _bgColor[3] = _alpha = _realAlpha * _animAlpha;
+            InterpolateRet ret1 = smoothInterpolate(_realColor.r, _newColor.r, AppConst.Config.TOLERANCE_COLOR);
+            needUpdate |= ret1.retB;
+            _realColor.r = ret1.retF;
 
-            _transformUpdated = true;
+            InterpolateRet ret2 = smoothInterpolate(_realColor.g, _newColor.g, AppConst.Config.TOLERANCE_COLOR);
+            needUpdate |= ret2.retB;
+            _realColor.g = ret2.retF;
+
+            InterpolateRet ret3 = smoothInterpolate(_realColor.b, _newColor.b, AppConst.Config.TOLERANCE_COLOR);
+            needUpdate |= ret3.retB;
+            _realColor.b = ret3.retF;
+
+            InterpolateRet ret4 = smoothInterpolate(_realColor.a, _newColor.a, AppConst.Config.TOLERANCE_COLOR);
+            needUpdate |= ret4.retB;
+            _realColor.a = ret4.retF;
+            _realAlpha = _realColor.a;
+
+            if (!needUpdate && !animColor) {
+                unscheduleSmoothUpdate(VIEWFLAG_COLOR);
+            }
+
+
+
+            _displayedColor.r = _realColor.r + _animColor.r;
+            _displayedColor.g = _realColor.g + _animColor.g;
+            _displayedColor.b = _realColor.b + _animColor.b;
+            setAlpha(_realColor.a + _animColor.a);
+
+            updateCascadeColor();
+
+            _transformUpdated = _transformDirty = _inverseDirty = _contentSizeDirty = true;
         }
 
         // position
@@ -2217,7 +2263,7 @@ public class SMView extends Ref {
             _position.y = _realPosition.y + _animOffset.y;
             _positionZ = _realPosition.z + _animOffset.z;
 
-            _transformUpdated = true;
+            _transformUpdated = _transformDirty = _inverseDirty = _contentSizeDirty = true;
         }
 
         // scale
@@ -2249,7 +2295,7 @@ public class SMView extends Ref {
 
             _scaleX = _scaleY = _scaleZ = _realScale * _animScale;
 
-            _transformUpdated = true;
+            _transformUpdated = _transformDirty = _inverseDirty = _contentSizeDirty = true;
         }
 
         // rotate
@@ -2300,7 +2346,7 @@ public class SMView extends Ref {
             _rotationY = _realRotation.y + _animRotation.y;
             _rotationZ_X = _rotationZ_Y = _realRotation.z + _animRotation.z;
 
-            _transformUpdated = true;
+            _transformUpdated = _transformDirty = _inverseDirty = _contentSizeDirty = true;
         }
 
         onSmoothUpdate(flags, dt);
