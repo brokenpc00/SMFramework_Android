@@ -78,15 +78,11 @@ public class ShapeDisplayScene extends SMMenuTransitionScene implements SMSlider
         super.initWithMenuBar(menuBar, SwipeType.DISMISS);
         _sceneParam = params;
         _mainScene = this;
-
-//        super.initWithMenuBar(menuBar);
-
         getRootView().setBackgroundColor(Color4F.XEEEFF1);
+        setMenuBarTitle(_sceneParam.getString("MENU_NAME"));
 
-        setMenuBarTitle("Display Shape");
 
         Size s = getDirector().getWinSize();
-
         _contentView = SMView.create(getDirector(), 0, 0, AppConst.SIZE.MENUBAR_HEIGHT, s.width, s.height-AppConst.SIZE.MENUBAR_HEIGHT);
         _contentView.setBackgroundColor(Color4F.WHITE);
         addChild(_contentView);
@@ -225,7 +221,6 @@ public class ShapeDisplayScene extends SMMenuTransitionScene implements SMSlider
         _colorASlider.setOnSliderListener(this);
         _colorASlider.setSliderValue(_shapeColor.a);
         _sliderBG.addChild(_colorASlider);
-
         switch (_shapeType) {
             case 1:
             {

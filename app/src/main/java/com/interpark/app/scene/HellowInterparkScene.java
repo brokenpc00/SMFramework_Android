@@ -120,9 +120,9 @@ public class HellowInterparkScene extends SMScene implements SMTableView.CellFor
         addChild(_contentView);
 
 
-        _menuNames.add("Shapes");
-        _menuNames.add("Views");
-        _menuNames.add("Controls");
+        _menuNames.add("Shapes.");
+        _menuNames.add("Views.");
+        _menuNames.add("Controls.");
 
         _tableView = SMTableView.createMultiColumn(getDirector(), SMTableView.Orientation.VERTICAL, 1, 0, 0, s.width, _contentView.getContentSize().height);
         _tableView.cellForRowAtIndexPath = this;
@@ -192,6 +192,7 @@ public class HellowInterparkScene extends SMScene implements SMTableView.CellFor
         SMScene scene = null;
         SceneParams params = new SceneParams();
         params.putInt("SCENE_TYPE", index);
+        params.putString("MENU_NAME", _menuNames.get(index));
         scene = ListScene.create(getDirector(), _menuBar, params);
                                 SlideInToLeft left = SlideInToLeft.create(getDirector(), 0.3f, scene);
                                 getDirector().pushScene(left);

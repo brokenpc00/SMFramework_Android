@@ -47,8 +47,9 @@ public class ListScene extends SMMenuTransitionScene implements  SMTableView.Cel
             super.initWithMenuBar(menuBar);
             _sceneParam = params;
             _mainScene = this;
-
             getRootView().setBackgroundColor(Color4F.XEEEFF1);
+            setMenuBarTitle(_sceneParam.getString("MENU_NAME"));
+
 
 
 
@@ -61,7 +62,6 @@ public class ListScene extends SMMenuTransitionScene implements  SMTableView.Cel
                 _sceneType = _sceneParam.getInt("SCENE_TYPE");
             }
             if (_sceneType==0) {
-                setMenuBarTitle("Shapes.");
                 _menuNames.add("DOT");
                 _menuNames.add("LINE");
                 _menuNames.add("RECT");
@@ -72,7 +72,6 @@ public class ListScene extends SMMenuTransitionScene implements  SMTableView.Cel
                 _menuNames.add("SOLID_CIRCLE");
                 _menuNames.add("SOLID_TRIANGLE");
             } else if (_sceneType==1) {
-                setMenuBarTitle("Views.");
                 _menuNames.add("IMAGE VIEW");
                 _menuNames.add("ZOOM VIEW");
                 _menuNames.add("TABLE VIEW");
@@ -84,7 +83,6 @@ public class ListScene extends SMMenuTransitionScene implements  SMTableView.Cel
                 _menuNames.add("STICKER VIEW");
                 _menuNames.add("SWIPE VIEW");
             } else if (_sceneType==2) {
-                setMenuBarTitle("Controls.");
                 _menuNames.add("LABEL");
                 _menuNames.add("BUTTON");
                 _menuNames.add("SLID BUTTON");
@@ -155,16 +153,18 @@ public class ListScene extends SMMenuTransitionScene implements  SMTableView.Cel
         public void onClick(SMView view) {
             int tag = view.getTag();
             SceneParams params = new SceneParams();
-
+            params.putString("MENU_NAME", _menuNames.get(tag));
             SMScene scene = null;
             if (_sceneType==0) {
                 params.putInt("SHAPE_TYPE", tag);
+
                 scene = ShapeDisplayScene.create(getDirector(), _menuBar, params);
             } else if (_sceneType==1) {
                 params.putInt("VIEW_TYPE", tag);
+                scene = ViewDisplayScene.create(getDirector(), _menuBar, params);
             } else if (_sceneType==2) {
                 params.putInt("CONTROL_TYPE", tag);
-                _menuBar.showToast("Not Yet.", Color4F.TOAST_RED, 2.0f);
+                _menuBar.showToast(_menuNames.get(tag) + " Not Yet.", Color4F.TOAST_RED, 2.0f);
             }
 
             if (scene!=null) {
