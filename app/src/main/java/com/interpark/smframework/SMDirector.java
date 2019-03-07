@@ -483,7 +483,7 @@ public class SMDirector implements IDirector, GLSurfaceView.Renderer {
                 _backSwipe.setEdgeWidth(AppConst.SIZE.EDGE_SWIPE_MENU);
                 _backSwipe._swipeUpdateCallback = new SWIPTE_BACK_UPDATE_CALLBCK() {
                     @Override
-                    public void Func(int a, float b) {
+                    public void onSwipeUpdate(int a, float b) {
                         onEdgeBackUpdateCallback(a, b);
                     }
                 };
@@ -499,7 +499,7 @@ public class SMDirector implements IDirector, GLSurfaceView.Renderer {
                 _dismissSwipe.setEdgeWidth(AppConst.SIZE.EDGE_SWIPE_TOP);
                 _dismissSwipe._swipeUpdateCallback = new SWIPTE_DISMISS_UPDATE_CALLBCK() {
                     @Override
-                    public void Func(int a, float b) {
+                    public void onSwipeUpdate(int a, float b) {
                         onEdgeDismissUpdateCallback(a, b);
                     }
                 };
@@ -551,7 +551,7 @@ public class SMDirector implements IDirector, GLSurfaceView.Renderer {
         _sideMenu.setSwipeLayer(_menuSwipe);
         _sideMenu._sideMenuUpdateCallback = new SideMenu.SIDE_MENU_UPDATE_CALLBACK() {
             @Override
-            public void Func(SIDE_MENU_STATE state, float position) {
+            public void onSideMenuUpdateCallback(SIDE_MENU_STATE state, float position) {
                 onSideMenuUpdateCallback(state, position);
             }
         };

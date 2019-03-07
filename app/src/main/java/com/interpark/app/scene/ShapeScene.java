@@ -25,7 +25,7 @@ import com.interpark.smframework.view.SMRoundLine;
 
 import java.util.ArrayList;
 
-public class ShapeScene extends SMMenuTransitionScene {
+public class ShapeScene extends SMMenuTransitionScene implements  SMTableView.CellForRowAtIndexPath, SMTableView.NumberOfRowsInSection, SMView.OnClickListener {
     protected ShapeScene _mainScene = null;
     public ShapeScene(IDirector director) {
         super(director);
@@ -69,9 +69,23 @@ public class ShapeScene extends SMMenuTransitionScene {
 
 
         _tableView = SMTableView.createMultiColumn(getDirector(), SMTableView.Orientation.VERTICAL, 1, 0, 0, s.width, _contentView.getContentSize().height);
-        _tableView.cellForRowAtIndexPath = new SMTableView.CellForRowAtIndexPath() {
+        _tableView.cellForRowAtIndexPath = this;
+        _tableView.numberOfRowsInSection = this;
+
+        _tableView.setScissorEnable(true);
+
+        _contentView.addChild(_tableView);
+        _contentView.setLocalZOrder(-10);
+        return true;
+    }
+
+    @Override
+    public int numberOfRowsInSection(int section) {
+        return _menuNames.size();
+    }
+
             @Override
-            public SMView onFunc(IndexPath indexPath) {
+            public SMView cellForRowAtIndexPath(IndexPath indexPath) {
                 int index = indexPath.getIndex();
                 String cellID = "CELL" + index;
                 Size s = _tableView.getContentSize();
@@ -95,12 +109,7 @@ public class ShapeScene extends SMMenuTransitionScene {
                     cell.addChild(line);
 
                     cell.setTag(index);
-                    cell.setOnClickListener(new OnClickListener() {
-                        @Override
-                        public void onClick(SMView view) {
-                            onShapeClick(view);
-                        }
-                    });
+            cell.setOnClickListener(this);
 
                     cell.setOnStateChangeListener(new OnStateChangeListener() {
                         @Override
@@ -115,22 +124,9 @@ public class ShapeScene extends SMMenuTransitionScene {
                 }
                 return cell;
             }
-        };
 
-        _tableView.numberOfRowsInSection = new SMTableView.NumberOfRowsInSection() {
             @Override
-            public int onFunc(int section) {
-                return _menuNames.size();
-            }
-        };
-        _tableView.setScissorEnable(true);
-
-        _contentView.addChild(_tableView);
-        _contentView.setLocalZOrder(-10);
-        return true;
-    }
-
-    protected void onShapeClick(SMView view) {
+    public void onClick(SMView view) {
         int tag = view.getTag();
         switch (tag) {
             case 0:
@@ -180,7 +176,9 @@ public class ShapeScene extends SMMenuTransitionScene {
             break;
         }
 
-        ShapeDisplayScene scene = ShapeDisplayScene.create(getDirector(), _menuBar);
+        SceneParams params = new SceneParams();
+        params.putInt("SHAPE_TYPE", tag);
+        ShapeDisplayScene scene = ShapeDisplayScene.create(getDirector(), _menuBar, params);
         if (scene!=null) {
             SlideInToTop top = SlideInToTop.create(getDirector(), 0.3f, scene);
             getDirector().pushScene(top);

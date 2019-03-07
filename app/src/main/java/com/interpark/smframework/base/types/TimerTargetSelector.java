@@ -23,9 +23,9 @@ public class TimerTargetSelector extends Timer {
     @Override
     public void trigger(float dt) {
         if (_target!=null && _selector!=null) {
-            _selector.onFunc(dt);
+            _selector.scheduleSelector(dt);
 //            _target.setSchdule(_selector);;
-//            _target._schedule.onFunc(dt);
+//            _target._schedule.scheduleSelector(dt);
         }
     }
 

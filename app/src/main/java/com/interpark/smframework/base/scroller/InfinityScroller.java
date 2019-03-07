@@ -34,7 +34,7 @@ public class InfinityScroller extends SMScroller {
             }
             if (distance == 0) {
                 if (onAlignCallback!=null) {
-                    onAlignCallback.onFunc(true);
+                    onAlignCallback.onAlignCallback(true);
                 }
                 return;
             }
@@ -58,7 +58,7 @@ public class InfinityScroller extends SMScroller {
 
         if (_scrollMode != ScrollMode.BASIC) {
             if (onAlignCallback!=null) {
-                onAlignCallback.onFunc(false);
+                onAlignCallback.onAlignCallback(false);
             }
         }
 
@@ -117,7 +117,7 @@ public class InfinityScroller extends SMScroller {
 
         if (_scrollMode != ScrollMode.BASIC) {
             if (onAlignCallback!=null) {
-                onAlignCallback.onFunc(false);
+                onAlignCallback.onAlignCallback(false);
             }
         }
     }
@@ -137,7 +137,7 @@ public class InfinityScroller extends SMScroller {
             // STOP
             if (_scrollMode != ScrollMode.BASIC) {
                 if (onAlignCallback!=null) {
-                    onAlignCallback.onFunc(true);
+                    onAlignCallback.onAlignCallback(true);
                 }
             }
             return false;
@@ -168,7 +168,7 @@ public class InfinityScroller extends SMScroller {
 
             if (_scrollMode != ScrollMode.BASIC) {
                 if (onAlignCallback!=null) {
-                    onAlignCallback.onFunc(true);
+                    onAlignCallback.onAlignCallback(true);
                 }
             }
             return false;

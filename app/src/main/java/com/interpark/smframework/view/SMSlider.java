@@ -449,7 +449,7 @@ public class SMSlider extends UIContainerView {
         }
 
         if (_listener!=null) {
-            _listener.func(this, _sliderValue);
+            _listener.onSliderValueChanged(this, _sliderValue);
         }
 
         setKnobPosition(_sliderValue, immediate);
@@ -464,7 +464,7 @@ public class SMSlider extends UIContainerView {
         _maxValue = Math.min(Math.max(maxValue, 0.0f), 1.0f);
 
         if (_listener!=null) {
-            _listener.func(this, _minValue, _maxValue);
+            _listener.onSliderValueChanged(this, _minValue, _maxValue);
         }
 
         setKnobPosition(_minValue, _maxValue, immediate);
@@ -560,10 +560,8 @@ public class SMSlider extends UIContainerView {
 
 
     public interface OnSliderListener {
-        // onSliderValueChanged(SMSlider slider, float value);
-        public void func(SMSlider slider, float value);
-        // onSliderValueChanged(SMSlider slider, float minValue, float maxValue);
-        public void func(SMSlider slider, float minValue, float maxValue);
+        public void onSliderValueChanged(SMSlider slider, float value);
+        public void onSliderValueChanged(SMSlider slider, float minValue, float maxValue);
     }
     private OnSliderListener _listener = null;
     public void setOnSliderListener(OnSliderListener l) {_listener = l;}

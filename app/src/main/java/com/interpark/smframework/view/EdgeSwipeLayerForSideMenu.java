@@ -40,7 +40,7 @@ public class EdgeSwipeLayerForSideMenu extends EdgeSwipeLayer {
             _scroller.setBounceBackEnable(false);
             _scroller.pageChangedCallback = new PageScroller.PAGE_CALLBACK() {
                 @Override
-                public void onFunc(int page) {
+                public void pageChangedCallback(int page) {
                     openStateChanged(page);
                 }
             };

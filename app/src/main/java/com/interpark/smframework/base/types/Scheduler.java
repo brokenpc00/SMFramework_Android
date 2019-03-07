@@ -68,7 +68,7 @@ public class Scheduler {
     public void scheduleUpdate(final ActionManager manager, int priority, boolean paused) {
         schedulePerFrame(new SEL_SCHEDULE() {
             @Override
-            public void onFunc(float t) {
+            public void scheduleSelector(float t) {
                 manager.update(t);
             }
         }, manager, priority, paused);
@@ -77,7 +77,7 @@ public class Scheduler {
     public void scheduleUpdate(final SMView target, int priority, boolean paused) {
         schedulePerFrame(new SEL_SCHEDULE() {
             @Override
-            public void onFunc(float t) {
+            public void scheduleSelector(float t) {
                 target.update(t);
             }
         }, target, priority, paused);
@@ -358,21 +358,21 @@ public class Scheduler {
         for (int i=0; i<_updatesNegList.size(); i++) {
             entry = _updatesNegList.get(i);
             if (entry!=null && !entry.paused && !entry.markedForDeletion) {
-                entry.callback.onFunc(dt);
+                entry.callback.scheduleSelector(dt);
             }
         }
 
         for (int i=0; i<_updates0List.size(); i++) {
             entry = _updates0List.get(i);
             if (entry!=null && !entry.paused && !entry.markedForDeletion) {
-                entry.callback.onFunc(dt);
+                entry.callback.scheduleSelector(dt);
             }
         }
 
         for (int i=0; i<_updatesPosList.size(); i++) {
             entry = _updatesPosList.get(i);
             if (entry!=null && !entry.paused && !entry.markedForDeletion) {
-                entry.callback.onFunc(dt);
+                entry.callback.scheduleSelector(dt);
             }
         }
 
@@ -407,7 +407,7 @@ public class Scheduler {
             synchronized (_functionsToPerform) {
                 for (int i=0; i<_functionsToPerform.size(); i++) {
                     PERFORM_SEL func = _functionsToPerform.get(i);
-                    func.onFunc();
+                    func.performSelector();
                 }
 
                 _functionsToPerform.clear();

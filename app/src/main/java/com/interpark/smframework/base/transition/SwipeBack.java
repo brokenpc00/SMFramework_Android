@@ -59,7 +59,7 @@ public class SwipeBack extends BaseSceneTransition {
 
     private SEL_SCHEDULE cancelFunc = new SEL_SCHEDULE() {
         @Override
-        public void onFunc(float t) {
+        public void scheduleSelector(float t) {
             cancelNewScene(t);
         }
     };

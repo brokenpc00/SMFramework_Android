@@ -14,8 +14,8 @@ public class CustomCommand extends RenderCommand {
     }
 
     public void execute() {
-        if (func!=null) {
-            func.func();;
+        if (customCommandFunc!=null) {
+            customCommandFunc.func();
         }
     }
 
@@ -24,5 +24,5 @@ public class CustomCommand extends RenderCommand {
     public interface CustomCommandFunc {
         public void func();
     }
-    public CustomCommandFunc func = null;
+    public CustomCommandFunc customCommandFunc = null;
 }

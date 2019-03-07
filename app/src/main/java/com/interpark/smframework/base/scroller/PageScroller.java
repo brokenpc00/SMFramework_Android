@@ -73,7 +73,7 @@ public class PageScroller extends FlexibleScroller {
             _controller.startFling(0);
 
             if (pageChangedCallback!=null) {
-                pageChangedCallback.onFunc((int)page);
+                pageChangedCallback.pageChangedCallback((int)page);
             }
 
             return;
@@ -147,7 +147,7 @@ public class PageScroller extends FlexibleScroller {
 
             if (pageChangedCallback!=null) {
                 float value = (float)Math.floor(_startPos/_cellSize);
-                pageChangedCallback.onFunc((int)value);
+                pageChangedCallback.pageChangedCallback((int)value);
             }
         }
 
@@ -155,7 +155,7 @@ public class PageScroller extends FlexibleScroller {
     }
 
     public interface PAGE_CALLBACK {
-        public void onFunc(final int page);
+        public void pageChangedCallback(final int page);
     }
     public PAGE_CALLBACK pageChangedCallback = null;
 

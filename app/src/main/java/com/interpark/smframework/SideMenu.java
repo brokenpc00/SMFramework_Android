@@ -37,13 +37,13 @@ public class SideMenu extends SMView {
         _sideMenuTableView = SMTableView.createMultiColumn(director, SMTableView.Orientation.VERTICAL, 1, 0, 0, getContentSize().width, getContentSize().height);
         _sideMenuTableView.numberOfRowsInSection = new SMTableView.NumberOfRowsInSection() {
             @Override
-            public int onFunc(int section) {
+            public int numberOfRowsInSection(int section) {
                 return 5;
             }
         };
         _sideMenuTableView.cellForRowAtIndexPath = new SMTableView.CellForRowAtIndexPath() {
             @Override
-            public SMView onFunc(IndexPath indexPath) {
+            public SMView cellForRowAtIndexPath(IndexPath indexPath) {
                 return cellForRowsAtIndexPath(indexPath);
             }
         };
@@ -56,7 +56,7 @@ public class SideMenu extends SMView {
     }
 
     public interface MENU_OPEN_CLOSE {
-        public void onFunc();
+        public void onMenuClose();
     };
     public MENU_OPEN_CLOSE _callback = null;
 
@@ -113,7 +113,7 @@ public class SideMenu extends SMView {
             if (_state!=SIDE_MENU_STATE.OPEN) {
                 _state = SIDE_MENU_STATE.OPEN;
                 if (_callback!=null) {
-                    _callback.onFunc();;
+                    _callback.onMenuClose();;
                 }
 
                 if (!isVisible()) {
@@ -129,7 +129,7 @@ public class SideMenu extends SMView {
                     _swipeLayer.closeComplete();
                 }
                 if (_callback!=null) {
-                    _callback.onFunc();
+                    _callback.onMenuClose();
                 }
                 if (isVisible()) {
                     setVisible(false);
@@ -155,7 +155,7 @@ public class SideMenu extends SMView {
         setPositionX(x);
 
         if (_sideMenuUpdateCallback!=null) {
-            _sideMenuUpdateCallback.Func(_state, position);
+            _sideMenuUpdateCallback.onSideMenuUpdateCallback(_state, position);
         }
 
         _lastPosition = position;
@@ -166,7 +166,7 @@ public class SideMenu extends SMView {
     public SIDE_MENU_STATE getState() {return _state;}
 
     public interface SIDE_MENU_UPDATE_CALLBACK {
-        public void Func(SIDE_MENU_STATE state, float position);
+        public void onSideMenuUpdateCallback(SIDE_MENU_STATE state, float position);
     }
     public SIDE_MENU_UPDATE_CALLBACK _sideMenuUpdateCallback = null;
 

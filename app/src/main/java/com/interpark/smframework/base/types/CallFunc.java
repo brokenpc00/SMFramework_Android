@@ -18,7 +18,7 @@ public class CallFunc extends ActionInstant {
 
     public void execute() {
         if (_function!=null) {
-            _function.onFunc();
+            _function.performSelector();
         }
     }
 

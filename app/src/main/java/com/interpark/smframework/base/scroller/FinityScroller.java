@@ -64,7 +64,7 @@ public class FinityScroller extends FlexibleScroller {
             _controller.startFling(0);
 
             if (onAlignCallback!=null) {
-                onAlignCallback.onFunc(true);
+                onAlignCallback.onAlignCallback(true);
             }
 
             return;
@@ -100,7 +100,7 @@ public class FinityScroller extends FlexibleScroller {
                 _state = STATE.STOP;
                 _controller.startFling(0);
                 if (onAlignCallback!=null) {
-                    onAlignCallback.onFunc(true);
+                    onAlignCallback.onAlignCallback(true);
                 }
                 return;
             }
@@ -116,7 +116,7 @@ public class FinityScroller extends FlexibleScroller {
                 _state = STATE.STOP;
                 _controller.startFling(0);
                 if (onAlignCallback!=null) {
-                    onAlignCallback.onFunc(true);
+                    onAlignCallback.onAlignCallback(true);
                 }
                 return;
             }
@@ -176,7 +176,7 @@ public class FinityScroller extends FlexibleScroller {
             _controller.setPanY(_stopPos);
             // STOP
             if (onAlignCallback!=null) {
-                onAlignCallback.onFunc(true);
+                onAlignCallback.onAlignCallback(true);
             }
             return false;
         }
@@ -208,7 +208,7 @@ public class FinityScroller extends FlexibleScroller {
             _controller.setPanY(_stopPos);
 
             if (onAlignCallback!=null) {
-                onAlignCallback.onFunc(true);
+                onAlignCallback.onAlignCallback(true);
             }
             return false;
         }

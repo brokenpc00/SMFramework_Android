@@ -1,5 +1,5 @@
 package com.interpark.smframework.base.types;
 
 public interface PERFORM_SEL {
-    public void onFunc();
+    public void performSelector();
 }

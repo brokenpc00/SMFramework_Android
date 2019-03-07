@@ -134,7 +134,7 @@ public class BaseSceneTransition extends TransitionScene {
 
            runAction(Sequence.create(getDirector(), DelayTime.create(getDirector(), DEFAULT_DELAY_TIME), new ProgressUpdater(getDirector(), _duration), CallFunc.create(getDirector(), new PERFORM_SEL() {
                 @Override
-                public void onFunc() {
+               public void performSelector() {
                     finish();
                 }
            }), null));
@@ -152,7 +152,7 @@ public class BaseSceneTransition extends TransitionScene {
 //            runAction(new ProgressUpdater(getDirector(), _duration));
             runAction(Sequence.create(getDirector(), new ProgressUpdater(getDirector(), _duration), CallFunc.create(getDirector(), new PERFORM_SEL() {
                 @Override
-                public void onFunc() {
+                public void performSelector() {
                     finish();
                 }
             }), null));

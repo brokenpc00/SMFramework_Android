@@ -2853,7 +2853,7 @@ public class SMView extends Ref {
         if (_onSmoothUpdateCallback == null) {
             _onSmoothUpdateCallback = new SEL_SCHEDULE() {
                 @Override
-                public void onFunc(float t) {
+                public void scheduleSelector(float t) {
                     onInternalSmoothUpate(t);
                 }
             };

@@ -41,7 +41,7 @@ public class EdgeSwipeLayerForPushBack extends EdgeSwipeLayer {
         if (_scroller!=null) {
             _scroller.pageChangedCallback = new PageScroller.PAGE_CALLBACK() {
                 @Override
-                public void onFunc(int page) {
+                public void pageChangedCallback(int page) {
                     openStateChanged(page);
                 }
             };
@@ -79,7 +79,7 @@ public class EdgeSwipeLayerForPushBack extends EdgeSwipeLayer {
     }
 
     public interface SWIPTE_BACK_UPDATE_CALLBCK {
-        public void Func(int a, float b);
+        public void onSwipeUpdate(int a, float b);
     }
     public SWIPTE_BACK_UPDATE_CALLBCK _swipeUpdateCallback=null;
 
@@ -96,7 +96,7 @@ public class EdgeSwipeLayerForPushBack extends EdgeSwipeLayer {
         _position = _scroller.getScrollPosition() - _swipeSize;
 
         if (_swipeUpdateCallback!=null) {
-            _swipeUpdateCallback.Func(_openState, -_position);
+            _swipeUpdateCallback.onSwipeUpdate(_openState, -_position);
         }
     }
 

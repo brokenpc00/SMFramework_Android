@@ -66,7 +66,7 @@ import java.util.ArrayList;
 import java.util.ListIterator;
 import java.util.Random;
 
-public class HellowInterparkScene extends SMScene {
+public class HellowInterparkScene extends SMScene implements SMTableView.CellForRowAtIndexPath, SMTableView.NumberOfRowsInSection, SMView.OnClickListener {
 
     protected HellowInterparkScene _mainScene = null;
 
@@ -125,9 +125,28 @@ public class HellowInterparkScene extends SMScene {
         _menuNames.add("Controls");
 
         _tableView = SMTableView.createMultiColumn(getDirector(), SMTableView.Orientation.VERTICAL, 1, 0, 0, s.width, _contentView.getContentSize().height);
-        _tableView.cellForRowAtIndexPath = new CellForRowAtIndexPath() {
+        _tableView.cellForRowAtIndexPath = this;
+        _tableView.numberOfRowsInSection = this;
+
+        _tableView.setScissorEnable(true);
+//        _tableView.setScissorRect(new Rect(200, 200, s.width-400, _tableView.getContentSize().height-400));
+//
+//        _tableView.setAnchorPoint(Vec2.MIDDLE);
+//        _tableView.setPosition(new Vec2(s.width/2, s.height/2+AppConst.SIZE.MENUBAR_HEIGHT/2));
+        _contentView.addChild(_tableView);
+        _contentView.setLocalZOrder(-10);
+
+        return true;
+    }
+
+    @Override
+    public int numberOfRowsInSection(int section) {
+        return _menuNames.size();
+    }
+
+
             @Override
-            public SMView onFunc(IndexPath indexPath) {
+            public SMView cellForRowAtIndexPath(IndexPath indexPath) {
                 int index = indexPath.getIndex();
                 String cellID = "CELL" + index;
                 Size s = _tableView.getContentSize();
@@ -150,7 +169,22 @@ public class HellowInterparkScene extends SMScene {
                     cell.addChild(line);
 
                     cell.setTag(index);
-                    cell.setOnClickListener(new OnClickListener() {
+            cell.setOnClickListener(this);
+
+            cell.setOnStateChangeListener(new OnStateChangeListener() {
+                @Override
+                public void onStateChange(SMView view, STATE state) {
+                    if (state==STATE.PRESSED) {
+                        view.setBackgroundColor(MakeColor4F(0xeeeff1, 1), 0.15f);
+                    } else {
+                        view.setBackgroundColor(MakeColor4F(0xffffff, 1), 0.15f);
+                    }
+                }
+            });
+        }
+        return cell;
+    }
+
                         @Override
                         public void onClick(SMView view) {
                             int index = view.getTag();
@@ -180,39 +214,6 @@ public class HellowInterparkScene extends SMScene {
                                 getDirector().pushScene(left);
                             }
                         }
-                    });
-
-                    cell.setOnStateChangeListener(new OnStateChangeListener() {
-                        @Override
-                        public void onStateChange(SMView view, STATE state) {
-                            if (state==STATE.PRESSED) {
-                                view.setBackgroundColor(MakeColor4F(0xeeeff1, 1), 0.15f);
-                            } else {
-                                view.setBackgroundColor(MakeColor4F(0xffffff, 1), 0.15f);
-                            }
-                        }
-                    });
-                }
-                return cell;
-            }
-        };
-
-        _tableView.numberOfRowsInSection = new NumberOfRowsInSection() {
-            @Override
-            public int onFunc(int section) {
-                return _menuNames.size();
-            }
-        };
-        _tableView.setScissorEnable(true);
-//        _tableView.setScissorRect(new Rect(200, 200, s.width-400, _tableView.getContentSize().height-400));
-//
-//        _tableView.setAnchorPoint(Vec2.MIDDLE);
-//        _tableView.setPosition(new Vec2(s.width/2, s.height/2+AppConst.SIZE.MENUBAR_HEIGHT/2));
-        _contentView.addChild(_tableView);
-        _contentView.setLocalZOrder(-10);
-
-        return true;
-    }
 
     protected SMView arrowView = null;
 

@@ -173,7 +173,7 @@ public class SMScroller {
     public float getCellSize() {return _cellSize;}
 
     public interface ALIGN_CALLBACK {
-        public void onFunc(boolean aligned);
+        public void onAlignCallback(boolean aligned);
     }
     public ALIGN_CALLBACK onAlignCallback = null;
 

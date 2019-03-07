@@ -7,6 +7,7 @@ import com.interpark.smframework.IDirector;
 import com.interpark.smframework.base.SMMenuTransitionScene;
 import com.interpark.smframework.base.SMTableView;
 import com.interpark.smframework.base.SMView;
+import com.interpark.smframework.base.SceneParams;
 import com.interpark.smframework.base.types.Color4F;
 import com.interpark.smframework.util.AppConst;
 import com.interpark.smframework.util.Size;
@@ -18,7 +19,7 @@ import com.interpark.smframework.view.SMSolidRectView;
 
 import java.util.ArrayList;
 
-public class ShapeDisplayScene extends SMMenuTransitionScene {
+public class ShapeDisplayScene extends SMMenuTransitionScene implements SMSlider.OnSliderListener {
     protected ShapeDisplayScene _mainScene = null;
 
     public ShapeDisplayScene(IDirector director) {
@@ -31,17 +32,23 @@ public class ShapeDisplayScene extends SMMenuTransitionScene {
     private SMSlider _slider = null;
     private SMShapeView _shape = null;
 
+
+
+
     public static ShapeDisplayScene create(IDirector director, MenuBar menuBar) {
+        return create(director, menuBar, null);
+    }
+    public static ShapeDisplayScene create(IDirector director, MenuBar menuBar, SceneParams params) {
         ShapeDisplayScene scene = new ShapeDisplayScene(director);
 
-        scene.initWithMenuBar(menuBar);
+        scene.initWithParams(menuBar, params);
 
         return scene;
     }
 
-    @Override
-    protected boolean initWithMenuBar(MenuBar menuBar) {
+    protected boolean initWithParams(MenuBar menuBar, SceneParams params) {
         super.initWithMenuBar(menuBar, SwipeType.DISMISS);
+        _mainScene = this;
 //        super.initWithMenuBar(menuBar);
 
         getRootView().setBackgroundColor(Color4F.XEEEFF1);
@@ -67,21 +74,12 @@ public class ShapeDisplayScene extends SMMenuTransitionScene {
         _slider = SMSlider.create(getDirector(), SMSlider.Type.ZERO_TO_ONE, SMSlider.LIGHT);
         _slider.setContentSize(new Size(s.width-80, AppConst.SIZE.MENUBAR_HEIGHT));
         _slider.setPosition(40, _contentView.getContentSize().height-AppConst.SIZE.MENUBAR_HEIGHT);
-        _slider.setOnSliderListener(new SMSlider.OnSliderListener() {
-            @Override
-            public void func(SMSlider slider, float value) {
-                onSliderValueChanged(slider, value);
-            }
-
-            @Override
-            public void func(SMSlider slider, float minValue, float maxValue) {
-                onSliderValueChanged(slider, minValue, maxValue);
-            }
-        });
+        _slider.setOnSliderListener(this);
         _contentView.addChild(_slider);
         return true;
     }
 
+    @Override
     public void onSliderValueChanged(SMSlider slider, float value) {
         float scale = value * 20.0f;
         if (scale<1) scale=1;
@@ -89,6 +87,7 @@ public class ShapeDisplayScene extends SMMenuTransitionScene {
         _shape.setScale(scale, false);
     }
 
+    @Override
     public void onSliderValueChanged(SMSlider slider, float minValue, float maxValue) {
 
     }

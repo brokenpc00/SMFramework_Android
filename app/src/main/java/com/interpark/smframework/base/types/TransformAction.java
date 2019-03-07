@@ -81,11 +81,11 @@ public class TransformAction extends DelayBaseAction {
     }
 
     public interface TransformFunc {
-        public void func(SMView target, int tag);
+        public void onFinish(SMView target, int tag);
     }
 
     public interface TransformUpdateCallback {
-        public void func(SMView target, int tag, float t);
+        public void onUpdate(SMView target, int tag, float t);
     }
 
     public TransformAction runFuncOnFinish(final TransformFunc callback) {
@@ -185,7 +185,7 @@ public class TransformAction extends DelayBaseAction {
         }
 
         if (_updateCallback!=null) {
-            _updateCallback.func(_target, getTag(), t);
+            _updateCallback.onUpdate(_target, getTag(), t);
         }
     }
 
@@ -216,7 +216,7 @@ public class TransformAction extends DelayBaseAction {
         }
 
         if (_finishCallback!=null) {
-            _finishCallback.func(getTarget(), getTag());
+            _finishCallback.onFinish(getTarget(), getTag());
         }
 
         if (_action!=null) {

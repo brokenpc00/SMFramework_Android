@@ -104,43 +104,43 @@ public class SMTableView extends BaseTableView {
     // callback & listener
     // section 당 row 개수 delegate
     public interface NumberOfRowsInSection {
-        public int onFunc(final int section);
+        public int  numberOfRowsInSection(final int section);
     }
     public NumberOfRowsInSection numberOfRowsInSection = null;
 
     // IndexPath로 cell을 하나 얻어오는 delegate
     public interface CellForRowAtIndexPath {
-        public SMView onFunc(final IndexPath indexPath);
+        public SMView cellForRowAtIndexPath(final IndexPath indexPath);
     }
     public CellForRowAtIndexPath cellForRowAtIndexPath = null;
 
     public interface CellResizeCallback {
-        public void onFunc(SMView cell, float newSize);
+        public void onCellResizeCallback(SMView cell, float newSize);
     }
     public CellResizeCallback onCellResizeCallback = null;
 
     public interface CellResizeCompletionCallback {
-        public void onFunc(SMView cell);
+        public void onCellResizeCompletionCallback(SMView cell);
     }
     public CellResizeCompletionCallback onCellResizeCompletionCallback = null;
 
     public interface CellInsertCallback {
-        public void onFunc(SMView cell, float progress);
+        public void onCellInsertCallback(SMView cell, float progress);
     }
     public CellInsertCallback onCellInsertCallback = null;
 
     public interface CellDeleteCallback {
-        public void onFunc(SMView cell, float progress);
+        public void onCellDeleteCallback(SMView cell, float progress);
     }
     public CellDeleteCallback onCellDeleteCallback = null;
 
     public interface CellDeleteCompletionCallback {
-        public void onFunc();
+        public void onCellDeleteCompletionCallback();
     }
     public CellDeleteCompletionCallback onCellDeleteCompletionCallback = null;
 
     public interface ScrollCallback {
-        public void onFunc(float position, float distance);
+        public void onScrollCallback(float position, float distance);
     }
     public ScrollCallback onScrollCallback = null;
 
@@ -148,12 +148,12 @@ public class SMTableView extends BaseTableView {
 
 
     public interface RefreshDataCallback {
-        public void onFunc(SMView cell, RefreshState state, float size);
+        public void onRefreshDataCallback(SMView cell, RefreshState state, float size);
     }
     public RefreshDataCallback onRefreshDataCallback = null;
 
     public interface CanRefreshData {
-        public boolean onFunc();
+        public boolean canRefreshData();
     }
     public CanRefreshData canRefreshData = null;
 
@@ -161,7 +161,7 @@ public class SMTableView extends BaseTableView {
     // load more callback... callback이 세팅 되었을때 footer가 나타나면 호출된다. 여기서 통신등 페이지 더보기를 호출 하면 된다. 끝나면 endLoadData()를 호출 할 것.
     // 다시 호출 될일 이 없다면 callback을 nullptr로 세팅하거나 footer 자체를 nullptr로 세팅하면 된다.
     public interface LoadDataCallback {
-        public boolean onFunc(SMView cell);
+        public boolean onLoadDataCallback(SMView cell);
     }
     public LoadDataCallback onLoadDataCallback = null;
     private LoadDataCallback onLoadDataCallbackTemp = null;
@@ -170,7 +170,7 @@ public class SMTableView extends BaseTableView {
 
     // cell이 처음 나타날때 애니메이션을 위한 callback (willDisplayCell...같은 역할)
     public interface InitFillWithCells {
-        public void onFunc(SMTableView tableView);
+        public void onInitFillWithCells(SMTableView tableView);
     }
     public InitFillWithCells onInitFillWithCells = null;
 
@@ -275,7 +275,7 @@ public class SMTableView extends BaseTableView {
             _reuseScrapper._internalReuseType = -1;
             _reuseScrapper._internalReuseNode = null;
 
-            SMView child = cellForRowAtIndexPath.onFunc(cursor.getIndexPath());
+            SMView child = cellForRowAtIndexPath.cellForRowAtIndexPath(cursor.getIndexPath());
 
             if (child==null) {
                 assert (false);
@@ -432,7 +432,7 @@ public class SMTableView extends BaseTableView {
 
                         _reuseScrapper._internalReuseType = -1;
                         _reuseScrapper._internalReuseNode = null;
-                        child = cellForRowAtIndexPath.onFunc(item._indexPath);
+                        child = cellForRowAtIndexPath.cellForRowAtIndexPath(item._indexPath);
                         if (child==null) {
                             assert (false);
                         }
@@ -469,7 +469,7 @@ public class SMTableView extends BaseTableView {
                         info.resizeCursor(cursor);
 
                         if (onCellResizeCallback!=null) {
-                            onCellResizeCallback.onFunc(child, item._newSize);
+                            onCellResizeCallback.onCellResizeCallback(child, item._newSize);
                         }
                     }
 
@@ -705,7 +705,7 @@ public class SMTableView extends BaseTableView {
             _reuseScrapper._internalReuseType = -1;
             _reuseScrapper._internalReuseNode = null;
 
-            child = cellForRowAtIndexPath.onFunc(indexPath);
+            child = cellForRowAtIndexPath.cellForRowAtIndexPath(indexPath);
 
             if (child==null) {
                 assert (false);
@@ -759,14 +759,14 @@ public class SMTableView extends BaseTableView {
 
             if ((item._flags&ITEM_FLAG_RESIZE)>0) {
                 if (onCellResizeCallback!=null) {
-                    onCellResizeCallback.onFunc(child, item._size);
+                    onCellResizeCallback.onCellResizeCallback(child, item._size);
                 }
             }
 
             if (item._tag==0) {
                 if ((item._flags&ITEM_FLAG_INSERT)>0) {
                     if (onCellInsertCallback!=null) {
-                        onCellInsertCallback.onFunc(child, 1);
+                        onCellInsertCallback.onCellInsertCallback(child, 1);
                     }
                 }
 
@@ -852,7 +852,7 @@ public class SMTableView extends BaseTableView {
             } else {
                 _reuseScrapper._internalReuseType = -1;
                 _reuseScrapper._internalReuseNode = null;
-                child = cellForRowAtIndexPath.onFunc(item._indexPath);
+                child = cellForRowAtIndexPath.cellForRowAtIndexPath(item._indexPath);
                 if (_reuseScrapper._internalReuseType>=0) {
                     item._reuseType = _reuseScrapper._internalReuseType;
                 }
@@ -882,14 +882,14 @@ public class SMTableView extends BaseTableView {
 
             if ((item._flags & ITEM_FLAG_RESIZE)>0) {
                 if (onCellResizeCallback!=null && child.getClass()==_DeleteNode.class) {
-                    onCellResizeCallback.onFunc(child, item._size);
+                    onCellResizeCallback.onCellResizeCallback(child, item._size);
                 }
             }
 
             if (item._tag==0) {
                 if ((item._flags & ITEM_FLAG_INSERT)>0) {
                     if (onCellInsertCallback!=null) {
-                        onCellInsertCallback.onFunc(child, 1);
+                        onCellInsertCallback.onCellInsertCallback(child, 1);
                     }
                 }
                 item._flags = 0;
@@ -972,7 +972,7 @@ public class SMTableView extends BaseTableView {
                         if (!_progressLoading) {
                             _progressLoading = true;
 
-                            onLoadDataCallback.onFunc(_footerView);
+                            onLoadDataCallback.onLoadDataCallback(_footerView);
                         }
                     } else if (onLoadDataCallbackTemp!=null) {
                         break;
@@ -1169,7 +1169,7 @@ public class SMTableView extends BaseTableView {
 
         boolean updated = false;
 
-        final int adapterItemCount = numberOfRowsInSection.onFunc(0);
+        final int adapterItemCount = numberOfRowsInSection.numberOfRowsInSection(0);
         if (_lastItemCount != adapterItemCount) {
             _lastItemCount = adapterItemCount;
             updated = true;
@@ -1225,7 +1225,7 @@ public class SMTableView extends BaseTableView {
 
                 if (getActionByTag(AppConst.TAG.ACTION_LIST_HIDE_REFRESH)==null) {
                     if (onRefreshDataCallback!=null) {
-                        onRefreshDataCallback.onFunc(_refreshView, _refreshState, _refreshSize);
+                        onRefreshDataCallback.onRefreshDataCallback(_refreshView, _refreshState, _refreshSize);
                     }
 
                     // ToDo. 대충 기준을 10으로 잡자... 나중에 수정해야 함.
@@ -1278,7 +1278,7 @@ public class SMTableView extends BaseTableView {
                 if (!_fillWithCellsFirstTime) {
                     _fillWithCellsFirstTime = true;
                     if (onInitFillWithCells!=null) {
-                        onInitFillWithCells.onFunc(this);
+                        onInitFillWithCells.onInitFillWithCells(this);
                     }
 
                     if (_initRefreshEnable && _refreshView != null) {
@@ -1291,7 +1291,7 @@ public class SMTableView extends BaseTableView {
                         positionChildren(-_refreshTriggerSize, containerSize, headerSize, footerSize);
 
                         if (onRefreshDataCallback!=null) {
-                            onRefreshDataCallback.onFunc(_refreshView, _refreshState, _refreshTriggerSize);
+                            onRefreshDataCallback.onRefreshDataCallback(_refreshView, _refreshState, _refreshTriggerSize);
                         }
 
                         updated = true;
@@ -1314,7 +1314,7 @@ public class SMTableView extends BaseTableView {
 
     protected void onScrollChanged(float position, float distance) {
         if (onScrollCallback!=null) {
-            onScrollCallback.onFunc(position, distance);
+            onScrollCallback.onScrollCallback(position, distance);
         }
     }
 
@@ -1511,7 +1511,7 @@ public class SMTableView extends BaseTableView {
                     switch (_refreshState) {
                         case NONE:
                         {
-                            if (canRefreshData != null && !canRefreshData.onFunc()) {
+                            if (canRefreshData != null && !canRefreshData.canRefreshData()) {
                                 break;
                             }
 
@@ -1601,7 +1601,7 @@ public class SMTableView extends BaseTableView {
 
     private FindCursorRet findCursorForIndexPath(IndexPath indexPath) {
 
-        assert (indexPath.getIndex()>=0 && indexPath.getIndex()==numberOfRowsInSection.onFunc(0));
+        assert (indexPath.getIndex()>=0 && indexPath.getIndex()==numberOfRowsInSection.numberOfRowsInSection(0));
 
         int index = indexPath.getIndex();
 
@@ -1727,7 +1727,7 @@ public class SMTableView extends BaseTableView {
             Item item = cursor.getItem();
 
             if (onCellDeleteCallback!=null) {
-                onCellDeleteCallback.onFunc(child, 1);
+                onCellDeleteCallback.onCellDeleteCallback(child, 1);
             }
 
             if (child.getClass()==_DeleteNode.class || item._dontReuse) {
@@ -1920,7 +1920,7 @@ public class SMTableView extends BaseTableView {
     public boolean insertRowAtIndexPath(final IndexPath indexPath, float estimateSize, float duration, float delay, boolean immediate) {
         assert (numberOfRowsInSection!=null);
         assert (cellForRowAtIndexPath!=null);
-        assert (indexPath.getIndex()>=0 && indexPath.getIndex()<=numberOfRowsInSection.onFunc(0));
+        assert (indexPath.getIndex()>=0 && indexPath.getIndex()<=numberOfRowsInSection.numberOfRowsInSection(0));
 
         ColumnInfo info = null;
 
@@ -2024,7 +2024,7 @@ public class SMTableView extends BaseTableView {
             _reuseScrapper._internalReuseType = -1;
             _reuseScrapper._internalReuseNode = null;
 
-            SMView child = cellForRowAtIndexPath.onFunc(item._indexPath);
+            SMView child = cellForRowAtIndexPath.cellForRowAtIndexPath(item._indexPath);
             if (_reuseScrapper._internalReuseType>=0) {
                 item._reuseType = _reuseScrapper._internalReuseType;
             }
@@ -2066,11 +2066,11 @@ public class SMTableView extends BaseTableView {
             }
 
             if (onCellResizeCallback!=null) {
-                onCellResizeCallback.onFunc(child, item._newSize);
+                onCellResizeCallback.onCellResizeCallback(child, item._newSize);
             }
 
             if (!needAnimation && onCellInsertCallback!=null) {
-                onCellInsertCallback.onFunc(child, 1);
+                onCellInsertCallback.onCellInsertCallback(child, 1);
             }
 
             sortAllChildren(column);
@@ -2171,7 +2171,7 @@ public class SMTableView extends BaseTableView {
     }
     public boolean deleteRowAtIndexPath(final IndexPath indexPath, float duration, float delay) {
         // 일단 0 section만
-        assert (indexPath.getIndex()>=0 && indexPath.getIndex()<=numberOfRowsInSection.onFunc(0));
+        assert (indexPath.getIndex()>=0 && indexPath.getIndex()<=numberOfRowsInSection.numberOfRowsInSection(0));
 
         int lastIndex = Integer.MIN_VALUE;
         for (int col=0; col<_numContainer; col++) {
@@ -3283,23 +3283,23 @@ public class SMTableView extends BaseTableView {
 
             if (child!=null) {
                 if (_parent.onCellResizeCallback!=null) {
-                    _parent.onCellResizeCallback.onFunc(child, item._newSize);
+                    _parent.onCellResizeCallback.onCellResizeCallback(child, item._newSize);
                 }
 
                 if (t<1) {
                     if (_parent.onCellDeleteCallback!=null) {
-                        onCellDeleteCallback.onFunc(child, t);
+                        onCellDeleteCallback.onCellDeleteCallback(child, t);
                     }
                 }
             } else {
                 child = _parent.findFromHolder(item.hashCode());
                 if (child!=null) {
                     if (_parent.onCellResizeCallback!=null) {
-                        _parent.onCellResizeCallback.onFunc(child, item._newSize);
+                        _parent.onCellResizeCallback.onCellResizeCallback(child, item._newSize);
                     }
 
                     if (_parent.onCellDeleteCallback!=null) {
-                        _parent.onCellDeleteCallback.onFunc(child, t);
+                        _parent.onCellDeleteCallback.onCellDeleteCallback(child, t);
                     }
                 }
             }
@@ -3334,7 +3334,7 @@ public class SMTableView extends BaseTableView {
             _parent._animationDirty = true;
 
             if (_parent.onCellDeleteCompletionCallback!=null) {
-                _parent.onCellDeleteCompletionCallback.onFunc();
+                _parent.onCellDeleteCompletionCallback.onCellDeleteCompletionCallback();
             }
         }
     }
@@ -3358,11 +3358,11 @@ public class SMTableView extends BaseTableView {
 
             if (child!=null) {
                 if (_parent.onCellResizeCallback!=null) {
-                    _parent.onCellResizeCallback.onFunc(child, item._newSize);
+                    _parent.onCellResizeCallback.onCellResizeCallback(child, item._newSize);
                 }
 
                 if (_insert && _parent.onCellInsertCallback!=null) {
-                    _parent.onCellInsertCallback.onFunc(child, t);
+                    _parent.onCellInsertCallback.onCellInsertCallback(child, t);
                 }
             }
 
@@ -3403,7 +3403,7 @@ public class SMTableView extends BaseTableView {
             _parent._animationDirty = true;
 
             if (_parent.onCellResizeCompletionCallback!=null) {
-                _parent.onCellResizeCompletionCallback.onFunc(child);
+                _parent.onCellResizeCompletionCallback.onCellResizeCompletionCallback(child);
             }
         }
 

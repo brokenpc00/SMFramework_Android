@@ -38,7 +38,7 @@ public class SMToastBar extends SMView {
 
 
     public interface ToastBarCallback {
-        public void func(SMToastBar bar);
+        public void onToastBarHide(SMToastBar bar);
     }
 
     public static SMToastBar create(IDirector director, SMToastBar.ToastBarCallback callback) {
@@ -134,7 +134,7 @@ public class SMToastBar extends SMView {
 
     private SEL_SCHEDULE _timeout = new SEL_SCHEDULE() {
         @Override
-        public void onFunc(float t) {
+        public void scheduleSelector(float t) {
             onTimeOut(t);
         }
     };
@@ -186,7 +186,7 @@ public class SMToastBar extends SMView {
         TransformAction moveY = TransformAction.create(getDirector());
         moveY.toPositoinY(0).setTweenFunc(tweenfunc.TweenType.Cubic_EaseOut).runFuncOnFinish(new TransformAction.TransformFunc() {
             @Override
-            public void func(SMView target, int tag) {
+            public void onFinish(SMView target, int tag) {
                 onHideComplete(target, tag);
             }
         });
@@ -207,7 +207,7 @@ public class SMToastBar extends SMView {
         setVisible(false);
 
         if (_callback!=null) {
-            _callback.func(this);
+            _callback.onToastBarHide(this);
         }
     }
 

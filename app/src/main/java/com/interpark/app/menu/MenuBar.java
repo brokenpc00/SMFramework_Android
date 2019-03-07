@@ -1014,7 +1014,7 @@ public class MenuBar extends SMView {
         if (_toast == null) {
             _toast = SMToastBar.create(getDirector(), new SMToastBar.ToastBarCallback() {
                 @Override
-                public void func(SMToastBar bar) {
+                public void onToastBarHide(SMToastBar bar) {
                     onToastHideComplete(bar);
                 }
             });

@@ -99,7 +99,7 @@ public class TransitionScene extends SMScene {
 
     private SEL_SCHEDULE newSceneSchedule = new SEL_SCHEDULE() {
         @Override
-        public void onFunc(float t) {
+        public void scheduleSelector(float t) {
             setNewScene(t);
         }
     };
