@@ -229,7 +229,7 @@ public class SMSlider extends UIContainerView {
                             if (dist>_sliderWidth/2) {
                                 dist = _sliderWidth/2;
                             } else if (dist<-_sliderWidth/2) {
-                                dist = -_sliderValue/2;
+                                dist = -_sliderWidth/2;
                             }
 
                             value = dist / (_sliderWidth/2);
