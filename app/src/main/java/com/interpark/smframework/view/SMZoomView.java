@@ -1,9 +1,11 @@
-package com.interpark.smframework.base;
+package com.interpark.smframework.view;
 
 import android.view.MotionEvent;
 import android.view.VelocityTracker;
 
 import com.interpark.smframework.IDirector;
+import com.interpark.smframework.base.SMView;
+import com.interpark.smframework.base.UIContainerView;
 import com.interpark.smframework.base.types.Action;
 import com.interpark.smframework.base.types.ActionInterval;
 import com.interpark.smframework.base.types.EaseSineInOut;

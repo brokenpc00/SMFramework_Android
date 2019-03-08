@@ -1,12 +1,9 @@
 package com.interpark.app.scene;
 
-import android.util.Log;
-
 import com.interpark.app.menu.MenuBar;
 import com.interpark.smframework.IDirector;
 import com.interpark.smframework.base.SMMenuTransitionScene;
-import com.interpark.smframework.base.SMTableView;
-import com.interpark.smframework.base.SMTimeInterpolator;
+import com.interpark.smframework.view.SMTableView;
 import com.interpark.smframework.base.SMView;
 import com.interpark.smframework.base.SceneParams;
 import com.interpark.smframework.base.types.Color4F;
@@ -24,8 +21,6 @@ import com.interpark.smframework.view.SMSolidCircleView;
 import com.interpark.smframework.view.SMSolidRectView;
 import com.interpark.smframework.view.SMSolidRoundRectView;
 import com.interpark.smframework.view.SMTriangleView;
-
-import org.apache.http.cookie.SM;
 
 import java.util.ArrayList;
 

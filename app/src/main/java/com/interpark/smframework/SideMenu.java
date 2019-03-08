@@ -1,9 +1,7 @@
 package com.interpark.smframework;
 
-import android.util.Log;
-
 import com.interpark.smframework.base.SMScene;
-import com.interpark.smframework.base.SMTableView;
+import com.interpark.smframework.view.SMTableView;
 import com.interpark.smframework.base.SMView;
 import com.interpark.smframework.base.types.Color4B;
 import com.interpark.smframework.base.types.Color4F;
@@ -12,11 +10,8 @@ import com.interpark.smframework.util.AppConst;
 import com.interpark.smframework.util.Size;
 import com.interpark.smframework.util.Vec2;
 import com.interpark.smframework.view.EdgeSwipeLayerForSideMenu;
-import com.interpark.smframework.view.SMButton;
 import com.interpark.smframework.view.SMLabel;
 import com.interpark.smframework.IDirector.SIDE_MENU_STATE;
-
-import org.apache.http.cookie.SM;
 
 public class SideMenu extends SMView {
     private SideMenu(IDirector director) {

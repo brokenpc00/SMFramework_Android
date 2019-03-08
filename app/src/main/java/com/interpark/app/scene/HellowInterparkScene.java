@@ -1,70 +1,23 @@
 package com.interpark.app.scene;
 
-import android.graphics.ColorSpace;
-import android.transition.Scene;
-import android.util.Log;
-import android.view.MotionEvent;
-
 import com.interpark.app.menu.MenuBar;
-import com.interpark.app.menu.TopMenu;
 import com.interpark.smframework.IDirector;
-import com.interpark.smframework.NativeImageProcess.ImageProcessing;
 import com.interpark.smframework.SideMenu;
 import com.interpark.smframework.base.SMScene;
-import com.interpark.smframework.base.SMTableView;
-import com.interpark.smframework.base.SMTableView.NumberOfRowsInSection;
-import com.interpark.smframework.base.SMTableView.CellForRowAtIndexPath;
-import com.interpark.smframework.base.SMZoomView;
-import com.interpark.smframework.base.UIContainerView;
-import com.interpark.smframework.base.shape.ShapeConstant.LineType;
-import com.interpark.smframework.base.sprite.BitmapSprite;
-import com.interpark.smframework.base.sprite.TextSprite;
-import com.interpark.smframework.base.texture.BitmapTexture;
-import com.interpark.smframework.base.texture.FileTexture;
-import com.interpark.smframework.base.texture.ResourceTexture;
-import com.interpark.smframework.base.transition.BaseSceneTransition;
+import com.interpark.smframework.view.SMTableView;
 import com.interpark.smframework.base.transition.SlideInToLeft;
-import com.interpark.smframework.base.transition.SlideInToTop;
-import com.interpark.smframework.base.transition.SlideOutToBottom;
-import com.interpark.smframework.base.transition.SlideOutToRight;
-import com.interpark.smframework.base.types.Action;
-import com.interpark.smframework.base.types.BGColorTo;
-import com.interpark.smframework.base.types.Bounce;
-import com.interpark.smframework.base.types.CallFunc;
-import com.interpark.smframework.base.types.Color4B;
 import com.interpark.smframework.base.types.Color4F;
-import com.interpark.smframework.base.types.DelayTime;
-import com.interpark.smframework.base.types.EaseCubicActionOut;
 import com.interpark.smframework.base.types.IndexPath;
-import com.interpark.smframework.base.types.MoveTo;
-import com.interpark.smframework.base.types.PERFORM_SEL;
-import com.interpark.smframework.base.types.RotateTo;
-import com.interpark.smframework.base.types.ScaleSine;
-import com.interpark.smframework.base.types.Sequence;
 import com.interpark.smframework.util.AppConst;
-import com.interpark.smframework.util.Rect;
 import com.interpark.smframework.util.Size;
 import com.interpark.smframework.util.Vec2;
-import com.interpark.smframework.view.SMButton;
-import com.interpark.smframework.view.SMCircleView;
 import com.interpark.smframework.view.SMImageView;
 import com.interpark.smframework.base.SMView;
 import com.interpark.smframework.base.SceneParams;
 import com.interpark.smframework.view.SMLabel;
-import com.interpark.smframework.view.SMRectView;
 import com.interpark.smframework.view.SMRoundLine;
-import com.interpark.smframework.view.SMRoundRectView;
-import com.interpark.smframework.view.SMShapeView;
-import com.interpark.smframework.view.SMSolidCircleView;
-import com.interpark.smframework.view.SMSolidRectView;
-import com.interpark.smframework.view.SMSolidRoundRectView;
-import com.interpark.app.menu.TopMenu.TopMenuComponentType;
-import com.interpark.smframework.view.SMToastBar;
-import com.interpark.smframework.view.SMTriangleView;
 
 import java.util.ArrayList;
-import java.util.ListIterator;
-import java.util.Random;
 
 public class HellowInterparkScene extends SMScene implements SMTableView.CellForRowAtIndexPath, SMTableView.NumberOfRowsInSection, SMView.OnClickListener {
 
@@ -110,7 +63,7 @@ public class HellowInterparkScene extends SMScene implements SMTableView.CellFor
         _menuBar.setMenuButtonType(MenuBar.MenuType.MENU, true);
         _menuBar.setText(_sceneTitle, true);
         _menuBar.setColorSet(MenuBar.ColorSet.WHITE_TRANSULANT, true);
-        _menuBar.setLocalZOrder(999);
+        _menuBar.setLocalZOrder(10);
         _menuBar.setMenuBarListener(_menuBarListener);
         addChild(_menuBar);
 
@@ -136,6 +89,7 @@ public class HellowInterparkScene extends SMScene implements SMTableView.CellFor
 //        _tableView.setPosition(new Vec2(s.width/2, s.height/2+AppConst.SIZE.MENUBAR_HEIGHT/2));
         _contentView.addChild(_tableView);
         _contentView.setLocalZOrder(-10);
+//        _contentView.setLocalZOrder(990);
 
         return true;
     }
@@ -176,9 +130,9 @@ public class HellowInterparkScene extends SMScene implements SMTableView.CellFor
                 @Override
                 public void onStateChange(SMView view, STATE state) {
                     if (state==STATE.PRESSED) {
-                        view.setBackgroundColor(MakeColor4F(0xeeeff1, 1), 0.15f);
+                        view.setBackgroundColor(Color4F.XEEEFF1, 0.15f);
                     } else {
-                        view.setBackgroundColor(MakeColor4F(0xffffff, 1), 0.15f);
+                        view.setBackgroundColor(Color4F.WHITE, 0.15f);
                     }
                 }
             });

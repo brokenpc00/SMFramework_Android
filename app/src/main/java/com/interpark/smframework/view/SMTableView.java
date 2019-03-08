@@ -1,37 +1,26 @@
-package com.interpark.smframework.base;
+package com.interpark.smframework.view;
 
-import android.arch.persistence.room.Index;
-import android.content.ContentUris;
-import android.support.v7.view.menu.MenuBuilder;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.view.VelocityTracker;
-import android.view.View;
 
 import com.interpark.smframework.IDirector;
-import com.interpark.smframework.base.scroller.FinityScroller;
+import com.interpark.smframework.base.BaseTableView;
+import com.interpark.smframework.base.SMView;
+import com.interpark.smframework.base.SceneParams;
 import com.interpark.smframework.base.scroller.FlexibleScroller;
 import com.interpark.smframework.base.scroller.SMScroller;
 import com.interpark.smframework.base.types.Action;
 import com.interpark.smframework.base.types.ActionInterval;
 import com.interpark.smframework.base.types.DelayTime;
 import com.interpark.smframework.base.types.IndexPath;
-import com.interpark.smframework.base.types.Ref;
 import com.interpark.smframework.base.types.Sequence;
 import com.interpark.smframework.util.AppConst;
 import com.interpark.smframework.util.Size;
 import com.interpark.smframework.util.Vec2;
-import com.interpark.smframework.view.SMLabel;
-
-import org.apache.http.cookie.SM;
 
 import java.util.ArrayList;
-import java.util.Enumeration;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
 import java.util.ListIterator;
-import java.util.Map;
 
 public class SMTableView extends BaseTableView {
 
@@ -1632,7 +1621,7 @@ public class SMTableView extends BaseTableView {
             for (; count>0; cursor.inc(true), --count) {
                 if (!cursor.getItem().isDeleted()) {
                     if (cursor.getIndexPath().getIndex() == index) {
-                        indexPath = new IndexPath(0, col, index);
+                        indexPath.set(new IndexPath(0, col, index));
                         return new FindCursorRet(cursor, true);
                     }
                 }
@@ -2220,6 +2209,27 @@ public class SMTableView extends BaseTableView {
         }
 
         return performResize(ret.retCursor, child, newSize, duration, delay);
+    }
+
+    public boolean resizeRowForIndexPath(IndexPath indexPath, float newSize) {
+        return resizeRowForIndexPath(indexPath, newSize, 0);
+    }
+    public boolean resizeRowForIndexPath(IndexPath indexPath, float newSize, float duration) {
+        return resizeRowForIndexPath(indexPath, newSize, duration, 0);
+    }
+    public boolean resizeRowForIndexPath(IndexPath indexPath, float newSize, float duration, float delay) {
+        FindCursorRet ret = findChildForIndexPath(indexPath);
+        if (!ret.retBool) {
+            return false;
+        }
+
+        if (ret.retCursor._position >= _column[ret.retCursor.getIndexPath().getColumn()].getViewLastCursor()._position) {
+            // 화면 밖 뒤에 있으면 즉시 삭제 (애니메이션 필요 없음)
+            duration = 0;
+            delay = 0;
+        }
+
+        return performResize(ret.retCursor, ret.retView, newSize, duration, delay);
     }
 
     public ArrayList<SMView> getVisibleCells() {

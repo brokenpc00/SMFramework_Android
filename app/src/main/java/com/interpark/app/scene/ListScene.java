@@ -4,7 +4,7 @@ import com.interpark.app.menu.MenuBar;
 import com.interpark.smframework.IDirector;
 import com.interpark.smframework.base.SMMenuTransitionScene;
 import com.interpark.smframework.base.SMScene;
-import com.interpark.smframework.base.SMTableView;
+import com.interpark.smframework.view.SMTableView;
 import com.interpark.smframework.base.SMView;
 import com.interpark.smframework.base.SceneParams;
 import com.interpark.smframework.base.transition.SlideInToTop;
@@ -74,9 +74,9 @@ public class ListScene extends SMMenuTransitionScene implements  SMTableView.Cel
             } else if (_sceneType==1) {
                 _menuNames.add("IMAGE VIEW");
                 _menuNames.add("ZOOM VIEW");
-                _menuNames.add("TABLE VIEW");
                 _menuNames.add("PAGE VIEW");
                 _menuNames.add("CIRCULAR VIEW");
+                _menuNames.add("TABLE VIEW");
                 _menuNames.add("KENBURN");
                 _menuNames.add("WAVE & PULSE");
                 _menuNames.add("STENCIL VIEW");

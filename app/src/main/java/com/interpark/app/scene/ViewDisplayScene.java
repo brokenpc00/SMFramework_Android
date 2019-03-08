@@ -3,8 +3,11 @@ package com.interpark.app.scene;
 import com.interpark.app.menu.MenuBar;
 import com.interpark.smframework.IDirector;
 import com.interpark.smframework.base.SMMenuTransitionScene;
-import com.interpark.smframework.base.SMTableView;
+import com.interpark.smframework.base.types.IndexPath;
+import com.interpark.smframework.view.SMPageView;
+import com.interpark.smframework.view.SMTableView;
 import com.interpark.smframework.base.SMView;
+import com.interpark.smframework.view.SMZoomView;
 import com.interpark.smframework.base.SceneParams;
 import com.interpark.smframework.base.types.Color4F;
 import com.interpark.smframework.shader.ShaderNode;
@@ -16,7 +19,7 @@ import com.interpark.smframework.view.SMImageView;
 
 import java.util.ArrayList;
 
-public class ViewDisplayScene extends SMMenuTransitionScene implements SMView.OnClickListener {
+public class ViewDisplayScene extends SMMenuTransitionScene implements SMView.OnClickListener, SMPageView.OnPageChangedCallback {
     public ViewDisplayScene _mainScene = null;
 
     public ViewDisplayScene(IDirector director) {
@@ -69,21 +72,23 @@ public class ViewDisplayScene extends SMMenuTransitionScene implements SMView.On
             case 1:
             {
                 // Zoom View
+                zoomDisplay();
             }
             break;
             case 2:
             {
-                // Table View
+                // Page View
+                pageViewDisplay();
             }
             break;
             case 3:
             {
-                // Page View
+                // Circular View
             }
             break;
             case 4:
             {
-                // Circular View
+                // Table View
             }
             break;
             case 5:
@@ -114,6 +119,90 @@ public class ViewDisplayScene extends SMMenuTransitionScene implements SMView.On
             break;
         }
     }
+
+    private SMPageView _horPageView = null;
+    private SMPageView _verPageView = null;
+    private int _pageItemCount = 10;
+    private ArrayList<SMImageView> _horImages = new ArrayList<SMImageView>();
+    private ArrayList<SMImageView> _verImages = new ArrayList<SMImageView>();
+    private void pageViewDisplay() {
+        Size s = _contentView.getContentSize();
+
+
+        for (int i=0; i<_pageItemCount; i++) {
+            SMImageView imgH = SMImageView.create(getDirector(), "images/bigsize.jpg");
+            imgH.setContentSize(s.width-200, s.height/2);
+            imgH.setScaleType(SMImageView.ScaleType.CENTER_INSIDE);
+            imgH.setScissorEnable(true);
+            imgH.setBackgroundColor(1, 1, 0, 0.6f);
+            _horImages.add(imgH);
+
+            SMImageView imgV = SMImageView.create(getDirector(), "images/bigsize.jpg");
+            imgV.setContentSize(s.width-200, s.height/2);
+            imgV.setScaleType(SMImageView.ScaleType.FIT_CENTER);
+            imgV.setScissorEnable(true);
+            imgV.setBackgroundColor(1, 0, 1, 0.6f);
+            _verImages.add(imgV);
+        }
+
+        _horPageView = SMPageView.create(getDirector(), SMTableView.Orientation.HORIZONTAL, 100, 0, s.width-200, s.height/2);
+        _horPageView.numberOfRowsInSection = new SMTableView.NumberOfRowsInSection() {
+            @Override
+            public int numberOfRowsInSection(int section) {
+                return _pageItemCount;
+            }
+        };
+        _horPageView.cellForRowAtIndexPath = new SMTableView.CellForRowAtIndexPath() {
+            @Override
+            public SMView cellForRowAtIndexPath(IndexPath indexPath) {
+                return _horImages.get(indexPath.getIndex());
+            }
+        };
+        _horPageView.setScissorEnable(true);
+        _contentView.addChild(_horPageView);
+
+
+
+        _verPageView = SMPageView.create(getDirector(), SMTableView.Orientation.VERTICAL, 100, s.height/2, s.width-200, s.height/2);
+        _verPageView.numberOfRowsInSection = new SMTableView.NumberOfRowsInSection() {
+            @Override
+            public int numberOfRowsInSection(int section) {
+                return _pageItemCount;
+            }
+        };
+        _verPageView.cellForRowAtIndexPath = new SMTableView.CellForRowAtIndexPath() {
+            @Override
+            public SMView cellForRowAtIndexPath(IndexPath indexPath) {
+                return _verImages.get(indexPath.getIndex());
+            }
+        };
+        _verPageView.setScissorEnable(true);
+        _contentView.addChild(_verPageView);
+
+
+    }
+
+    @Override
+    public void onPageChangedCallback(SMPageView pageView, int page) {
+        if (pageView==_horPageView) {
+
+        } else {
+
+        }
+    }
+
+    private SMZoomView _zoomView = null;
+    private void zoomDisplay() {
+        Size s = _contentView.getContentSize();
+
+        _zoomView = SMZoomView.create(getDirector(), 0, 0, s.width, s.height);
+        _contentView.addChild(_zoomView);
+
+        SMImageView contentView = SMImageView.create(getDirector(), "images/bigsize.jpg");
+        _zoomView.setContentView(contentView);
+    }
+
+
 
     private SMButton _scaleButton = null;
     private SMButton _gravityButton = null;
