@@ -12,10 +12,21 @@ import com.interpark.smframework.base.sprite.Sprite;
 import com.interpark.smframework.base.texture.BitmapTexture;
 import com.interpark.smframework.base.texture.Texture;
 import com.interpark.smframework.base.types.Color4F;
+import com.interpark.smframework.util.AppConst;
+import com.interpark.smframework.util.Rect;
 import com.interpark.smframework.util.Size;
 import com.interpark.smframework.util.Vec2;
 
 public class SMImageView extends UIContainerView {
+
+    public static final int GRAVITY_LEFT = 1;
+    public static final int GRAVITY_RIGHT = 1<<1;
+    public static final int GRAVITY_CENTER_HORIZONTAL = GRAVITY_LEFT | GRAVITY_RIGHT;
+    public static final int GRAVITY_TOP = 1<<2;
+    public static final int GRAVITY_BOTTOM = 1<<3;
+    public static final int GRAVITY_CENTER_VERTICAL = GRAVITY_TOP | GRAVITY_BOTTOM;
+
+
     public enum ScaleType {
         /**
          * 가운데 정렬
@@ -41,11 +52,58 @@ public class SMImageView extends UIContainerView {
 
     protected boolean _iconVisible = true;
     protected DrawNode _sprite = null;
-    private ScaleType mScaleType = ScaleType.FIT_CENTER;
+    private ScaleType _scaleType = ScaleType.FIT_CENTER;
 
-    private float mImageScale = 1f;
-    private float mScaleX, mScaleY;
-    private final RectF mContentsBounds;
+    protected void setClipping(boolean cliping) {
+
+        if (_clipping==cliping) return;
+
+        _clipping = cliping;
+        if (_sprite!=null) {
+            registerUpdate(FLAG_CONTENT_SIZE);
+        }
+    }
+    private boolean _clipping = false;
+
+    private static final long FLAG_CONTENT_SIZE = 1;
+    private static final int ACTION_TAG_SHOW = AppConst.TAG.USER+1;
+    private static final int ACTION_TAG_DIM = AppConst.TAG.USER+2;
+
+    public void setGravity(int gravity) {
+        setGravity(gravity, true);
+    }
+    public void setGravity(int gravity, boolean immediate) {
+            _gravity = gravity;
+            registerUpdate(FLAG_CONTENT_SIZE);
+//        if (_gravity!=gravity) {
+//            if (immediate) {
+//            } else {
+//
+//            }
+//        }
+        }
+// float scale
+//    if (immediate ) {
+//        _realScale = _newScale = scale;
+//        _scaleX = _scaleY = _scaleZ = scale * _animScale;
+//    } else {
+//        if (_newScale==scale) {
+//            return;
+//        }
+//
+//        _newScale = scale;
+//        scheduleSmoothUpdate(VIEWFLAG_SCALE);
+//    }
+
+    private int _gravity = 0;
+    public void setMaxAreaRatio(float ratio) {_maxAreaRatio = ratio;}
+    private float _maxAreaRatio = 0;
+    private boolean _isDownloadImageView = false;
+    private float _imageScale = 1f;
+    private float _spriteScaleX = 1f, _spriteScaleY = 1f;
+    private Vec2 _spritePosition = new Vec2(Vec2.ZERO);
+    private Size _spriteSize = new Size(Size.ZERO);
+    private Rect _imageRect = new Rect();
 
     public static SMImageView create(IDirector director, String assetName) {
         SMImageView imageView = new SMImageView(director, assetName);
@@ -68,7 +126,6 @@ public class SMImageView extends UIContainerView {
 
     public SMImageView (IDirector director) {
         super(director);
-        mContentsBounds = new RectF();
     }
 
     public SMImageView(IDirector director, String assetName) {
@@ -99,30 +156,62 @@ public class SMImageView extends UIContainerView {
         setContentSize(new Size(width, height));
     }
 
+    private void updateData() {
+        _imageRect = new Rect(new Vec2(0, 0), new Size(_sprite.getWidth(), _sprite.getHeight()));
+        computeContentSize();
+    }
 
     public void setSprite(DrawNode sprite) {
         setSprite(sprite, false);
     }
+    public void setSprite(DrawNode sprite, boolean fitSize) {
+        if (_sprite!=sprite) {
+            if (_sprite!=null) {
+                _sprite.releaseResources();
+            }
 
-    public void setSprite(DrawNode sprite, boolean fitBounds) {
+            if (sprite!=null) {
         _sprite = sprite;
-        if (fitBounds) {
-            fitSpriteBounds();
+                _imageRect = new Rect(new Vec2(0, 0), _sprite.getContentSize());
+
+                registerUpdate(FLAG_CONTENT_SIZE);
         } else {
-            computeContentsBounds();
+                _sprite = null;
+            }
+        }
+
+        if (fitSize && _sprite!=null) {
+            _imageScale = 1;
+            setContentSize(_sprite.getContentSize());
+        }
+
+        if (_onSpriteSetCallback!=null) {
+            _onSpriteSetCallback.onSpriteSetCallback(this, _sprite);
         }
     }
+
+    public interface OnSpriteSetCallback {
+        public void onSpriteSetCallback(SMImageView view, DrawNode sprite);
+        }
+    private OnSpriteSetCallback _onSpriteSetCallback = null;
+    public void setOnSpriteSetCallback(OnSpriteSetCallback callback) {_onSpriteSetCallback = callback;}
+
+    public interface OnSpriteLoadedCallback {
+        public DrawNode onSpriteLoadedCallback(SMImageView view, DrawNode sprite);
+    }
+    private OnSpriteLoadedCallback _onSpriteLoadedCallback = null;
+    public void setOnSpriteLoadedCallback(OnSpriteLoadedCallback callback) {_onSpriteLoadedCallback = callback;}
 
     @Override
     public void setContentSize(Size size) {
         super.setContentSize(size);
-        computeContentsBounds();
+        registerUpdate(FLAG_CONTENT_SIZE);
     }
 
     @Override
     public void setContentSize(float width, float height) {
         super.setContentSize(new Size(width, height));
-        computeContentsBounds();
+        registerUpdate(FLAG_CONTENT_SIZE);
     }
 
     public DrawNode getSprite() {
@@ -137,9 +226,17 @@ public class SMImageView extends UIContainerView {
     }
 
     public void setScaleType(ScaleType scaleType) {
-        if (mScaleType != scaleType) {
-            mScaleType = scaleType;
-            computeContentsBounds();
+        if (_scaleType != scaleType) {
+            _scaleType = scaleType;
+            registerUpdate(FLAG_CONTENT_SIZE);
+        }
+    }
+
+    @Override
+    public void onUpdateOnVisit() {
+        if (isUpdate(FLAG_CONTENT_SIZE)) {
+            computeContentSize();
+            unregisterUpdate(FLAG_CONTENT_SIZE);
         }
     }
 
@@ -148,10 +245,10 @@ public class SMImageView extends UIContainerView {
         if (_sprite == null)
             return;
 
-        float x = mContentsBounds.left + _sprite.getCX()*mScaleX;
-        float y = mContentsBounds.top + _sprite.getCY()*mScaleY;
+//        float x = mContentsBounds.left + _sprite.getCX()*mScaleX;
+//        float y = mContentsBounds.top + _sprite.getCY()*mScaleY;
 
-        drawImage(x, y, mScaleX*mImageScale, mScaleY*mImageScale, a);
+        drawImage(_spritePosition.x, _spritePosition.y, _spriteSize.width*_imageScale, _spriteSize.height*_imageScale, a);
     }
 
     protected void drawImage(float x, float y, float scaleX, float scaleY, float a) {
@@ -161,107 +258,155 @@ public class SMImageView extends UIContainerView {
         _sprite.drawScaleXY(x, y, scaleX, scaleY);
     }
 
-    public void computeContentsBounds() {
-        final float vw = _contentSize.width;
-        final float vh = _contentSize.height;
-        final float vcx = 0;
-        final float vcy = 0;
-        final float sw, sh;
+    public void computeContentSize() {
+        if (_sprite==null) return;
 
-        if (_sprite != null) {
-            sw = _sprite.getWidth();
-            sh = _sprite.getHeight();
-        } else {
-            sw = vw;
-            sh = vh;
-        }
+        final Size vsize =  new Size(_uiContainer.getContentSize());
 
-        switch (mScaleType) {
+        if (vsize.width<=0 || vsize.height<=0) return;
+
+        Size ssize = new Size(_imageRect.size);
+        if (ssize.width<=0 || ssize.height<=0) return;
+
+        float scaleX=1, scaleY=1;
+
+        switch (_scaleType) {
             case CENTER:
             {
-                mScaleX = mScaleY = 1;
+                scaleX = scaleY = 1;
             }
             break;
             case CENTER_INSIDE:
             {
-                mScaleX = mScaleY = Math.min(1, Math.min(vw/sw, vh/sh));
+                scaleX = scaleY = Math.min(1, Math.min(vsize.width/ssize.width, vsize.height/ssize.height));
             }
             break;
             case CENTER_CROP:
             {
-                mScaleX = mScaleY = Math.max(vw/sw, vh/sh);
+                scaleX = scaleY = Math.max(vsize.width/ssize.width, vsize.height/ssize.height);
             }
             break;
             case FIT_XY:
             {
-                mScaleX = vw/sw;
-                mScaleY = vh/sh;
+                scaleX = vsize.width/ssize.width;
+                scaleY = vsize.height/ssize.height;
             }
             break;
             default:
-            case FIT_CENTER:
-                mScaleX = mScaleY = Math.min(vw/sw, vh/sh);
+            {
+                scaleX = scaleY = Math.min(vsize.width/ssize.width, vsize.height/ssize.height);
+            }
                 break;
         }
 
-        float x = (vw-sw*mScaleX)/2-vcx;
-        float y = (vh-sh*mScaleY)/2-vcy;
-        mContentsBounds.set(
-                x,
-                y,
-                x + sw*mScaleX,
-                y + sh*mScaleY);
+        float sw = ssize.width * scaleX;
+        float sh = ssize.height *scaleY;
+
+        Vec2 origin = new Vec2(vsize.width/2-sw/2, vsize.height/2-sh/2);
+
+
+        if (_gravity>0) {
+            if ((_gravity & GRAVITY_CENTER_HORIZONTAL) > 0) {
+                if ((_gravity & GRAVITY_LEFT) > 0 && (_gravity & GRAVITY_RIGHT)==0) {
+                    // attach left
+                    origin.x = 0;
+                } else if ((_gravity & GRAVITY_RIGHT)>0 && (_gravity&GRAVITY_LEFT)==0) {
+                    // attach right
+                    origin.x = vsize.width - sw;
+                }
+            }
+
+            if ((_gravity&GRAVITY_CENTER_VERTICAL)>0) {
+                if ((_gravity & GRAVITY_TOP) > 0 && (_gravity & GRAVITY_BOTTOM)==0) {
+                    // attach top
+                    origin.y = 0;
+                } else if ((_gravity & GRAVITY_BOTTOM)>0 && (_gravity&GRAVITY_TOP)==0) {
+                    // attach bottom
+                    origin.y = vsize.height - sh;
+                }
+            }
     }
 
+
+        if (_clipping && (sw > vsize.width || sh > vsize.height)) {
+
+        } else {
+
+    }
+
+
+        float w = _imageRect.size.width * scaleX;
+        float h = _imageRect.size.height * scaleY;
+
+        float x = origin.x;
+        float y = origin.y;
+
+        if (_maxAreaRatio>0 && _maxAreaRatio<1) {
+            float ratio = (w*h) / (_contentSize.width*_contentSize.height);
+            if (ratio>_maxAreaRatio) {
+                float newScale = _maxAreaRatio / ratio;
+                scaleX *= newScale;
+                scaleY *= newScale;
+            }
+    }
+
+        _spritePosition.set(x, y);
+        _spriteSize.set(scaleX, scaleY);
+        }
+
+    private Vec2 _realSpritePosition = new Vec2(0, 0);
+    private Vec2 _newSpritePosition = new Vec2(0, 0);
+    private Vec2 _animSpritePosition = new Vec2(0, 0);
+    private Size _animSpriteSize = new Size(0, 0);
+
+    private Size _realSpriteSize = new Size(0, 0);
+    private Size _newSpriteSize = new Size(0, 0);
+    private Vec2 _newAnimSpritePosition = new Vec2(0, 0);
+    private Size _newAnimSpriteSize = new Size(0, 0);
+
     public float getContentsScaleX() {
-        return mScaleX;
+        return _spriteScaleX;
     }
 
     public float getContentsScaleY() {
-        return mScaleY;
-    }
-
-    public void getContentsBounds(RectF bounds) {
-        if (bounds != null) {
-            bounds.set(mContentsBounds);
-        }
+        return _spriteScaleY;
     }
 
     public float convertContentsXtoViewX(float x) {
-        return x*mScaleX + mContentsBounds.left;
+        return x*_spriteScaleX + _spritePosition.x;
     }
 
     public float convertContentsYtoViewY(float y) {
-        return y*mScaleY + mContentsBounds.top;
+        return y*_spriteScaleY + _spritePosition.y;
     }
 
     public float convertContentsScaleXtoViewScaleX(float scaleX) {
-        return scaleX*mScaleX;
+        return scaleX*_spriteScaleX;
     }
 
     public float convertContentsScaleYtoViewScaleY(float scaleY) {
-        return scaleY*mScaleY;
+        return scaleY*_spriteScaleY;
     }
 
     public float convertViewXtoContentsX(float x) {
-        return (x - mContentsBounds.left)/mScaleX;
+        return (x - _spritePosition.x)/_spriteScaleY;
     }
 
     public float convertViewYtoContentsY(float y) {
-        return (y - mContentsBounds.top)/mScaleY;
+        return (y - _spritePosition.y)/_spriteScaleY;
     }
 
     public float convertViewScaleXtoContentsScaleX(float scaleX) {
-        return scaleX/mScaleX;
+        return scaleX/_spriteScaleX;
     }
 
     public float convertViewScaleYtoContentsScaleY(float scaleY) {
-        return scaleY/mScaleY;
+        return scaleY/_spriteScaleY;
     }
 
 
     public void setImageScale(float imageScale) {
-        mImageScale = imageScale;
+        _imageScale = imageScale;
     }
 
 }

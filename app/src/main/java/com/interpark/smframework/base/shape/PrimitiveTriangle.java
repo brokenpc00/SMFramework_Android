@@ -9,6 +9,7 @@ import com.interpark.smframework.shader.ProgPrimitive;
 import com.interpark.smframework.shader.ProgPrimitiveTriangle;
 import com.interpark.smframework.shader.ShaderManager;
 import com.interpark.smframework.shader.ShaderProgram;
+import com.interpark.smframework.util.Size;
 import com.interpark.smframework.util.Vec2;
 
 import java.nio.ByteBuffer;
@@ -18,13 +19,12 @@ import java.nio.FloatBuffer;
 public class PrimitiveTriangle extends DrawNode {
     public PrimitiveTriangle(IDirector director, float width, float height) {
         this.director = director;
-        _w = width;
-        _h = height;
+        _contentSize = new Size(width, height);
 
         final float[] v = { 0, 0,
-                            _w, 0,
-                            0, _h,
-                            _w, _h
+                _contentSize.width, 0,
+                            0, _contentSize.height,
+                _contentSize.width, _contentSize.height
         };
 //        final float[] v = {
 //                0, 0,
@@ -74,9 +74,9 @@ public class PrimitiveTriangle extends DrawNode {
     public void drawTrinalge(Vec2 p0, Vec2 p1, Vec2 p2, float aaWidth) {
 
         setProgramType(ShaderManager.ProgramType.PrimitiveTriangle);
-        _p0.set(p0.x/_w, p0.y/_h);
-        _p1.set(p1.x/_w, p1.y/_h);
-        _p2.set(p2.x/_w, p1.y/_h);
+        _p0.set(p0.x/_contentSize.width, p0.y/_contentSize.height);
+        _p1.set(p1.x/_contentSize.width, p1.y/_contentSize.height);
+        _p2.set(p2.x/_contentSize.width, p1.y/_contentSize.height);
         _aaWidth = aaWidth;
 
         draw(0, 0);

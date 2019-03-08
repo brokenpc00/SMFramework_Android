@@ -22,8 +22,8 @@ public class Sprite3D extends DrawNode {
 
     public Sprite3D(IDirector director, float[] vertices, short[] indices, float[] colors) {//, float texCoord, int[] textureId) {
         this.director = director;
-        this._w = 1;
-        this._h = 1;
+        this._contentSize.width = 1;
+        this._contentSize.height = 1;
         this.cx = .5f;
         this.cy = .5f;
 
@@ -40,8 +40,8 @@ public class Sprite3D extends DrawNode {
 
     public Sprite3D(IDirector director, float[] vertices, float[] colors, float[] texCoord, Texture texture, short[] indices) {
         this.director = director;
-        this._w = 1;
-        this._h = 1;
+        this._contentSize.width = 1;
+        this._contentSize.height = 1;
         this.cx = .5f;
         this.cy = .5f;
         this.texture = texture;

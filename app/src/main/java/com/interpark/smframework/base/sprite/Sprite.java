@@ -71,9 +71,9 @@ public class Sprite extends DrawNode {
     protected void initTextureCoordQuard() {
         final float[] uv = {
                 (tx   )/tw, (ty   )/th,
-                (tx+_w)/tw, (ty   )/th,
-                (tx   )/tw, (ty+_h)/th,
-                (tx+_w)/tw, (ty+_h)/th,
+                (tx+_contentSize.width)/tw, (ty   )/th,
+                (tx   )/tw, (ty+_contentSize.height)/th,
+                (tx+_contentSize.width)/tw, (ty+_contentSize.height)/th,
         };
 
         this.uv = ByteBuffer.allocateDirect(uv.length * 4).order(ByteOrder.nativeOrder()).asFloatBuffer();
@@ -98,9 +98,9 @@ public class Sprite extends DrawNode {
                     break;
                 case SpriteCircle:
                 {
-                    float cx = (tx + .5f*_w)/tw;
-                    float cy = (ty + .5f*_h)/th;
-                    float radius = .5f * Math.min(_w/tw, _h/th);
+                    float cx = (tx + .5f*_contentSize.width)/tw;
+                    float cy = (ty + .5f*_contentSize.height)/th;
+                    float radius = .5f * Math.min(_contentSize.width/tw, _contentSize.height/th);
                     float aaWidth = 2.0f / tw;
 
                     if (((ProgSpriteCircle)program).setDrawParam(texture, sMatrix, v, uv, cx, cy, radius, aaWidth)) {
@@ -124,31 +124,31 @@ public class Sprite extends DrawNode {
 
         final float[] v = {
                 -cx,         -cy,
-                -cx,         -cy+_h,
-                -cx+_w*div1, -cy,
-                -cx+_w*div1, -cy+_h,
-                -cx+_w*div1, -cy,
-                -cx+_w*div1, -cy+_h,
-                -cx+_w*div2, -cy,
-                -cx+_w*div2, -cy+_h,
-                -cx+_w*div2, -cy,
-                -cx+_w*div2, -cy+_h,
-                -cx+_w,      -cy,
-                -cx+_w,      -cy+_h,
+                -cx,         -cy+_contentSize.height,
+                -cx+_contentSize.width*div1, -cy,
+                -cx+_contentSize.width*div1, -cy+_contentSize.height,
+                -cx+_contentSize.width*div1, -cy,
+                -cx+_contentSize.width*div1, -cy+_contentSize.height,
+                -cx+_contentSize.width*div2, -cy,
+                -cx+_contentSize.width*div2, -cy+_contentSize.height,
+                -cx+_contentSize.width*div2, -cy,
+                -cx+_contentSize.width*div2, -cy+_contentSize.height,
+                -cx+_contentSize.width,      -cy,
+                -cx+_contentSize.width,      -cy+_contentSize.height,
         };
         final float[] uv = {
                 (tx        )/tw, (ty   )/th,
-                (tx        )/tw, (ty+_h)/th,
-                (tx+_w*div1)/tw, (ty   )/th,
-                (tx+_w*div1)/tw, (ty+_h)/th,
-                (tx+_w*div1)/tw, (ty   )/th,
-                (tx+_w*div1)/tw, (ty+_h)/th,
-                (tx+_w*div2)/tw, (ty   )/th,
-                (tx+_w*div2)/tw, (ty+_h)/th,
-                (tx+_w*div2)/tw, (ty   )/th,
-                (tx+_w*div2)/tw, (ty+_h)/th,
-                (tx+_w     )/tw, (ty   )/th,
-                (tx+_w     )/tw, (ty+_h)/th,
+                (tx        )/tw, (ty+_contentSize.height)/th,
+                (tx+_contentSize.width*div1)/tw, (ty   )/th,
+                (tx+_contentSize.width*div1)/tw, (ty+_contentSize.height)/th,
+                (tx+_contentSize.width*div1)/tw, (ty   )/th,
+                (tx+_contentSize.width*div1)/tw, (ty+_contentSize.height)/th,
+                (tx+_contentSize.width*div2)/tw, (ty   )/th,
+                (tx+_contentSize.width*div2)/tw, (ty+_contentSize.height)/th,
+                (tx+_contentSize.width*div2)/tw, (ty   )/th,
+                (tx+_contentSize.width*div2)/tw, (ty+_contentSize.height)/th,
+                (tx+_contentSize.width     )/tw, (ty   )/th,
+                (tx+_contentSize.width     )/tw, (ty+_contentSize.height)/th,
         };
 
         extra_numVertices = 12;

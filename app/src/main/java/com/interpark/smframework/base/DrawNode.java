@@ -5,9 +5,12 @@ import android.opengl.Matrix;
 import android.util.Log;
 
 import com.interpark.smframework.IDirector;
+import com.interpark.smframework.SideMenu;
 import com.interpark.smframework.shader.ShaderManager.ProgramType;
 import com.interpark.smframework.base.texture.Texture;
 import com.interpark.smframework.shader.ShaderProgram;
+import com.interpark.smframework.util.Size;
+import com.interpark.smframework.view.SMImageView;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -40,8 +43,7 @@ public abstract class DrawNode implements Cloneable {
 
 
     protected Texture texture = null;
-    protected float _w;
-    protected float _h;
+    protected Size _contentSize = new Size(Size.ZERO);
     protected float cx;
     protected float cy;
     protected FloatBuffer v;
@@ -63,21 +65,14 @@ public abstract class DrawNode implements Cloneable {
 
     }
 
+    public Size getContentSize() {return _contentSize;}
 
     public float getWidth() {
-        return _w;
+        return _contentSize.width;
     }
 
     public float getHeight() {
-        return _h;
-    }
-
-    public float getCX() {
-        return cx;
-    }
-
-    public float getCY() {
-        return cy;
+        return _contentSize.height;
     }
 
     public int getNumVertices() {
@@ -102,8 +97,7 @@ public abstract class DrawNode implements Cloneable {
 
     protected void initRect(IDirector director,float w, float h, float cx, float cy) {
         this.director = director;
-        this._w = w;
-        this._h = h;
+        this._contentSize = new Size(w, h);
         this.cx = cx;
         this.cy = cy;
         initVertexQuad();
@@ -112,9 +106,9 @@ public abstract class DrawNode implements Cloneable {
     protected void initVertexQuad() {
         final float[] v = {
                 -cx,    -cy,
-                -cx+_w, -cy,
-                -cx,    -cy+_h,
-                -cx+_w, -cy+_h,
+                -cx+_contentSize.width, -cy,
+                -cx,    -cy+_contentSize.height,
+                -cx+_contentSize.width, -cy+_contentSize.height,
         };
 
         drawMode = GLES20.GL_TRIANGLE_STRIP;

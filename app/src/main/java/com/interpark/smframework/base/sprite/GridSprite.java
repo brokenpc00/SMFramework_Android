@@ -72,8 +72,8 @@ public class GridSprite extends Sprite {
 
         drawMode = GLES20.GL_TRIANGLES;
 
-        mNumCol = (int)Math.ceil(_w / mGridSize);
-        mNumRow = (int)Math.ceil(_h / mGridSize);
+        mNumCol = (int)Math.ceil(_contentSize.width / mGridSize);
+        mNumRow = (int)Math.ceil(_contentSize.height / mGridSize);
         mNumVertices = (mNumCol+1) * (mNumRow+1);
         mBufferSize = mNumVertices * 2;
 
@@ -86,19 +86,19 @@ public class GridSprite extends Sprite {
 
         for (int y = 0; y <= mNumRow; y++) {
             if (y == mNumRow) {
-                yy = _h;
-                vv = _h/th;
+                yy = _contentSize.height;
+                vv = _contentSize.height/th;
             } else {
                 yy = mGridSize * y;
-                vv = (float)y * mGridSize /  _h;
+                vv = (float)y * mGridSize /  _contentSize.height;
             }
             for (int x = 0; x <= mNumCol; x++) {
                 if (x == mNumCol) {
-                    xx = _w;
-                    uu = _w/tw;
+                    xx = _contentSize.width;
+                    uu = _contentSize.width/tw;
                 } else {
                     xx = mGridSize * x;
-                    uu = (float)x * mGridSize / _w;
+                    uu = (float)x * mGridSize / _contentSize.width;
                 }
                 vertices[idx  ] = xx-cx; // x coord
                 vertices[idx+1] = yy-cy; // y coord
@@ -194,13 +194,13 @@ public class GridSprite extends Sprite {
         idx = 0;
         for (int y = 0; y <= mNumRow; y++) {
             if (y == mNumRow) {
-                sy = _h-cy;
+                sy = _contentSize.height-cy;
             } else {
                 sy = mGridSize * y-cy;
             }
             for (int x = 0; x <= mNumCol; x++) {
                 if (x == mNumCol) {
-                    sx = _w-cx;
+                    sx = _contentSize.width-cx;
                 } else {
                     sx = mGridSize * x-cx;
                 }

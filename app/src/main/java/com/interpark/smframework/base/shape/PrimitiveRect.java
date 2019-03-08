@@ -27,8 +27,8 @@ public class PrimitiveRect extends DrawNode {
 
     protected void initRectHollow(IDirector director,float w, float h, float cx, float cy) {
         this.director = director;
-        this._w = w;
-        this._h = h;
+        this._contentSize.width = w;
+        this._contentSize.height = h;
         this.cx = cx;
         this.cy = cy;
         initVertexHollowQuad();
@@ -37,9 +37,9 @@ public class PrimitiveRect extends DrawNode {
     protected void initVertexHollowQuad() {
         final float[] v = {
                 -cx,    -cy,
-                -cx+_w, -cy,
-                -cx+_w, -cy+_h,
-                -cx,    -cy+_h,
+                -cx+_contentSize.width, -cy,
+                -cx+_contentSize.width, -cy+_contentSize.height,
+                -cx,    -cy+_contentSize.height,
                 -cx,    -cy,
         };
 
