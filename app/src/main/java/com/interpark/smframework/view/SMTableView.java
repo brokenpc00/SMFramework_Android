@@ -464,18 +464,20 @@ public class SMTableView extends BaseTableView {
 
                     float location = startLocation + cursor.getLocation();
 
-                    if (isVertical()) {
-                        float childSize;
-                        if (_hintIsFixedSize) {
-                            childSize = _hintFixedChildSize;
-                        } else {
-                            childSize = child.getContentSize().height;
-                        }
-//                        onPositionCell(child, containerSize - (location+childSize), false);
+//                    if (isVertical()) {
+//                        float childSize;
+//                        if (_hintIsFixedSize) {
+//                            childSize = _hintFixedChildSize;
+//                        } else {
+//                            childSize = child.getContentSize().height;
+//                        }
+////                        onPositionCell(child, containerSize - (location+childSize), false);
+//                        onPositionCell(child, location, false);
+//                    } else {
+//                        onPositionCell(child, location, false);
+//                    }
+
                         onPositionCell(child, location, false);
-                    } else {
-                        onPositionCell(child, location, false);
-                    }
 
                     child.setLocalZOrder(cursor.getPosition());
                 }
@@ -490,27 +492,30 @@ public class SMTableView extends BaseTableView {
         lastLocation += startLocation;
 
         if (_headerView!=null && _isHeaderInList) {
-            if (isVertical()) {
-//                onPositionHeader(_headerView, containerSize - startLocation, false);
-                onPositionHeader(_headerView, startLocation - headerSize, false);
-            } else {
+//            if (isVertical()) {
+////                onPositionHeader(_headerView, containerSize - startLocation, false);
+//                onPositionHeader(_headerView, startLocation - headerSize, false);
+//            } else {
+//                onPositionHeader(_headerView, startLocation - headerSize, false);
+//            }
                 onPositionHeader(_headerView, startLocation - headerSize, false);
             }
-        }
 
         if (_footerView!=null && _isFooterInList) {
-            if (isVertical()) {
-//                onPositionFooter(_footerView, containerSize - (lastLocation+footerSize), false);
-                onPositionFooter(_footerView, lastLocation, false);
-            } else {
+//            if (isVertical()) {
+////                onPositionFooter(_footerView, containerSize - (lastLocation+footerSize), false);
+//                onPositionFooter(_footerView, lastLocation, false);
+//            } else {
+//                onPositionFooter(_footerView, lastLocation, false);
+//            }
                 onPositionFooter(_footerView, lastLocation, false);
             }
-        }
 
         if (_refreshView!=null && _refreshState!=RefreshState.NONE) {
             if (isVertical()) {
 //                _refreshView.setPositionY(containerSize - startLocation);
-                _refreshView.setPositionY(startLocation);
+//                _refreshView.setPositionY(startLocation);
+                _refreshView.setPositionX(startLocation - _refreshView.getContentSize().height);
             } else {
                 _refreshView.setPositionX(startLocation - _refreshView.getContentSize().width);
             }
@@ -766,14 +771,16 @@ public class SMTableView extends BaseTableView {
 
             // view 내 위치 참조
             float locationInView = headerSize + _firstMargin + _innerScrollMargin - scrollPosition;
-            if (isVertical()) {
-//                onPositionCell(child, _contentSize.height - locationInView - cursor.getLastLocation(), true);
+//            if (isVertical()) {
+////                onPositionCell(child, _contentSize.height - locationInView - cursor.getLastLocation(), true);
+//
+//                float cellPosY = locationInView + cursor.getLocation();
+//                onPositionCell(child, cellPosY, true);
+//            } else {
+//                onPositionCell(child, locationInView + cursor.getLocation(), true);
+//            }
 
-                float cellPosY = locationInView + cursor.getLocation();
-                onPositionCell(child, cellPosY, true);
-            } else {
                 onPositionCell(child, locationInView + cursor.getLocation(), true);
-            }
 
             addChild(column, child);
 
@@ -886,12 +893,13 @@ public class SMTableView extends BaseTableView {
 
             // view 안의 위치
             float locationInView = headerSize + _firstMargin + _innerScrollMargin - scrollPosition;
-            if (isVertical()) {
-//                onPositionCell(child, _contentSize.height - locationInView - cursor.getLastLocation(), true);
+//            if (isVertical()) {
+////                onPositionCell(child, _contentSize.height - locationInView - cursor.getLastLocation(), true);
+//                onPositionCell(child, locationInView + cursor.getLocation(), true);
+//            } else {
+//                onPositionCell(child, locationInView + cursor.getLocation(), true);
+//            }
                 onPositionCell(child, locationInView + cursor.getLocation(), true);
-            } else {
-                onPositionCell(child, locationInView + cursor.getLocation(), true);
-            }
 
             addChild(column, child);
 
@@ -928,14 +936,16 @@ public class SMTableView extends BaseTableView {
                 if (scrollPosition < headerSize + _firstMargin + _innerScrollMargin) {
                     super.addChild(_headerView);
 
-                    if (isVertical()) {
-//                        float position = scrollPosition + containerSize - (headerSize + _firstMargin + _innerScrollMargin);
+//                    if (isVertical()) {
+////                        float position = scrollPosition + containerSize - (headerSize + _firstMargin + _innerScrollMargin);
+//                        float position = -scrollPosition + _firstMargin + _innerScrollMargin;
+//                        onPositionHeader(_headerView, position, true);
+//                    } else {
+//                        float position = -scrollPosition + _firstMargin + _innerScrollMargin;
+//                        onPositionHeader(_headerView, position, true);
+//                    }
                         float position = -scrollPosition + _firstMargin + _innerScrollMargin;
                         onPositionHeader(_headerView, position, true);
-                    } else {
-                        float position = -scrollPosition + _firstMargin + _innerScrollMargin;
-                        onPositionHeader(_headerView, position, true);
-                    }
                     _isHeaderInList = true;
                     frontAdded |= true;
                 }
@@ -969,14 +979,16 @@ public class SMTableView extends BaseTableView {
 
                     super.addChild(_footerView);
 
-                    if (isVertical()) {
-//                        float position = scrollPosition + containerSize - (headerSize + _firstMargin + _innerScrollMargin + lastLocation) - _footerView.getContentSize().height;
+//                    if (isVertical()) {
+////                        float position = scrollPosition + containerSize - (headerSize + _firstMargin + _innerScrollMargin + lastLocation) - _footerView.getContentSize().height;
+//                        float position = (headerSize + _firstMargin + _innerScrollMargin + lastLocation) - scrollPosition;
+//                        onPositionFooter(_footerView, position, true);
+//                    } else {
+//                        float position = (headerSize + _firstMargin + _innerScrollMargin + lastLocation) - scrollPosition;
+//                        onPositionFooter(_footerView, position, true);
+//                    }
                         float position = (headerSize + _firstMargin + _innerScrollMargin + lastLocation) - scrollPosition;
                         onPositionFooter(_footerView, position, true);
-                    } else {
-                        float position = (headerSize + _firstMargin + _innerScrollMargin + lastLocation) - scrollPosition;
-                        onPositionFooter(_footerView, position, true);
-                    }
 
                     _isFooterInList = true;
                     backAdded = true;
@@ -1395,7 +1407,7 @@ public class SMTableView extends BaseTableView {
                         if (dt > 0) {
                             Vec2 p1 = _touchStartPosition;
                             Vec2 p2 = point;
-                            vx = (p2.x - p1.x) / dt;
+                            vx = -(p2.x - p1.x) / dt;
                             vy = -(p2.y - p1.y) / dt;
                         }
                     }
@@ -1412,8 +1424,7 @@ public class SMTableView extends BaseTableView {
                     if (isVertical()) {
                         if (Math.abs(vy) > AppConst.Config.MIN_VELOCITY) {
                             if (Math.abs(vy) > maxVelocity) {
-                                int signum = vy >= 0 ? 1 : -1;
-                                vy =  signum * maxVelocity;
+                                vy =  SMView.signum(vy) * maxVelocity;
                             }
                             scrollFling(-vy);
                         } else {
@@ -1424,9 +1435,8 @@ public class SMTableView extends BaseTableView {
                         _lastFlingTime = _director.getGlobalTime();
                     } else {
                         if (Math.abs(vx)>AppConst.Config.MIN_VELOCITY) {
-                            if (Math.abs(vx)>maxVelocity) {
-                                int signum = vx >= 0 ? 1 : -1;
-                                vx =  signum * maxVelocity;
+                            if (Math.abs(vx) > maxVelocity) {
+                                vx =  SMView.signum(vx) * maxVelocity;
                             }
                             scrollFling(-vx);
                         } else {

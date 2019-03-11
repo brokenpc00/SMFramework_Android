@@ -1,5 +1,7 @@
 package com.interpark.smframework.view;
 
+import android.util.Log;
+
 import com.interpark.smframework.IDirector;
 import com.interpark.smframework.base.SMView;
 import com.interpark.smframework.base.scroller.PageScroller;

@@ -1,5 +1,7 @@
 package com.interpark.smframework.base.scroller;
 
+import android.util.Log;
+
 import com.interpark.smframework.IDirector;
 import com.interpark.smframework.base.SMView;
 
@@ -146,7 +148,7 @@ public class PageScroller extends FlexibleScroller {
             _controller.setPanY(_stopPos);
 
             if (pageChangedCallback!=null) {
-                float value = (float)Math.floor(_startPos/_cellSize);
+                float value = (float)Math.floor(_stopPos/_cellSize);
                 pageChangedCallback.pageChangedCallback((int)value);
             }
         }

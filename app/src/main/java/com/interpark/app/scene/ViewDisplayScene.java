@@ -4,6 +4,7 @@ import com.interpark.app.menu.MenuBar;
 import com.interpark.smframework.IDirector;
 import com.interpark.smframework.base.SMMenuTransitionScene;
 import com.interpark.smframework.base.types.IndexPath;
+import com.interpark.smframework.view.SMLabel;
 import com.interpark.smframework.view.SMPageView;
 import com.interpark.smframework.view.SMTableView;
 import com.interpark.smframework.base.SMView;
@@ -122,7 +123,11 @@ public class ViewDisplayScene extends SMMenuTransitionScene implements SMView.On
 
     private SMPageView _horPageView = null;
     private SMPageView _verPageView = null;
+    private SMLabel _horLabel = null;
+    private SMLabel _verLabel = null;
     private int _pageItemCount = 10;
+    private int _currentHorPage = 0;
+    private int _currentVerPage = 0;
     private ArrayList<SMImageView> _horImages = new ArrayList<SMImageView>();
     private ArrayList<SMImageView> _verImages = new ArrayList<SMImageView>();
     private void pageViewDisplay() {
@@ -131,25 +136,26 @@ public class ViewDisplayScene extends SMMenuTransitionScene implements SMView.On
 
         for (int i=0; i<_pageItemCount; i++) {
             SMImageView imgH = SMImageView.create(getDirector(), "images/bigsize.jpg");
-            imgH.setContentSize(s.width-200, s.height/2);
-            imgH.setScaleType(SMImageView.ScaleType.CENTER_INSIDE);
+            imgH.setContentSize(s.width, s.height/2);
+            imgH.setScaleType(SMImageView.ScaleType.FIT_CENTER);
             imgH.setScissorEnable(true);
             imgH.setBackgroundColor(1, 1, 0, 0.6f);
+            imgH.setTag(i);
             _horImages.add(imgH);
 
             SMImageView imgV = SMImageView.create(getDirector(), "images/bigsize.jpg");
-            imgV.setContentSize(s.width-200, s.height/2);
+            imgV.setContentSize(s.width, s.height/2);
             imgV.setScaleType(SMImageView.ScaleType.FIT_CENTER);
-            imgV.setScissorEnable(true);
-            imgV.setBackgroundColor(1, 0, 1, 0.6f);
+            imgV.setBackgroundColor(0, 1, 1, 0.6f);
+            imgV.setTag(i);
             _verImages.add(imgV);
         }
 
-        _horPageView = SMPageView.create(getDirector(), SMTableView.Orientation.HORIZONTAL, 100, 0, s.width-200, s.height/2);
+        _horPageView = SMPageView.create(getDirector(), SMTableView.Orientation.HORIZONTAL, 0, 0, s.width, s.height/2);
         _horPageView.numberOfRowsInSection = new SMTableView.NumberOfRowsInSection() {
             @Override
             public int numberOfRowsInSection(int section) {
-                return _pageItemCount;
+                return _horImages.size();
             }
         };
         _horPageView.cellForRowAtIndexPath = new SMTableView.CellForRowAtIndexPath() {
@@ -159,11 +165,12 @@ public class ViewDisplayScene extends SMMenuTransitionScene implements SMView.On
             }
         };
         _horPageView.setScissorEnable(true);
+        _horPageView.setOnPageChangedCallback(this);
         _contentView.addChild(_horPageView);
 
 
 
-        _verPageView = SMPageView.create(getDirector(), SMTableView.Orientation.VERTICAL, 100, s.height/2, s.width-200, s.height/2);
+        _verPageView = SMPageView.create(getDirector(), SMTableView.Orientation.VERTICAL, 0, s.height/2, s.width, s.height/2);
         _verPageView.numberOfRowsInSection = new SMTableView.NumberOfRowsInSection() {
             @Override
             public int numberOfRowsInSection(int section) {
@@ -177,13 +184,42 @@ public class ViewDisplayScene extends SMMenuTransitionScene implements SMView.On
             }
         };
         _verPageView.setScissorEnable(true);
+        _verPageView.setOnPageChangedCallback(this);
         _contentView.addChild(_verPageView);
 
 
+
+        layoutPageLabel();
+    }
+
+    private void layoutPageLabel() {
+        if (_horLabel==null) {
+            _horLabel = SMLabel.create(getDirector(), "", 55, new Color4F(1, 0, 0, 1));
+            _horLabel.setAnchorPoint(Vec2.MIDDLE);
+            _horLabel.setPosition(_contentView.getContentSize().width/2, _contentView.getContentSize().height/2 - 150);
+            _horLabel.setLocalZOrder(999);
+            _contentView.addChild(_horLabel);
+        }
+
+        if (_verLabel==null) {
+            _verLabel = SMLabel.create(getDirector(), "", 55, new Color4F(1, 0, 0, 1));
+            _verLabel.setAnchorPoint(Vec2.MIDDLE);
+            _verLabel.setPosition(_contentView.getContentSize().width/2, _contentView.getContentSize().height - 150);
+            _verLabel.setLocalZOrder(999);
+            _contentView.addChild(_verLabel);
+        }
+
+        String horString = "Horizontal Paging " + (_horPageView.getCurrentPage()+1) + "/" + _horImages.size() + " page";
+        _horLabel.setText(horString);
+
+        String verString = "Vertical Paging " + (_verPageView.getCurrentPage()+1) + "/" + _verImages.size() + " page";
+        _verLabel.setText(verString);
     }
 
     @Override
     public void onPageChangedCallback(SMPageView pageView, int page) {
+
+        layoutPageLabel();
         if (pageView==_horPageView) {
 
         } else {
