@@ -1,5 +1,7 @@
 package com.interpark.app.scene;
 
+import android.util.Log;
+
 import com.interpark.app.menu.MenuBar;
 import com.interpark.smframework.IDirector;
 import com.interpark.smframework.base.ICircularCell;
@@ -7,6 +9,7 @@ import com.interpark.smframework.base.SMMenuTransitionScene;
 import com.interpark.smframework.base.scroller.SMScroller;
 import com.interpark.smframework.base.sprite.BitmapSprite;
 import com.interpark.smframework.base.types.IndexPath;
+import com.interpark.smframework.base.types.Mat4;
 import com.interpark.smframework.view.SMCircleView;
 import com.interpark.smframework.view.SMCircularListView;
 import com.interpark.smframework.view.SMLabel;
@@ -32,7 +35,6 @@ public class ViewDisplayScene extends SMMenuTransitionScene implements SMView.On
         super(director);
     }
 
-    private SMTableView _tableView = null;
     private SMView _contentView = null;
 
     public static ViewDisplayScene create(IDirector director, MenuBar menuBar) {
@@ -114,6 +116,7 @@ public class ViewDisplayScene extends SMMenuTransitionScene implements SMView.On
             case 4:
             {
                 // Table View
+                tableViewDisplay();
             }
             break;
             case 5:
@@ -143,6 +146,215 @@ public class ViewDisplayScene extends SMMenuTransitionScene implements SMView.On
             }
             break;
         }
+    }
+
+    private SMPageView _tableContainView = null;
+    private ArrayList<SMView> _tableBgViews = null;
+    private SMTableView _tableView1, _tableView2, _tableView3, _tableView4, _tableView5;
+    private void tableViewDisplay() {
+        Size s = _contentView.getContentSize();
+
+        _tableBgViews = new ArrayList<>();
+        for (int i=0; i<5; i++) {
+            SMView bgView = SMView.create(getDirector(), 0, 0, 0, s.width, s.height);
+            bgView.setBackgroundColor(new Color4F(SMView.getRandomColorF(), SMView.getRandomColorF(), SMView.getRandomColorF(), 1));
+            _tableBgViews.add(bgView);
+
+            SMTableView tableView = SMTableView.createMultiColumn(getDirector(), SMTableView.Orientation.VERTICAL, i+1, 0, 0, s.width, s.height);
+            bgView.addChild(tableView);
+
+            tableView.numberOfRowsInSection = new SMTableView.NumberOfRowsInSection() {
+                @Override
+                public int numberOfRowsInSection(int section) {
+                    return 100;
+                }
+            };
+            switch (i) {
+                case 0:
+                {
+                    _tableView1 = tableView;
+                    tableView.cellForRowAtIndexPath = new SMTableView.CellForRowAtIndexPath() {
+                        @Override
+                        public SMView cellForRowAtIndexPath(IndexPath indexPath) {
+                            Size s = _contentView.getContentSize();
+                            String cellID = "CELL" + indexPath.getIndex();
+                            SMView cell = _tableView1.dequeueReusableCellWithIdentifier(cellID);
+                            if (cell==null) {
+                                int height = SMView.randomInt(50, 300);
+                                cell = SMView.create(getDirector(), 0, 0, 0, s.width, height);
+                                float r = SMView.getRandomColorF();
+                                float g = SMView.getRandomColorF();
+                                float b = SMView.getRandomColorF();
+                                cell.setBackgroundColor(new Color4F(r, g, b, 1));
+
+                                Color4F text = new Color4F(Math.abs(1-r), Math.abs(1-r), Math.abs(1-b), 1);
+                                SMLabel label = SMLabel.create(getDirector(), cellID, 35, text);
+                                label.setAnchorPoint(Vec2.MIDDLE);
+                                label.setPosition(cell.getContentSize().width/2, cell.getContentSize().height/2);
+                                cell.addChild(label);
+
+                            }
+                            return cell;
+                        }
+                    };
+
+                }
+                break;
+                case 1:
+                {
+                    _tableView2 = tableView;
+                    tableView.cellForRowAtIndexPath = new SMTableView.CellForRowAtIndexPath() {
+                        @Override
+                        public SMView cellForRowAtIndexPath(IndexPath indexPath) {
+                            Size s = _contentView.getContentSize();
+                            String cellID = "CELL" + indexPath.getIndex() ;
+                            SMView cell = _tableView2.dequeueReusableCellWithIdentifier(cellID);
+                            if (cell==null) {
+                                int height = SMView.randomInt(50, 300);
+                                cell = SMView.create(getDirector(), 0, 0, 0, s.width/2, height);
+                                float r = SMView.getRandomColorF();
+                                float g = SMView.getRandomColorF();
+                                float b = SMView.getRandomColorF();
+                                cell.setBackgroundColor(new Color4F(r, g, b, 1));
+
+                                Color4F text = new Color4F(Math.abs(1-r), Math.abs(1-r), Math.abs(1-b), 1);
+                                SMLabel label = SMLabel.create(getDirector(), cellID, 35, text);
+                                label.setAnchorPoint(Vec2.MIDDLE);
+                                label.setPosition(cell.getContentSize().width/2, cell.getContentSize().height/2);
+                                cell.addChild(label);
+
+                            }
+
+                            return cell;
+                        }
+                    };
+
+                }
+                break;
+                case 2:
+                {
+                    _tableView3 = tableView;
+                    tableView.cellForRowAtIndexPath = new SMTableView.CellForRowAtIndexPath() {
+                        @Override
+                        public SMView cellForRowAtIndexPath(IndexPath indexPath) {
+                            Size s = _contentView.getContentSize();
+                            String cellID = "CELL" + indexPath.getIndex() ;
+                            SMView cell = _tableView3.dequeueReusableCellWithIdentifier(cellID);
+                            if (cell==null) {
+                                int height = SMView.randomInt(50, 300);
+                                cell = SMView.create(getDirector(), 0, 0, 0, s.width/3, height);
+                                float r = SMView.getRandomColorF();
+                                float g = SMView.getRandomColorF();
+                                float b = SMView.getRandomColorF();
+                                cell.setBackgroundColor(new Color4F(r, g, b, 1));
+
+                                Color4F text = new Color4F(Math.abs(1-r), Math.abs(1-r), Math.abs(1-b), 1);
+                                SMLabel label = SMLabel.create(getDirector(), cellID, 35, text);
+                                label.setAnchorPoint(Vec2.MIDDLE);
+                                label.setPosition(cell.getContentSize().width/2, cell.getContentSize().height/2);
+                                cell.addChild(label);
+
+                            }
+                            return cell;
+                        }
+                    };
+                }
+                break;
+                case 3:
+                {
+                    _tableView4 = tableView;
+                    tableView.cellForRowAtIndexPath = new SMTableView.CellForRowAtIndexPath() {
+                        @Override
+                        public SMView cellForRowAtIndexPath(IndexPath indexPath) {
+                            Size s = _contentView.getContentSize();
+                            String cellID = "CELL" + indexPath.getIndex() ;
+                            SMView cell = _tableView4.dequeueReusableCellWithIdentifier(cellID);
+                            if (cell==null) {
+                                int height = SMView.randomInt(50, 300);
+                                cell = SMView.create(getDirector(), 0, 0, 0, s.width/4, height);
+                                float r = SMView.getRandomColorF();
+                                float g = SMView.getRandomColorF();
+                                float b = SMView.getRandomColorF();
+                                cell.setBackgroundColor(new Color4F(r, g, b, 1));
+
+                                Color4F text = new Color4F(Math.abs(1-r), Math.abs(1-r), Math.abs(1-b), 1);
+                                SMLabel label = SMLabel.create(getDirector(), cellID, 35, text);
+                                label.setAnchorPoint(Vec2.MIDDLE);
+                                label.setPosition(cell.getContentSize().width/2, cell.getContentSize().height/2);
+                                cell.addChild(label);
+
+                            }
+                            return cell;
+                        }
+                    };
+                }
+                break;
+                case 4:
+                {
+                    _tableView5 = tableView;
+                    tableView.cellForRowAtIndexPath = new SMTableView.CellForRowAtIndexPath() {
+                        @Override
+                        public SMView cellForRowAtIndexPath(IndexPath indexPath) {
+                            Size s = _contentView.getContentSize();
+                            String cellID = "CELL" + indexPath.getIndex() ;
+                            SMView cell = _tableView5.dequeueReusableCellWithIdentifier(cellID);
+                            if (cell==null) {
+                                int height = SMView.randomInt(50, 300);
+                                cell = SMView.create(getDirector(), 0, 0, 0, s.width/5, height);
+                                float r = SMView.getRandomColorF();
+                                float g = SMView.getRandomColorF();
+                                float b = SMView.getRandomColorF();
+                                cell.setBackgroundColor(new Color4F(r, g, b, 1));
+
+                                Color4F text = new Color4F(Math.abs(1-r), Math.abs(1-r), Math.abs(1-b), 1);
+                                SMLabel label = SMLabel.create(getDirector(), cellID, 35, text);
+                                label.setAnchorPoint(Vec2.MIDDLE);
+                                label.setPosition(cell.getContentSize().width/2, cell.getContentSize().height/2);
+                                cell.addChild(label);
+
+
+                            }
+                            return cell;
+                        }
+                    };
+                }
+                break;
+            }
+        }
+
+        _tableContainView = SMPageView.create(getDirector(), SMTableView.Orientation.HORIZONTAL, 0, 0, s.width, s.height);
+        _tableContainView.numberOfRowsInSection = new SMTableView.NumberOfRowsInSection() {
+            @Override
+            public int numberOfRowsInSection(int section) {
+                return _tableBgViews.size();
+            }
+        };
+        _tableContainView.cellForRowAtIndexPath = new SMTableView.CellForRowAtIndexPath() {
+            @Override
+            public SMView cellForRowAtIndexPath(IndexPath indexPath) {
+                return _tableBgViews.get(indexPath.getIndex());
+            }
+        };
+        _tableContainView.setScissorEnable(true);
+        _tableContainView.setOnPageChangedCallback(this);
+        _contentView.addChild(_tableContainView);
+
+        layoutTableViewLabel();
+    }
+
+    private SMLabel _tableViewLabel = null;
+    private void layoutTableViewLabel() {
+        if (_tableViewLabel==null) {
+            _tableViewLabel = SMLabel.create(getDirector(), "", 60, Color4F.WHITE);
+            _tableViewLabel.setAnchorPoint(Vec2.MIDDLE);
+            _tableViewLabel.setPosition(_contentView.getContentSize().width/2, _contentView.getContentSize().height - 200);
+            _tableViewLabel.setLocalZOrder(999);
+            _contentView.addChild(_tableViewLabel);
+        }
+
+        int pageNo = _tableContainView.getCurrentPage()+1;
+        String desc  = "TableView " + pageNo + " / " + _tableBgViews.size() + " page";
+        _tableViewLabel.setText(desc);
     }
 
     private CircularImageCell CircularImageCellCreate(IDirector director, String assetName) {
@@ -413,8 +625,8 @@ public class ViewDisplayScene extends SMMenuTransitionScene implements SMView.On
 
         if (_viewType==2) { // page view
         layoutPageLabel();
-        } else if (_viewType==3) {  // circular page view
-
+        } else if (_viewType==4) {  // circular page view
+            layoutTableViewLabel();
         }
 
     }
