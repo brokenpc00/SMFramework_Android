@@ -86,7 +86,7 @@ public class InfinityScroller extends SMScroller {
 
         if (_scrollMode == ScrollMode.PAGER) {
             if (Math.abs(distance) > _cellSize) {
-                distance = (distance >= 0 ? 1 : -1) * _cellSize;
+                distance = SMView.signum(distance) * _cellSize;
             }
         }
 
@@ -133,7 +133,7 @@ public class InfinityScroller extends SMScroller {
         if(nowTime > _timeDuration) {
             _newPosition = _stopPos;
             _state = STATE.STOP;
-            nowTime = _timeDuration;
+//            nowTime = _timeDuration;
             // STOP
             if (_scrollMode != ScrollMode.BASIC) {
                 if (onAlignCallback!=null) {
@@ -156,12 +156,11 @@ public class InfinityScroller extends SMScroller {
         }
 
         float dt = _director.getGlobalTime()-_timeStart;
-        float t = (float)dt/_timeDuration;
+        float t = dt/_timeDuration;
 
         if (t < 1) {
             t = cubicEaseOut(t);
-            float interpolate = _startPos + (_stopPos - _startPos) * t;
-            _newPosition = decPrecesion(interpolate);
+            _newPosition = decPrecesion(SMView.interpolation(_startPos, _stopPos, t));
         } else {
             _state = STATE.STOP;
             _newPosition = _stopPos;

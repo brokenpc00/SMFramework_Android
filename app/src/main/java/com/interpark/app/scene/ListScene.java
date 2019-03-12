@@ -75,7 +75,7 @@ public class ListScene extends SMMenuTransitionScene implements  SMTableView.Cel
                 _menuNames.add("IMAGE VIEW");
                 _menuNames.add("ZOOM VIEW");
                 _menuNames.add("PAGE VIEW");
-                _menuNames.add("CIRCULAR VIEW");
+                _menuNames.add("CIRCULAR LIST VIEW");
                 _menuNames.add("TABLE VIEW");
                 _menuNames.add("KENBURN");
                 _menuNames.add("WAVE & PULSE");

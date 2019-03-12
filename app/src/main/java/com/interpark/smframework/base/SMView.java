@@ -1521,7 +1521,7 @@ public class SMView extends Ref {
         }
 
         if (_children == null) {
-            _children = new ArrayList<SMView>();
+            _children = new ArrayList<>();
         }
 
         if (_children.isEmpty()) {

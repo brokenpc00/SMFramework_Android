@@ -159,7 +159,7 @@ public class SMDirector implements IDirector, GLSurfaceView.Renderer {
     private final Stack<float[]> mMatrixStack = new Stack<float[]>();
     private final Queue<MotionEvent> _motionEventQueue = new LinkedList<MotionEvent>();
     private final Queue<Runnable> mRunOnDraw = new LinkedList<Runnable>();
-    private final ArrayList<SMDirector.DelayedRunnable> mRunOnDrawDelayed = new ArrayList<SMDirector.DelayedRunnable>();
+    private final ArrayList<SMDirector.DelayedRunnable> mRunOnDrawDelayed = new ArrayList<>();
 
     protected SMScene _runningScene;
     protected SMScene _nextScene;

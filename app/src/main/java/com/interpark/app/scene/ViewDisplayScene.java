@@ -2,8 +2,13 @@ package com.interpark.app.scene;
 
 import com.interpark.app.menu.MenuBar;
 import com.interpark.smframework.IDirector;
+import com.interpark.smframework.base.ICircularCell;
 import com.interpark.smframework.base.SMMenuTransitionScene;
+import com.interpark.smframework.base.scroller.SMScroller;
+import com.interpark.smframework.base.sprite.BitmapSprite;
 import com.interpark.smframework.base.types.IndexPath;
+import com.interpark.smframework.view.SMCircleView;
+import com.interpark.smframework.view.SMCircularListView;
 import com.interpark.smframework.view.SMLabel;
 import com.interpark.smframework.view.SMPageView;
 import com.interpark.smframework.view.SMTableView;
@@ -39,6 +44,24 @@ public class ViewDisplayScene extends SMMenuTransitionScene implements SMView.On
         scene.initWithParams(menuBar, params);
 
         return scene;
+    }
+
+    @Override
+    protected boolean onMenuBarClick(SMView view) {
+        MenuBar.MenuType type = MenuBar.intToMenuType(view.getTag());
+        switch (type) {
+            case BACK:
+            {
+                finishScene();
+                return true;
+            }
+            case CLOSE:
+            {
+                finishScene();
+                return true;
+            }
+        }
+        return false;
     }
 
     protected boolean initWithParams(MenuBar menuBar, SceneParams params) {
@@ -85,6 +108,7 @@ public class ViewDisplayScene extends SMMenuTransitionScene implements SMView.On
             case 3:
             {
                 // Circular View
+                circularViewDisplay();
             }
             break;
             case 4:
@@ -121,6 +145,174 @@ public class ViewDisplayScene extends SMMenuTransitionScene implements SMView.On
         }
     }
 
+    private CircularImageCell CircularImageCellCreate(IDirector director, String assetName) {
+        CircularImageCell cell = new CircularImageCell(director, assetName);
+        if (cell!=null) {
+            if (cell.getContentSize().width==0 && cell.getContentSize().height==0) {
+                cell.setContentSize(cell.getSprite().getWidth(), cell.getSprite().getHeight());
+            }
+        }
+        return cell;
+    }
+    private class CircularImageCell extends SMImageView implements ICircularCell {
+        public CircularImageCell(IDirector director, String assetName) {
+            super(director, assetName);
+        }
+
+        @Override
+        public int getCellIndex() {
+            return _index;
+        }
+        @Override
+        public float getCellPosition() {
+            return _position;
+        }
+        @Override
+        public String getCellIdentifier() {
+            return _reuseIdentifier;
+        }
+        @Override
+        public void markDelete() {
+            _deleted = true;
+        }
+        @Override
+        public void setCellIndex(int index) {
+            _index = index;
+        }
+        @Override
+        public void setCellPosition(final float position) {
+            _position = position;
+        }
+        @Override
+        public void setReuseIdentifier(final String identifier) {
+            _reuseIdentifier = identifier;
+        }
+
+        @Override
+        public void setAniSrc(float src) {
+            _aniSrc = src;
+        }
+        @Override
+        public void setAndDst(float dst) {
+            _aniDst = dst;
+        }
+        @Override
+        public void setAniIndex(int index) {
+            _aniIndex = index;
+        }
+
+        @Override
+        public boolean isDeleted() {return _deleted;}
+        @Override
+        public float getAniSrc() {return _aniSrc;}
+        @Override
+        public float getAniDst() {return _aniDst;}
+        @Override
+        public int getAniIndex() {return _aniIndex;}
+
+        public int _index=0;
+        public boolean _deleted = false;
+        public float _position = 0.0f;
+        public float _aniSrc=0, _aniDst=0;
+        public int _aniIndex=0;
+        public String _reuseIdentifier="";
+    }
+
+    private final float PAGER_PADDING = 200.0f;
+    private SMCircularListView.Config _circularConfig = null;
+    private SMCircularListView _circularListview = null;
+    private SMCircularListView.Orientation _circularOrientation = SMCircularListView.Orientation.HORIZONTAL;
+    private SMScroller.ScrollMode _circularScrollMode = SMScroller.ScrollMode.PAGER;
+    private boolean _isCircular = false;
+    private void circularViewDisplay() {
+        Size s = _contentView.getContentSize();
+
+        //float pageSize = s.height - AppConst.SIZE.MENUBAR_HEIGHT*3;
+        float pageSize = s.height;
+        Size listViewSize = new Size(s.width+PAGER_PADDING*2, pageSize);
+
+        for (int i=0; i<5; i++) {
+            CircularImageCell cell = CircularImageCellCreate(getDirector(), "images/defaults.jpg");
+            cell.setContentSize(new Size(s.width, pageSize));
+            _circularImages.add(cell);
+        }
+
+        _circularOrientation = SMCircularListView.Orientation.HORIZONTAL;
+        _circularScrollMode = SMScroller.ScrollMode.PAGER;
+        _isCircular = true;
+
+        _circularConfig = new SMCircularListView.Config();
+        _circularConfig.orient = _circularOrientation;
+        _circularConfig.scrollMode = _circularScrollMode;
+        _circularConfig.circular = _isCircular;
+        _circularConfig.cellSize = s.width;
+        _circularConfig.windowSize = s.width + PAGER_PADDING*2;
+        _circularConfig.anchorPosition = PAGER_PADDING;
+        _circularConfig.maxVelocity = 5000;
+        _circularConfig.minVelocity = 5000;
+        _circularConfig.preloadPadding = 0;
+
+        _circularListview = SMCircularListView.create(getDirector(), _circularConfig);
+        _contentView.addChild(_circularListview);
+        _circularListview.setContentSize(listViewSize);
+        _circularListview.setPositionX(-PAGER_PADDING);
+        _circularListview.cellForRowsAtIndex = new SMCircularListView.CellForRowsAtIndex() {
+            @Override
+            public SMView cellForRowsAtIndex(int index) {
+                CircularImageCell cell = _circularImages.get(index);
+
+                cell.setTag(index);
+
+                return cell;
+            }
+        };
+        _circularListview.numberOfRows = new SMCircularListView.NumberOfRows() {
+            @Override
+            public int numberOfRows() {
+                return _circularImages.size();
+            }
+        };
+        _circularListview.positionCell = new SMCircularListView.PositionCell() {
+            @Override
+            public void positionCell(SMView cell, float position, boolean created) {
+                cell.setPositionX(position);
+            }
+        };
+//        _circularListview.initFillWithCells = new SMCircularListView.InitFillWithCells() {
+//            @Override
+//            public void initFillWithCells() {
+//                if (_circularListview!=null) {
+////                    SMImageView
+//                }
+//            }
+//        };
+//        _circularListview.scrollAlignedCallback = null;
+        _circularListview.pageScrollCallback = new SMCircularListView.PageScrollCallback() {
+            @Override
+            public void pageScrollCallback(float pagePosition) {
+                layoutCircularLabel(pagePosition);
+            }
+        };
+
+    }
+
+    private ArrayList<CircularImageCell> _circularImages = new ArrayList<>();
+    private SMLabel _circularLabel = null;
+    private void layoutCircularLabel(float pagePosition) {
+        if (_circularLabel==null) {
+            _circularLabel = SMLabel.create(getDirector(), "", 45, new Color4F(1, 0, 0, 1));
+            _circularLabel.setAnchorPoint(Vec2.MIDDLE);
+            _circularLabel.setPosition(_contentView.getContentSize().width/2, _circularListview.getContentSize().height-150);
+            _circularLabel.setLocalZOrder(999);
+            _contentView.addChild(_circularLabel);
+        }
+
+        int pageNo = (int)(Math.floor(pagePosition+0.5f) % _circularImages.size());
+        String desc = "Circular Paging " + (pageNo+1) + "/" + _circularImages.size() + " page";
+        _circularLabel.setText(desc);
+
+     }
+
     private SMPageView _horPageView = null;
     private SMPageView _verPageView = null;
     private SMLabel _horLabel = null;
@@ -128,8 +320,8 @@ public class ViewDisplayScene extends SMMenuTransitionScene implements SMView.On
     private int _pageItemCount = 10;
     private int _currentHorPage = 0;
     private int _currentVerPage = 0;
-    private ArrayList<SMImageView> _horImages = new ArrayList<SMImageView>();
-    private ArrayList<SMImageView> _verImages = new ArrayList<SMImageView>();
+    private ArrayList<SMImageView> _horImages = new ArrayList<>();
+    private ArrayList<SMImageView> _verImages = new ArrayList<>();
     private void pageViewDisplay() {
         Size s = _contentView.getContentSize();
 
@@ -219,12 +411,12 @@ public class ViewDisplayScene extends SMMenuTransitionScene implements SMView.On
     @Override
     public void onPageChangedCallback(SMPageView pageView, int page) {
 
+        if (_viewType==2) { // page view
         layoutPageLabel();
-        if (pageView==_horPageView) {
-
-        } else {
+        } else if (_viewType==3) {  // circular page view
 
         }
+
     }
 
     private SMZoomView _zoomView = null;
@@ -306,7 +498,7 @@ public class ViewDisplayScene extends SMMenuTransitionScene implements SMView.On
 
         float posY = 10;
         float buttonWidth = s.width/2-30;
-        ArrayList<SMButton> scaleBtns = new ArrayList<SMButton>();
+        ArrayList<SMButton> scaleBtns = new ArrayList<>();
         SMButton centerButton = SMButton.create(getDirector(), 0, SMButton.STYLE.SOLID_ROUNDRECT, 15, posY + 5, buttonWidth, buttonSize - 10);
         centerButton.setText("CENTER", fontSize);
         scaleBtns.add(centerButton);
@@ -353,7 +545,7 @@ public class ViewDisplayScene extends SMMenuTransitionScene implements SMView.On
 
         posY = 10;
         buttonWidth = s.width/3-30;
-        ArrayList<SMButton> gravityBtns = new ArrayList<SMButton>();
+        ArrayList<SMButton> gravityBtns = new ArrayList<>();
         SMButton LT = SMButton.create(getDirector(), 0, SMButton.STYLE.SOLID_ROUNDRECT, 15, posY + 5, buttonWidth, buttonSize - 10);
         LT.setText("LT", fontSize);
         gravityBtns.add(LT);

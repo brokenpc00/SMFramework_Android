@@ -141,7 +141,7 @@ public class SMLabel extends UIContainerView {
             _letterConainerView.setContentSize(_contentSize);
             addChild(_letterConainerView);
 
-        _letters = new ArrayList<SMLabel>(len);
+        _letters = new ArrayList<>(len);
         float padding = 4.0f;
         float posX = padding;
             for (int i=0; i<len; i++) {

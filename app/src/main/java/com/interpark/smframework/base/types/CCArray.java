@@ -20,7 +20,7 @@ public class CCArray {
 
         CCArray arr = new CCArray();
         arr.num = 0;
-        arr.arr = new ArrayList<Object>();
+        arr.arr = new ArrayList<>();
         arr.max = capacity;
         arr.arr.ensureCapacity((int)capacity);
         return arr;
