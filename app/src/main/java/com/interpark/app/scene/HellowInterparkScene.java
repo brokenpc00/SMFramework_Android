@@ -1,9 +1,20 @@
 package com.interpark.app.scene;
 
+import android.os.PatternMatcher;
+import android.util.Log;
+import android.util.Pair;
+
 import com.interpark.app.menu.MenuBar;
 import com.interpark.smframework.IDirector;
 import com.interpark.smframework.SideMenu;
 import com.interpark.smframework.base.SMScene;
+import com.interpark.smframework.network.Downloader.AndroidDownloader;
+import com.interpark.smframework.network.Downloader.DownloadTask;
+import com.interpark.smframework.network.Downloader.Downloader;
+import com.interpark.smframework.network.HttpClient.HttpClient;
+import com.interpark.smframework.network.HttpClient.HttpRequest;
+import com.interpark.smframework.network.HttpClient.HttpResponse;
+import com.interpark.smframework.util.FileUtils;
 import com.interpark.smframework.view.SMTableView;
 import com.interpark.smframework.base.transition.SlideInToLeft;
 import com.interpark.smframework.base.types.Color4F;
@@ -18,6 +29,9 @@ import com.interpark.smframework.view.SMLabel;
 import com.interpark.smframework.view.SMRoundLine;
 
 import java.util.ArrayList;
+import java.util.regex.MatchResult;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class HellowInterparkScene extends SMScene implements SMTableView.CellForRowAtIndexPath, SMTableView.NumberOfRowsInSection, SMView.OnClickListener {
 
@@ -91,8 +105,216 @@ public class HellowInterparkScene extends SMScene implements SMTableView.CellFor
         _contentView.setLocalZOrder(-10);
 //        _contentView.setLocalZOrder(990);
 
+
+
+//        String str = "http://www.interpark.com/index.html?test=false&parse=true";
+//        doParse(str);
+
+
+//        _query = "test=false&parse=true";
+////        _query = "http://www.interpark.com/index.html?test=false&parse=true";
+//        _queryParams = getQueryParams();
+
+//        downloadTest();
+
+//        ArrayList<Byte> test = new ArrayList<>();
+//
+//        for (int i=0; i<10; i++) {
+////            test[i] = (byte)('a'+i);
+//            byte c = (byte)('a'+i);
+//            test.add(c);
+//        }
+//        Log.i("Scene", "[[[[[ test : " + test.toString() + ", size : " + test.size());
+//
+//        sizeTest(test);
+//
+//        Log.i("Scene", "[[[[[ test 2 : " + test.toString() + ", size : " + test.size());
+
+        commTest();
+
         return true;
     }
+
+    public void commTest() {
+        final HttpRequest request = new HttpRequest(getDirector());
+        String url = "https://www.interpark.com";
+        request.setUrl(url);
+        request.setRequestType(HttpRequest.Type.GET);
+        request.setResponseCallback(new HttpRequest.HttpRequestCallback() {
+            @Override
+            public void onHttpRequest(HttpClient client, HttpResponse response) {
+                byte[] data = response.getResponseData();
+
+//                ArrayList<Byte> data = response.getResponseData();
+                String test = new String(data);
+//                String test = data.toString();
+                Log.i("Scene", "[[[[[ onHttpRequest : " + test);
+            }
+        });
+        request.setTag("GET HTML");
+//        HttpClient.getInstance().send(request);
+        HttpClient.getInstance().sendImmediate(request);
+    }
+
+    public void sizeTest(ArrayList<Byte> test) {
+
+//        test = new byte[20];
+        test.clear();
+        for (int i=0; i<20; i++) {
+            byte c = (byte)('a'+i);
+            test.add(c);
+        }
+    }
+
+    private boolean _isDownloading = false;
+    private String _version = "";
+    private void downloadTest() {
+        _downloader = new Downloader();
+        _downloader._onTaskError = new Downloader.OnTaskError() {
+            @Override
+            public void onTaskError(DownloadTask task, int errorCode, int errorCodeInteral, String errorStr) {
+                Log.i("Scene", "[[[[[ download error : " + errorStr);
+                _isDownloading = false;
+
+
+            }
+        };
+
+        _downloader._onTaskProgress = new Downloader.OnTaskProgress() {
+            @Override
+            public void onTaskProgress(DownloadTask task, long bytesReceived, long totalBytesReceived, long totalBytesExpected) {
+                Log.i("Scene", "[[[[[ download progress received : " + bytesReceived + ", total : " + totalBytesReceived + ", expected : " + totalBytesExpected);
+            }
+        };
+
+        _downloader._onDataTaskSuccess = new Downloader.OnDataTaskSuccess() {
+            @Override
+            public void onDataTaskSuccess(DownloadTask task, byte[] data) {
+
+                StringBuffer str = new StringBuffer();
+                str.append(data);
+
+                _version = str.toString();
+
+                Log.i("Scene", "[[[[[ received version : " + _version);
+            }
+        };
+
+        _downloader._onFileTaskSuccess = new Downloader.OnFileTaskSuccess() {
+            @Override
+            public void onFileTaskSuccess(DownloadTask task) {
+                Log.i("Scene", "[[[[[ onFileTaskSuccess !!!!");
+            }
+        };
+
+
+//        String epubUrl = "http://tm.shop.interpark.com/test/ep/test.epub";
+        String url = "http://openimage.interpark.com/goods_image_big/3/4/9/6/6415873496_l.jpg";
+
+        String path = FileUtils.getInstance().getWritablePath() + "test.jpg";
+
+        _downloader.createDownloadFileTask(url, path);
+
+    }
+
+//    private static String schemRegex = "([a-zA-Z][a-zA-Z0-9+.-]*):";
+//    private static String authoRegex = "([^?#]*)";
+//    private static String queryRegex = "(?:\\?([^#]*))?";
+//    private static String fragRegex = "(?:#(.*))?";
+//
+//    private static String pathRegex = "//([^/]*)(/.*)?";
+//
+//    private boolean doParse(final String str) {
+//        if (str.isEmpty()) {
+//            return false;
+//        }
+//
+//        Pattern schemP = Pattern.compile(schemRegex);
+//        Pattern authP = Pattern.compile(authoRegex);
+//        Pattern queryP = Pattern.compile(queryRegex);
+//        Pattern fragP = Pattern.compile(fragRegex);
+//        Pattern uriP = Pattern.compile(schemRegex+authoRegex+queryRegex+fragRegex);
+//        Pattern authoP = Pattern.compile(pathRegex);
+//
+//        boolean hasScheme = true;
+//        String copied = str;
+//
+//        if (copied.indexOf("://")<0) {
+//            hasScheme = false;
+//            copied = "abc://" + copied;
+//        }
+//
+//        Matcher m = uriP.matcher(copied);
+//
+//        if (!m.find()) {
+//            return false;
+//        }
+//        Log.i("Scene", "[[[[[ matching sring : " + m.toString());
+//        for (int i=0; i<m.groupCount(); i++) {
+//            Log.i("Scene", "[[[[[ group " + i + " : " + m.group(i));
+//        }
+//
+//
+//        if (hasScheme) {
+//            _schems = m.group(1);
+//            _schems = _schems.toLowerCase();
+//            if (_schems=="https" || _schems=="wss") {
+//
+//            }
+//        }
+//
+//        return true;
+//    }
+
+////    private String _schems;
+//
+//    private static String queryParamRegexString1 = "(^|&)";
+//    private static String queryParamRegexString2 = "([^=&]*)=?";
+//    private static String queryParamRegexString3 = "([^=&]*)";
+//    private static String queryParamRegexString4 = "(?=(&|$))";
+//
+//    private static Pattern queryParamRegex = Pattern.compile(queryParamRegexString1+queryParamRegexString2+queryParamRegexString3+queryParamRegexString4);
+//    private String _query = "";
+//    private ArrayList<Pair<String, String>> _queryParams = new ArrayList<>();
+//
+//    public ArrayList<Pair<String, String>> getQueryParams() {
+//        if (!_query.isEmpty() && _queryParams.isEmpty()) {
+//            Log.i("scene", "[[[[[ query : " + _query);
+//            Matcher m = queryParamRegex.matcher(_query);
+//
+//
+//            while (m.find()) {
+//                Log.i("scene", "[[[[[ match : " + m.group(2) + " = " + m.group(3));
+//            }
+//
+////            if (!m.find()) {
+////                Log.i("scene", "[[[[[ not found : " + m.toString() + ", valeu : " + _query);
+////            } else {
+////
+////                for (int i=0; i<m.groupCount(); i++) {
+////                    Log.i("scene", "[[[[[ match : " + m.group(i));
+////                }
+////            }
+////            for (int i=0; i<_query.length(); i++) {
+////                String substr = _query.substring(i, i+1);
+////                Matcher m = queryParamRegex.matcher(_query);
+////                Log.i("scene", "[[[[[ match : " + m.group(0));
+////            }
+//        }
+//
+//        return _queryParams;
+//    }
+
+//    @Override
+//    public void onDownloadProgress(int id, int taskId, long dl, long dlnow, long dltotal) {
+//        Log.i("Scene", "[[[[[ onProgress(bytesWritten:" + dlnow + " totalSize:" + dltotal);
+//    }
+//
+//    @Override
+//    public void onDownloadFinish(int id, int taskId, int errCode, String errStr, final byte[] data) {
+//        Log.i("Scene", "[[[[[ download finish");
+//    }
+
 
     @Override
     public int numberOfRowsInSection(int section) {
@@ -228,5 +450,6 @@ public class HellowInterparkScene extends SMScene implements SMTableView.CellFor
         _menuBar.setMenuBarListener(_menuBarListener);
     }
 
+    private Downloader _downloader;
 }
 

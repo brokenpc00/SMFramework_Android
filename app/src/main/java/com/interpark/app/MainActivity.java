@@ -1,5 +1,6 @@
 package com.interpark.app;
 
+import android.os.Message;
 import android.support.v4.app.FragmentActivity;
 //import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -9,11 +10,12 @@ import android.view.ViewGroup;
 import android.widget.FrameLayout;
 
 import com.interpark.app.scene.HellowInterparkScene;
+import com.interpark.smframework.ClassHelper;
 import com.interpark.smframework.SMSurfaceView;
 import com.interpark.smframework.base.SMScene;
 import com.interpark.smframework.base.SceneParams;
 
-public class MainActivity extends FragmentActivity {
+public class MainActivity extends FragmentActivity implements ClassHelper.HelperListener {
 
     private SMSurfaceView mSurfaceView;
     private int mDisplayRawWidth;
@@ -43,12 +45,26 @@ public class MainActivity extends FragmentActivity {
 
         mSurfaceView.getDirector().setDisplayRawWidth(mDisplayRawWidth, mDisplayRawHeight);
 
+
+        ClassHelper.init(this);
+
         // main scene 만들어서 붙인다.
         SceneParams sceneParam = new SceneParams();
 
         HellowInterparkScene scene = HellowInterparkScene.create(mSurfaceView.getDirector(), sceneParam, SMScene.SwipeType.MENU);
         mSurfaceView.startSMFrameWorkScene(scene);
     }
+
+    @Override
+    public void runOnGLThread(final Runnable pRunnable) {
+        this.mSurfaceView.queueEvent(pRunnable);
+    }
+
+    @Override
+    public void showDialog(final String pTitle, final String pMessage) {
+
+    }
+
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {

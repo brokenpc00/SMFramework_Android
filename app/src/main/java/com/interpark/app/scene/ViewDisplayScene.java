@@ -157,7 +157,7 @@ public class ViewDisplayScene extends SMMenuTransitionScene implements SMView.On
         _tableBgViews = new ArrayList<>();
         for (int i=0; i<5; i++) {
             SMView bgView = SMView.create(getDirector(), 0, 0, 0, s.width, s.height);
-            bgView.setBackgroundColor(new Color4F(SMView.getRandomColorF(), SMView.getRandomColorF(), SMView.getRandomColorF(), 1));
+            bgView.setBackgroundColor(SMView.getRandomColor4F());
             _tableBgViews.add(bgView);
 
             SMTableView tableView = SMTableView.createMultiColumn(getDirector(), SMTableView.Orientation.VERTICAL, i+1, 0, 0, s.width, s.height);
@@ -311,8 +311,6 @@ public class ViewDisplayScene extends SMMenuTransitionScene implements SMView.On
                                 label.setAnchorPoint(Vec2.MIDDLE);
                                 label.setPosition(cell.getContentSize().width/2, cell.getContentSize().height/2);
                                 cell.addChild(label);
-
-
                             }
                             return cell;
                         }

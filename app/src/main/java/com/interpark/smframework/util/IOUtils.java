@@ -1,5 +1,6 @@
 package com.interpark.smframework.util;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.Closeable;
 import java.io.File;
@@ -7,8 +8,11 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
+import java.util.ArrayList;
 
 // file io util... 뭐. 이것저것..
 
@@ -20,6 +24,88 @@ public class IOUtils {
         } catch (Throwable t) {
             // Does nothing
         }
+    }
+
+    public static byte[] arrayToBytes(ArrayList<Byte> array) {
+
+
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        try {
+            ObjectOutputStream oos = new ObjectOutputStream(bos);
+            oos.writeObject(array);
+            return bos.toByteArray();
+        } catch (IOException e) {
+            return null;
+        }
+    }
+//
+    public static ArrayList<Byte> bytesToArray(byte[] bytes) {
+
+//        try {
+//            ObjectInputStream ois = new ObjectInputStream(new ByteArrayInputStream(bytes));
+//            try {
+//                @SuppressWarnings("unchecked")
+//                ArrayList<Byte> array = (ArrayList<Byte>)ois.readObject();
+//                return array;
+//            } catch (ClassNotFoundException e) {
+//                return null;
+//            }
+//        } catch (IOException e) {
+//            return null;
+//        }
+        try {
+            ArrayList<Byte> array = (ArrayList<Byte>)toObject(bytes);
+            return array;
+        } catch (IOException e) {
+            return null;
+        } catch (ClassNotFoundException e) {
+            return null;
+        }
+    }
+
+    public static byte[] toByteArray(Object obj) throws IOException {
+        byte[] bytes = null;
+        ByteArrayOutputStream bos = null;
+        ObjectOutputStream oos = null;
+        try {
+            bos = new ByteArrayOutputStream();
+            oos = new ObjectOutputStream(bos);
+            oos.writeObject(obj);
+            oos.flush();
+            bytes = bos.toByteArray();
+        } finally {
+            if (oos != null) {
+                oos.close();
+            }
+            if (bos != null) {
+                bos.close();
+            }
+        }
+        return bytes;
+    }
+
+    public static Object toObject(byte[] bytes) throws IOException, ClassNotFoundException {
+        Object obj = null;
+        ByteArrayInputStream bis = null;
+        ObjectInputStream ois = null;
+        try {
+            bis = new ByteArrayInputStream(bytes);
+
+            ois = new ObjectInputStream(bis);
+            obj = ois.readObject();
+        } finally {
+            if (bis != null) {
+                bis.close();
+            }
+            if (ois != null) {
+                ois.close();
+            }
+        }
+        return obj;
+    }
+
+    public static String toString(byte[] bytes) {
+        return new String(bytes);
     }
 
     public static void copy(File src, File dst) throws IOException {

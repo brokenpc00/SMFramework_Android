@@ -3174,6 +3174,10 @@ public class SMView extends Ref {
         return randomInt(0, 255);
     }
 
+    public static Color4F getRandomColor4F() {
+        return new Color4F(getRandomColorF(), getRandomColorF(), getRandomColorF(), 1);
+    }
+
     public static float getRandomColorF() {
         return (float)randomInt(0, 255)/255.0f;
     }
