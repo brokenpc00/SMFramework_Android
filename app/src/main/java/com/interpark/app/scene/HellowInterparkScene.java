@@ -130,7 +130,7 @@ public class HellowInterparkScene extends SMScene implements SMTableView.CellFor
 //
 //        Log.i("Scene", "[[[[[ test 2 : " + test.toString() + ", size : " + test.size());
 
-        commTest();
+//        commTest();
 
         return true;
     }

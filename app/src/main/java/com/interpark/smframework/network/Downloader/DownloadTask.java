@@ -14,5 +14,6 @@ public final class DownloadTask {
 
     }
 
+    // mine.
     public IDownloadTask _coTask;
 }

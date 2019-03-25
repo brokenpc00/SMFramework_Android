@@ -5,14 +5,19 @@ import com.interpark.smframework.base.SMView;
 import com.interpark.smframework.base.types.Color4F;
 import com.interpark.smframework.base.types.DelayBaseAction;
 import com.interpark.smframework.base.types.SEL_SCHEDULE;
+import com.interpark.smframework.network.Downloader.Downloader;
 import com.interpark.smframework.util.Rect;
 import com.interpark.smframework.util.Size;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
 public class SMKenBurnsView extends SMView {
     public SMKenBurnsView(IDirector director) {
         super(director);
+        _sequence = 0;
+        _serial = 0;
+        _runnable = true;
     }
 
     private static final float PAN_TIME = 10.0f;
@@ -28,38 +33,10 @@ public class SMKenBurnsView extends SMView {
         return view;
     }
 
-    @Override
-    public void setContentSize(final Size size) {
-        super.setContentSize(size);
-        if (_dimLayer!=null) {
-            _dimLayer.setContentSize(size);
-        }
-    }
-    @Override
-    public void setContentSize(final float width, final float height) {
-        this.setContentSize(new Size(width, height));
-    }
-
-    public void startWithDelay(float delay) {
-        if (delay<=0) {
-            onNextTransition(0);
-        } else {
-            scheduleOnce(new SEL_SCHEDULE() {
-                @Override
-                public void scheduleSelector(float t) {
-                    onNextTransition(t);
-                }
-            }, delay);
-        }
-    }
-
-
-    public void pauseKenBurns() {
-
-    }
-
-    public void resumeKenBurns() {
-
+    public static SMKenBurnsView createWithURLs(IDirector director, ArrayList<String> urlList) {
+        SMKenBurnsView view = new SMKenBurnsView(director);
+        view.initWithImageList(Mode.URL, urlList);
+        return view;
     }
 
     // for later
@@ -82,7 +59,49 @@ public class SMKenBurnsView extends SMView {
         return true;
     }
 
+    @Override
+    public void setContentSize(final Size size) {
+        super.setContentSize(size);
+        if (_dimLayer!=null) {
+            _dimLayer.setContentSize(size);
+        }
+    }
+    @Override
+    public void setContentSize(final float width, final float height) {
+        this.setContentSize(new Size(width, height));
+    }
+
+    private Downloader _downloader = null;
+    public void startWithDelay(float delay) {
+        if (delay<=0) {
+            onNextTransition(0);
+        } else {
+//            if (_mode==Mode.URL) {
+//                _downloader = new Downloader();
+//                _downloader
+//            }
+            scheduleOnce(new SEL_SCHEDULE() {
+                @Override
+                public void scheduleSelector(float t) {
+                    onNextTransition(t);
+                }
+            }, delay);
+        }
+    }
+
     private void onNextTransition(float dt) {
+        if (_mode==Mode.URL) {
+
+        } else {
+
+    }
+    }
+
+    public void pauseKenBurns() {
+
+    }
+
+    public void resumeKenBurns() {
 
     }
 

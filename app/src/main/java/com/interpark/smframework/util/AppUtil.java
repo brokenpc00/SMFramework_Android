@@ -15,6 +15,9 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.File;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.Calendar;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -205,4 +208,59 @@ public class AppUtil {
 
         return dir;
     }
+
+    private static final String HASH_ALGORITHM = "MD5";
+    public static byte[] getMD5(byte[] data) {
+        byte[] hash = null;
+        try {
+            MessageDigest digest = MessageDigest.getInstance(HASH_ALGORITHM);
+            digest.update(data);
+            hash = digest.digest();
+        } catch (NoSuchAlgorithmException e) {
+            // Does nothing
+        }
+        return hash;
+    }
+
+    public static String getCurDate() {
+        Calendar cal = Calendar.getInstance();
+
+        String strDate = String.format("%04d%02d%02d", cal.get(Calendar.YEAR),
+                cal.get(Calendar.MONTH) + 1, cal.get(Calendar.DATE));
+
+        return strDate;
+    }
+
+    public static String getCurTime() {
+        Calendar cal = Calendar.getInstance();
+
+        String strTime = String.format("%02d%02d%02d",
+                cal.get(Calendar.HOUR_OF_DAY), cal.get(Calendar.MINUTE),
+                cal.get(Calendar.SECOND));
+
+        return strTime;
+    }
+
+    public static String getCurDateTime() {
+        Calendar cal = Calendar.getInstance();
+
+        String strDate = String.format("%04d%02d%02d%02d%02d%02d",
+                cal.get(Calendar.YEAR), cal.get(Calendar.MONTH) + 1,
+                cal.get(Calendar.DATE), cal.get(Calendar.HOUR_OF_DAY),
+                cal.get(Calendar.MINUTE), cal.get(Calendar.SECOND));
+
+        return strDate;
+    }
+
+    public static String getSaveFileTimeFormat() {
+        Calendar cal = Calendar.getInstance();
+
+        String strDate = String.format("%04d%02d%02d_%02d%02d%02d",
+                cal.get(Calendar.YEAR), cal.get(Calendar.MONTH) + 1,
+                cal.get(Calendar.DATE), cal.get(Calendar.HOUR_OF_DAY),
+                cal.get(Calendar.MINUTE), cal.get(Calendar.SECOND));
+
+        return strDate;
+    }
+
 }
