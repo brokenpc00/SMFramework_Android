@@ -36,6 +36,20 @@ android {
     useLibrary 'org.apache.http.legacy'
 }
 
+
+android.applicationVariants.all { variant ->
+    // delete previous files first
+    delete "${buildDir}/intermediates/assets/${variant.dirName}"
+
+    variant.mergeAssets.doLast {
+        copy {
+            from "${buildDir}/../src/main/assets"
+            into "${buildDir}/intermediates/assets/${variant.dirName}"
+            exclude "**/*.gz"
+        }
+    }
+}
+
 dependencies {
     def work_version = "1.0.0-alpha13"
 

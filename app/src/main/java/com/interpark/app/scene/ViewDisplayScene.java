@@ -12,6 +12,7 @@ import com.interpark.smframework.base.types.IndexPath;
 import com.interpark.smframework.base.types.Mat4;
 import com.interpark.smframework.view.SMCircleView;
 import com.interpark.smframework.view.SMCircularListView;
+import com.interpark.smframework.view.SMKenBurnsView;
 import com.interpark.smframework.view.SMLabel;
 import com.interpark.smframework.view.SMPageView;
 import com.interpark.smframework.view.SMTableView;
@@ -122,6 +123,7 @@ public class ViewDisplayScene extends SMMenuTransitionScene implements SMView.On
             case 5:
             {
                 // Kenburn
+                kenburnDisplay();
             }
             break;
             case 6:
@@ -146,6 +148,21 @@ public class ViewDisplayScene extends SMMenuTransitionScene implements SMView.On
             }
             break;
         }
+    }
+
+    private void kenburnDisplay() {
+        Size s = _contentView.getContentSize();
+
+        ArrayList<String> imageList = new ArrayList<>();
+        imageList.add("images/ken1.jpg");
+        imageList.add("images/ken2.jpg");
+        imageList.add("images/ken3.jpg");
+
+        SMKenBurnsView view = SMKenBurnsView.createWithAssets(getDirector(), imageList);
+        view.setContentSize(s);
+        view.setBackgroundColor(Color4F.BLACK);
+        view.startWithDelay(0.0f);
+        _contentView.addChild(view);
     }
 
     private SMPageView _tableContainView = null;

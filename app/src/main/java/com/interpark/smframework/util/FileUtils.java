@@ -1,5 +1,7 @@
 package com.interpark.smframework.util;
 
+import android.content.res.AssetManager;
+
 import com.interpark.smframework.ClassHelper;
 import com.interpark.smframework.SMDirector;
 import com.interpark.smframework.base.types.PERFORM_SEL;
@@ -16,20 +18,51 @@ import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 
 
 public class FileUtils {
 
     private static FileUtils _instance = null;
+    private static String ASSETS_FOLDER_NAME = "assets/";
+    private static int ASSETS_FOLDER_NAME_LENGTH = 7;
+    private static AssetManager assetsmanager = null;
+    private static ZipFile obbfile = null;
+
+
 
     public static FileUtils getInstance() {
         if (_instance==null) {
             _instance = new FileUtils();
+            _instance.init();
         }
 
         return _instance;
     }
 
+    public boolean init() {
+
+        _defaultResRootPath = ASSETS_FOLDER_NAME;
+        assetsmanager = ClassHelper.getAssetManager();
+
+        String assetsPath = ClassHelper.getAssetsPath();
+
+        if (assetsPath.contains("/obb/")) {
+            try {
+                obbfile = new ZipFile(assetsPath);
+            } catch (IOException e) {
+
+            }
+        }
+
+        _searchPathArray.add(_defaultResRootPath);
+        _searchResolutionsOrderArray.add("");
+
+        return true;
+    }
+
+    protected String _storagePath = "";
     protected String _writablePath = "";
     protected String _defaultResRootPath = "";
     protected HashMap<String, String> _fullPathCache = new HashMap<>();
@@ -49,6 +82,41 @@ public class FileUtils {
         }
     }
 
+    public void setSearchPaths(final ArrayList<String> searchPaths) {
+
+        boolean existDefaultRootPath = false;
+        _originalSearchPaths = searchPaths;
+
+        _fullPathCache.clear();
+        _searchPathArray.clear();
+
+        for (String path : _originalSearchPaths) {
+
+            String prefix = "";
+            String fullPath = "";
+
+            if (!isAbsolutePath(path)) { // Not an absolute path
+                prefix = _defaultResRootPath;
+            }
+
+            fullPath = prefix + path;
+            if (!path.isEmpty() && !path.substring(path.length()-1).equals("/")) {
+                fullPath += "/";
+            }
+            if (!existDefaultRootPath && path.compareTo(_defaultResRootPath)==0) {
+                existDefaultRootPath = true;
+            }
+
+            _searchPathArray.add(fullPath);
+        }
+
+        if (!existDefaultRootPath)
+        {
+            //CCLOG("Default root path doesn't exist, adding it.");
+            _searchPathArray.add(_defaultResRootPath);
+        }
+    }
+
     public boolean isDirectoryExistInternal(String dirPath) {
         if (dirPath.isEmpty()) return false;
 
@@ -56,7 +124,16 @@ public class FileUtils {
     }
 
     public boolean isAbsolutePath(String path) {
-        return path.substring(0, 1).equals("/");
+        // On Android, there are two situations for full path.
+        // 1) Files in APK, e.g. assets/path/path/file.png
+        // 2) Files not in APK, e.g. /data/data/org.cocos2dx.hellocpp/cache/path/path/file.png, or /sdcard/path/path/file.png.
+        // So these two situations need to be checked on Android.
+        if (path.substring(0, 1).equals("/") || path.contains(_defaultResRootPath))
+        {
+            return true;
+        }
+        return false;
+//        return path.substring(0, 1).equals("/");
     }
 
     public boolean isDirectoryExist(String dirPath) {
@@ -94,7 +171,7 @@ public class FileUtils {
         }
 
         String cacheDir = _fullPathCache.get(filename);
-        if (!cacheDir.equals("")) {
+        if (cacheDir!=null && !cacheDir.equals("")) {
             return cacheDir;
         }
 
@@ -104,6 +181,7 @@ public class FileUtils {
 
         for (String search : _searchPathArray) {
             for (String resolution : _searchResolutionsOrderArray) {
+                fullPath = this.getPathForFilename(newFileName, resolution, search);
                 if (!fullPath.isEmpty()) {
                     _fullPathCache.put(filename, fullPath);
                     return fullPath;
@@ -124,7 +202,86 @@ public class FileUtils {
             newFileName = value.getString();
         }
 
+        int pos = newFileName.indexOf("../");
+        if (pos>=0) {
+            // first or not found
         return newFileName;
+    }
+
+        ArrayList<String> v = new ArrayList<>(3);
+
+        boolean change = false;
+
+        int size = newFileName.length();
+        int idx = 0;
+
+        boolean noexit = true;
+
+        while (noexit) {
+            pos = newFileName.indexOf("/", idx);
+            String tmp = "";
+            if (pos==-1) {
+//                tmp = newFileName.substring(idx, size-idx);
+                tmp = newFileName.substring(idx);
+                noexit = false;
+            } else {
+                tmp = newFileName.substring(idx, pos+1);
+            }
+
+            int t = v.size();
+            if (t>0 && !v.get(t-1).contains("../") && (tmp.contains("../") || tmp.contains(".."))) {
+                v.remove(v.size()-1);
+                change = true;
+            } else {
+                v.add(tmp);
+            }
+            idx = pos + 1;
+        }
+
+        if (change) {
+            newFileName = "";
+            for (String s : v) {
+                newFileName += s;
+            }
+        }
+
+        return newFileName;
+    }
+
+    public String getPathForFilename(final String fileName, final String resolutionDirectory, final String searchPath) {
+        String file = fileName;
+        String file_path = "";
+        int pos = fileName.lastIndexOf("/");
+        if (pos!=-1) {
+            file_path = fileName.substring(0, pos+1);
+            file = fileName.substring(pos+1);
+        }
+
+        String path = searchPath;
+        path += file_path;
+        path += resolutionDirectory;
+
+        path = getFullPathForDirectoryAndFilename(path, file);
+
+        return path;
+    }
+
+    public String getFullPathForDirectoryAndFilename(final String directory, final String filename) {
+        String ret = directory;
+        if (directory.length()>0) {
+            String lastChar = directory.substring(directory.length()-1);
+            if (!lastChar.equals("/")) {
+                ret += "/";
+            }
+        }
+        ret += filename;
+
+
+        if (!isFileExistInternal(ret)) {
+            ret ="";
+        }
+
+        return ret;
     }
 
     public interface VOID_BOOLEAN_CALLBACK {
@@ -191,9 +348,41 @@ public class FileUtils {
     }
 
     public boolean isFileExistInternal(final String filePath) {
-        if (filePath.isEmpty()) return false;
 
-        return ClassHelper.isFileExist(filePath);
+        if (filePath.isEmpty()) {
+            return false;
+        }
+
+        boolean bFound = false;
+
+        if (!filePath.substring(0, 1).equals("/")) {
+            int s = 0;
+
+            if (filePath.indexOf(_defaultResRootPath)==0) s += _defaultResRootPath.length();
+
+            String obbStr = filePath.substring(s);
+
+            if (obbfile!=null && obbStr!=null && obbStr.length()>0) {
+                bFound = true;
+            } else if (assetsmanager!=null) {
+                try {
+                    InputStream is = assetsmanager.open(obbStr);
+                    if (is != null) {
+                        bFound = true;
+                        is.close();
+                    }
+                } catch (IOException e) {
+
+                }
+            }
+        } else {
+            File file = new File(filePath);
+            if (file!=null && file.exists()) {
+                bFound = true;
+            }
+        }
+
+        return bFound;
     }
 
     public boolean isFileExist(final String filename) {
@@ -242,59 +431,71 @@ public class FileUtils {
         ObtainSizeFailed
     }
 
-    public Status getContents(final String filename, byte[] data) {
-        if (filename.isEmpty()) return Status.NotExists;
+    private static String apkprefix = "assets/";
 
-//        if (buffer==null) {
-//            buffer = new ArrayList<>();
-//        }
+    private byte[] getInternalPathContents(final String fullPath) {
 
-        String fullPath = FileUtils.getInstance().fullPathForFilename(filename);
-        if (fullPath.isEmpty()) return Status.NotExists;
+        String relativePath = "";
+        int position = fullPath.indexOf(apkprefix);
 
-        File file = new File(fullPath);
-        if (file==null) return Status.OpenFailed;
+        if (0 == position) {
+            // "assets/" is at the beginning of the path and we don't want it
+            relativePath += fullPath.substring(apkprefix.length());
+            } else {
+            relativePath = fullPath;
+            }
 
-        if (!file.canRead()) return Status.ReadFailed;
+        if (obbfile!=null)
+        {
+            ZipEntry entry = obbfile.getEntry(relativePath);
+            return entry.getExtra();
+        }
+
+        if (null == assetsmanager) {
+            return null;
+            }
+
 
         try {
-            FileInputStream fis = new FileInputStream(file);
-            int size = fis.available();
-            if (data==null) {
-                data = new byte[size];
-            } else {
-                if (size!=data.length) {
-                    data = Arrays.copyOf(data, size);
-                }
-            }
+            InputStream is = assetsmanager.open(relativePath);
 
-            fis.read(data);
-            fis.close();
+            byte[] data = new byte[is.available()];
 
-            if (data.length<size) {
-                data = Arrays.copyOf(data, data.length);
-                return Status.ReadFailed;
-            }
+            is.read(data);
+            is.close();
 
-            return Status.OK;
-
+            return data;
         } catch (IOException e) {
 
         }
 
-        return Status.ReadFailed;
+        return null;
     }
 
-    public byte[] getDataFromFile(final String filename) {
+    private byte[] getAbsolutePathContents(final String filename) {
 
-        String fullPath = FileUtils.getInstance().fullPathForFilename(filename);
-        File fs = new File(fullPath);
+        if (filename.isEmpty()) {
+            return null;
+        }
+
+        FileUtils fs = FileUtils.getInstance();
+
+        String fullPath = fs.fullPathForFilename(filename);
+
+        if (fullPath.isEmpty())
+            return null;
+
+        File fp = new File(fullPath);
+
+        if (!fp.canRead()) return null;
+
         try {
-            FileInputStream fis = new FileInputStream(fs);
-            byte[] data = new byte[fis.available()];
-            fis.close();;
+            FileInputStream fis = new FileInputStream(fp);
+            int size = fis.available();
+            byte[] data = new byte[size];
 
-            getContents(filename, data);
+            fis.read(data);
+            fis.close();
 
             return data;
 
@@ -305,15 +506,30 @@ public class FileUtils {
         return null;
     }
 
+
+    public byte[] getContents(final String filename) {
+        if (filename.isEmpty()) return null;
+
+        String fullPath = fullPathForFilename(filename);
+
+        if (fullPath.substring(0, 1).equals("/")) {
+            return getAbsolutePathContents(fullPath);
+        } else {
+            return getInternalPathContents(fullPath);
+        }
+
+    }
+
+    public byte[] getDataFromFile(final String fullPath) {
+        return getContents(fullPath);
+    }
+
     public String getStringFromFile(final String filename) {
         String fullPath = FileUtils.getInstance().fullPathForFilename(filename);
         File fs = new File(fullPath);
         try {
             FileInputStream fis = new FileInputStream(fs);
-            byte[] data = new byte[fis.available()];
-            fis.close();
-
-            getContents(filename, data);
+            byte[] data = getContents(filename);
 
             return new String(data);
 

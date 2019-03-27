@@ -107,25 +107,41 @@ public class SMImageView extends UIContainerView {
 
     public static SMImageView create(IDirector director, String assetName) {
         SMImageView imageView = new SMImageView(director, assetName);
-        if (imageView!=null) {
             if (imageView.getContentSize().width==0 && imageView.getContentSize().height==0) {
                 imageView.setContentSize(imageView.getSprite().getWidth(), imageView.getSprite().getHeight());
             }
-        }
         return imageView;
     }
     public static SMImageView create(IDirector director, String assetName, float x, float y, float width, float height) {
         SMImageView view = new SMImageView(director, assetName);
-        if (view!=null) {
             view.setContentSize(new Size(width, height));
             view.setPosition(x, y);
             view.setAnchorPoint(Vec2.ZERO);
+        return view;
         }
+
+    public static SMImageView create(IDirector director, BitmapSprite sprite) {
+        SMImageView view = new SMImageView(director, sprite);
+        view.setContentSize(new Size(0, 0));
+        view.setPosition(0, 0);
+        view.setAnchorPoint(Vec2.ZERO);
+        return view;
+    }
+    public static SMImageView create(IDirector director, BitmapSprite sprite, float x, float y, float width, float height) {
+        SMImageView view = new SMImageView(director, sprite);
+        view.setContentSize(new Size(width, height));
+        view.setPosition(x, y);
+        view.setAnchorPoint(Vec2.ZERO);
         return view;
     }
 
     public SMImageView (IDirector director) {
         super(director);
+    }
+
+    public SMImageView(IDirector director, BitmapSprite sprite) {
+        super(director);
+        setSprite(sprite);
     }
 
     public SMImageView(IDirector director, String assetName) {

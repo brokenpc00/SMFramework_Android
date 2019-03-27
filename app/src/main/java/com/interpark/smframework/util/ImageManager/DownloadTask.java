@@ -37,7 +37,7 @@ public class DownloadTask {
 
     private static int __task_count__ = 0;
 
-    public static DownloadTask createTaskForTarget(ImageDownloader downloader, DownloadProtocol target) {
+    public static DownloadTask createTaskForTarget(ImageDownloader downloader, IDownloadProtocol target) {
         DownloadTask task = new DownloadTask();
         task._targetRef = new WeakReference<>(target);
         task._downloader = downloader;
@@ -217,7 +217,7 @@ public class DownloadTask {
     public void setTag(final int tag) {_tag = tag;}
 
     public MediaType getMediaType() {return _type;}
-    public DownloadProtocol getTarget() {
+    public IDownloadProtocol getTarget() {
         return _targetRef.get();
     }
     public String getCacheKey() {return _cacheKey;}
@@ -528,8 +528,7 @@ public class DownloadTask {
                 _mutex.unlock();
 
                 _downloader.handleState(this, ImageDownloader.State.DECODE_SUCCESS);
-
-
+                _cacheEntry = null;
                 return;
             } while (false);
 
@@ -633,7 +632,7 @@ public class DownloadTask {
                 _mutex.unlock();
 
                 _downloader.handleState(this, ImageDownloader.State.DECODE_SUCCESS);
-
+                _cacheEntry = null;
                 return;
             } while (false);
         } catch (InterruptedException e) {
@@ -692,7 +691,6 @@ public class DownloadTask {
             }
 
             do {
-                _imageEntry = null;
 
                 /*----------Check Thread Interrupt----------*/
                 Thread.sleep(1); if (!_running) break;
@@ -713,7 +711,8 @@ public class DownloadTask {
                 _mutex.unlock();
 
                 _downloader.handleState(this, ImageDownloader.State.DECODE_SUCCESS);
-
+                _cacheEntry = null;
+                return;
             } while (false);
 
         } catch (InterruptedException e) {
@@ -831,13 +830,13 @@ public class DownloadTask {
     private Downloader _netDownloader = null;
     private boolean _running = true;
     private int _tag;
-    private MediaType _type;
+    private MediaType _type = MediaType.NETWORK;
     private DownloadConfig _config = null;
     private MemoryCacheEntry _cacheEntry = null;
-    private String _cacheKey;
-    private String _requestPath;
-    private String _keyPath;
-    private WeakReference<DownloadProtocol> _targetRef = null;
+    private String _cacheKey = "";
+    private String _requestPath = "";
+    private String _keyPath = "";
+    private WeakReference<IDownloadProtocol> _targetRef = null;
     private ImageCacheEntry _imageEntry = null;
     private ImageDownloader _downloader = null;
     private int _taskId;

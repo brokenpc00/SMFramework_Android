@@ -3186,6 +3186,9 @@ public class SMView extends Ref {
         return min + (int)(Math.random() * ((max-min) + 1));
     }
 
+    public static float randomFloat(float min, float max) {
+        return min + (float) (Math.random() * ((max-min) + 1));
+    }
 
     public static float getDecelateInterpolation(float t) {
         return (float)(1.0 - (1.0 - t) * (1.0 - t));

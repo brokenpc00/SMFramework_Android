@@ -15,6 +15,8 @@ import java.io.ByteArrayInputStream;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
+import com.interpark.smframework.util.ImageManager.CameraHelper.CameraInfo2;
+import com.interpark.smframework.util.ImageManager.CameraHelper.CameraCaps;
 
 //// for bar code
 //import com.google.android.gms.vision.Frame;
@@ -424,7 +426,7 @@ public class CameraManager implements Camera.PreviewCallback,
             //Log.i("CAMERA MANASGER", "[[[[[ preview frame (JAVA) : " + Integer.toString(data.length));
             if (mPreviewBuffer !=null && mPreviewBuffer[mCurrentCameraId] != null) {
                 //Log.i("CAMERA MANAGER", "[[[[[ preview frame : " + Integer.toString(mCurrentCameraId) + ", (" + Integer.toString(mPreviewBuffer[mCurrentCameraId].getPreviewWidth()) + ", " + Integer.toString(mPreviewBuffer[mCurrentCameraId].getPreviewHeight()) + ")");
-                CameraManager.nativeOnFrameReceived(data, data.length, mPreviewBuffer[mCurrentCameraId].getPreviewWidth(), mPreviewBuffer[mCurrentCameraId].getPreviewHeight());
+//                CameraManager.nativeOnFrameReceived(data, data.length, mPreviewBuffer[mCurrentCameraId].getPreviewWidth(), mPreviewBuffer[mCurrentCameraId].getPreviewHeight());
             }
             camera.addCallbackBuffer(data);
             //Log.i("CAMERA MANASGER", "[[[[[ preview frame 2 : " + Integer.toString(data.length));
@@ -636,7 +638,7 @@ public class CameraManager implements Camera.PreviewCallback,
         int outHeight = options.outHeight;
 
         Log.i("CAMERA MANGER", "[[[[[ onPicture taken!!!!! from java");
-        CameraManager.nativeOnPictureTaken(data, data.length, outWidth, outHeight);
+//        CameraManager.nativeOnPictureTaken(data, data.length, outWidth, outHeight);
 
 //        return;
 //        if (mListener!=null) {
