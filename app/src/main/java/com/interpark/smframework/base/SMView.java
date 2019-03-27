@@ -880,6 +880,10 @@ public class SMView extends Ref {
         setPosition(x, y, true);
     }
 
+    public void setPosition(Size s) {
+        setPosition(s.width, s.height);
+    }
+
     public void setPositionX(float x) {
         setPositionX(x, true);
     }

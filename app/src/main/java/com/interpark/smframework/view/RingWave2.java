@@ -3,8 +3,10 @@ package com.interpark.smframework.view;
 import com.interpark.smframework.IDirector;
 import com.interpark.smframework.base.SMView;
 import com.interpark.smframework.base.types.ActionInterval;
+import com.interpark.smframework.base.types.CallFunc;
 import com.interpark.smframework.base.types.DelayTime;
 import com.interpark.smframework.base.types.FadeIn;
+import com.interpark.smframework.base.types.PERFORM_SEL;
 import com.interpark.smframework.base.types.RepeatForever;
 import com.interpark.smframework.base.types.Sequence;
 import com.interpark.smframework.base.types.TransformAction;
@@ -35,24 +37,24 @@ public class RingWave2 extends SMView {
 
     private boolean initWithParam(float minRadius, float maxRadius, float startDelay) {
         setAnchorPoint(Vec2.MIDDLE);
+        setCascadeColorEnabled(true);
 
         _circle = SMCircleView.create(getDirector());
         _circle.setAnchorPoint(Vec2.MIDDLE);
         addChild(_circle);
+        final RepeatForever reqAction = RepeatForever.create(getDirector(), Sequence.create(getDirector(), WaveActionCreate(getDirector(), 0.6f, minRadius, maxRadius),
+                DelayTime.create(getDirector(), 0.1f), null));
 
         if (startDelay > 0) {
-            Sequence action = Sequence.create(getDirector(), DelayTime.create(getDirector(), startDelay),
-                                                                        RepeatForever.create(getDirector(), Sequence.create(getDirector(), WaveActionCreate(getDirector(), 0.6f, minRadius, maxRadius),
-                                                                                                                                                    DelayTime.create(getDirector(), 0.1f), null
-                                                                                                                            )), null
-                                                );
-            _circle.runAction(action);
+            final Sequence seqAction = Sequence.create(getDirector(), DelayTime.create(getDirector(), startDelay), CallFunc.create(getDirector(), new PERFORM_SEL() {
+                @Override
+                public void performSelector() {
+                    _circle.runAction(reqAction);
+                }
+            }), null);
+            _circle.runAction(seqAction);
         } else {
-            RepeatForever action = RepeatForever.create(getDirector(), Sequence.create(getDirector(), WaveActionCreate(getDirector(), 0.6f, minRadius, maxRadius),
-                                                                                                                DelayTime.create(getDirector(), 0.1f), null
-                                                                                        )
-                                                        );
-            runAction(action);
+            _circle.runAction(reqAction);
         }
 
         runAction(FadeIn.create(getDirector(), 0.2f));

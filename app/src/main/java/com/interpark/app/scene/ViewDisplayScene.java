@@ -1,5 +1,6 @@
 package com.interpark.app.scene;
 
+import android.graphics.Paint;
 import android.util.Log;
 
 import com.interpark.app.menu.MenuBar;
@@ -8,13 +9,18 @@ import com.interpark.smframework.base.ICircularCell;
 import com.interpark.smframework.base.SMMenuTransitionScene;
 import com.interpark.smframework.base.scroller.SMScroller;
 import com.interpark.smframework.base.sprite.BitmapSprite;
+import com.interpark.smframework.base.types.Color4B;
 import com.interpark.smframework.base.types.IndexPath;
 import com.interpark.smframework.base.types.Mat4;
+import com.interpark.smframework.base.types.TransformAction;
+import com.interpark.smframework.view.RingWave;
+import com.interpark.smframework.view.RingWave2;
 import com.interpark.smframework.view.SMCircleView;
 import com.interpark.smframework.view.SMCircularListView;
 import com.interpark.smframework.view.SMKenBurnsView;
 import com.interpark.smframework.view.SMLabel;
 import com.interpark.smframework.view.SMPageView;
+import com.interpark.smframework.view.SMSolidCircleView;
 import com.interpark.smframework.view.SMTableView;
 import com.interpark.smframework.base.SMView;
 import com.interpark.smframework.view.SMZoomView;
@@ -129,6 +135,7 @@ public class ViewDisplayScene extends SMMenuTransitionScene implements SMView.On
             case 6:
             {
                 // Wave & Pulse
+                ringWaveDisplay();
             }
             break;
             case 7:
@@ -148,6 +155,69 @@ public class ViewDisplayScene extends SMMenuTransitionScene implements SMView.On
             }
             break;
         }
+    }
+
+    private RingWave2 _ringView = null;
+    private SMSolidCircleView _alarmCircle = null;
+    private boolean _ringFlag = false;
+    private void ringWaveDisplay() {
+        Size s = _contentView.getContentSize();
+
+
+        SMButton btn = SMButton.create(getDirector(), 0, SMButton.STYLE.SOLID_ROUNDRECT, 40, s.height-AppConst.SIZE.MENUBAR_HEIGHT+20, s.width-80, AppConst.SIZE.MENUBAR_HEIGHT-40);
+        btn.setShapeCornerRadius((AppConst.SIZE.MENUBAR_HEIGHT-40)/2);
+        btn.setOutlieWidth(ShaderNode.DEFAULT_ANTI_ALIAS_WIDTH*2);
+        btn.setButtonColor(STATE.NORMAL, Color4F.WHITE);
+        btn.setButtonColor(STATE.PRESSED, Color4F.XEEEFF1);
+        btn.setOutlineColor(STATE.NORMAL, Color4F.XDBDCDF);
+        btn.setOutlineColor(STATE.PRESSED, Color4F.XADAFB3);
+        btn.setText("RING FULSE", 55);
+        btn.setTextColor(STATE.NORMAL, Color4F.TEXT_BLACK);
+        btn.setTextColor(STATE.PRESSED, Color4F.XADAFB3);
+        _contentView.addChild(btn);
+
+        btn.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(SMView view) {
+                Size s = _contentView.getContentSize();
+                _ringFlag = !_ringFlag;
+                if (_ringView!=null) {
+                    _contentView.removeChild(_ringView);
+                    _ringView = null;
+                }
+                if (_alarmCircle!=null) {
+                    _contentView.removeChild(_alarmCircle);
+                    _alarmCircle = null;
+                }
+
+                if (_ringFlag) {
+
+                    _ringView = RingWave2.create(getDirector(), 80, 100);
+                    _ringView.setAnchorPoint(Vec2.MIDDLE);
+                    _ringView.setPosition(s.width/2, s.height/2-AppConst.SIZE.MENUBAR_HEIGHT/2);
+                    _ringView.setColor(new Color4F(SMView.getRandomColorF(), SMView.getRandomColorF(), SMView.getRandomColorF(), 1));
+                    _contentView.addChild(_ringView);
+                } else {
+
+                    Color4F pulseColor = new Color4F(SMView.getRandomColorF(), SMView.getRandomColorF(), SMView.getRandomColorF(), 1);
+                    _alarmCircle = SMSolidCircleView.create(getDirector());
+
+                    _alarmCircle.setContentSize(new Size(70, 70));
+                    _alarmCircle.setColor(pulseColor);
+                    _alarmCircle.setAnchorPoint(Vec2.MIDDLE);
+                    _alarmCircle.setPosition(s.width / 2, s.height / 2 - AppConst.SIZE.MENUBAR_HEIGHT / 2);
+                    _contentView.addChild(_alarmCircle);
+
+                    _alarmCircle.setAlpha(0);
+                    _alarmCircle.stopAllActions();
+                    TransformAction a = TransformAction.create(getDirector());
+                    a.toAlpha(1).setTimeValue(0.2f, 0);
+                    _alarmCircle.runAction(a);
+                    Size size = _alarmCircle.getContentSize();
+                    RingWave.show(getDirector(), _alarmCircle, size.width / 2, size.height / 2, 350, 0.6f, 0.1f, pulseColor, true);
+                }
+            }
+        });
     }
 
     private void kenburnDisplay() {
