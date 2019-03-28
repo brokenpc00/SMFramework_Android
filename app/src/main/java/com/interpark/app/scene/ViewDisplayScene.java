@@ -13,6 +13,7 @@ import com.interpark.smframework.base.types.Color4B;
 import com.interpark.smframework.base.types.IndexPath;
 import com.interpark.smframework.base.types.Mat4;
 import com.interpark.smframework.base.types.TransformAction;
+import com.interpark.smframework.util.Rect;
 import com.interpark.smframework.view.RingWave;
 import com.interpark.smframework.view.RingWave2;
 import com.interpark.smframework.view.SMCircleView;
@@ -160,11 +161,14 @@ public class ViewDisplayScene extends SMMenuTransitionScene implements SMView.On
     private RingWave2 _ringView = null;
     private SMSolidCircleView _alarmCircle = null;
     private boolean _ringFlag = false;
+    private Rect _buttunRect = new Rect();
     private void ringWaveDisplay() {
         Size s = _contentView.getContentSize();
 
 
-        SMButton btn = SMButton.create(getDirector(), 0, SMButton.STYLE.SOLID_ROUNDRECT, 40, s.height-AppConst.SIZE.MENUBAR_HEIGHT+20, s.width-80, AppConst.SIZE.MENUBAR_HEIGHT-40);
+        _buttunRect.setRect(40, s.height-AppConst.SIZE.MENUBAR_HEIGHT+20, s.width-80, AppConst.SIZE.MENUBAR_HEIGHT-40);
+
+        SMButton btn = SMButton.create(getDirector(), 0, SMButton.STYLE.SOLID_ROUNDRECT, _buttunRect.origin.x, _buttunRect.origin.y, _buttunRect.size.width, _buttunRect.size.height);
         btn.setShapeCornerRadius((AppConst.SIZE.MENUBAR_HEIGHT-40)/2);
         btn.setOutlieWidth(ShaderNode.DEFAULT_ANTI_ALIAS_WIDTH*2);
         btn.setButtonColor(STATE.NORMAL, Color4F.WHITE);
@@ -190,6 +194,8 @@ public class ViewDisplayScene extends SMMenuTransitionScene implements SMView.On
                     _alarmCircle = null;
                 }
 
+
+
                 if (_ringFlag) {
 
                     _ringView = RingWave2.create(getDirector(), 80, 100);
@@ -197,6 +203,12 @@ public class ViewDisplayScene extends SMMenuTransitionScene implements SMView.On
                     _ringView.setPosition(s.width/2, s.height/2-AppConst.SIZE.MENUBAR_HEIGHT/2);
                     _ringView.setColor(new Color4F(SMView.getRandomColorF(), SMView.getRandomColorF(), SMView.getRandomColorF(), 1));
                     _contentView.addChild(_ringView);
+
+                    Rect src = new Rect(_buttunRect);
+                    Rect dst = new Rect(0, s.height-AppConst.SIZE.MENUBAR_HEIGHT-40, s.width, AppConst.SIZE.MENUBAR_HEIGHT);
+                    ViewTransitionAction action = ViewTransitionActionCreate(getDirector(), view);
+                    action.setValue(src, dst, 0.3f, 0.1f);
+                    view.runAction(action);
                 } else {
 
                     Color4F pulseColor = new Color4F(SMView.getRandomColorF(), SMView.getRandomColorF(), SMView.getRandomColorF(), 1);
@@ -215,6 +227,12 @@ public class ViewDisplayScene extends SMMenuTransitionScene implements SMView.On
                     _alarmCircle.runAction(a);
                     Size size = _alarmCircle.getContentSize();
                     RingWave.show(getDirector(), _alarmCircle, size.width / 2, size.height / 2, 350, 0.6f, 0.1f, pulseColor, true);
+
+                    Rect src = new Rect(0, s.height-AppConst.SIZE.MENUBAR_HEIGHT-40, s.width, AppConst.SIZE.MENUBAR_HEIGHT);
+                    Rect dst = new Rect(_buttunRect);
+                    ViewTransitionAction action = ViewTransitionActionCreate(getDirector(), view);
+                    action.setValue(src, dst, 0.3f, 0.1f);
+                    view.runAction(action);
                 }
             }
         });

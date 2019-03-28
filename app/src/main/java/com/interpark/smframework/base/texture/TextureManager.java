@@ -4,9 +4,12 @@ import android.graphics.Bitmap;
 import android.graphics.Paint.Align;
 import android.graphics.drawable.Drawable;
 import android.opengl.GLES20;
+import android.util.Log;
+
 import com.interpark.smframework.base.texture.Texture.OnTextureAsyncLoadListener;
 
 import com.interpark.smframework.IDirector;
+import com.interpark.smframework.base.types.PERFORM_SEL;
 
 import java.util.Collection;
 import java.util.Map;
@@ -149,9 +152,13 @@ public class TextureManager {
             if (loadAsync && listener != null) {
                 final OnTextureAsyncLoadListener l = listener;
                 final Texture t = texture;
-                _director.runOnDraw(new Runnable() {
+//                Log.i("TM", "[[[[[ createTextureFromDrawable runOnDraw~~~");
+//                _director.runOnDraw(new Runnable() {
+//                    @Override
+//                    public void run() {
+                _director.getScheduler().performFunctionInMainThread(new PERFORM_SEL() {
                     @Override
-                    public void run() {
+                    public void performSelector() {
                         l.onTextureLoaded(t);
                     }
                 });
@@ -180,9 +187,13 @@ public class TextureManager {
             if (loadAsync && listener != null) {
                 final OnTextureAsyncLoadListener l = listener;
                 final Texture t = texture;
-                _director.runOnDraw(new Runnable() {
+//                Log.i("TM", "[[[[[ createTextureFromAssets runOnDraw~~~");
+//                _director.runOnDraw(new Runnable() {
+//                    @Override
+//                    public void run() {
+                _director.getScheduler().performFunctionInMainThread(new PERFORM_SEL() {
                     @Override
-                    public void run() {
+                    public void performSelector() {
                         l.onTextureLoaded(t);
                     }
                 });
@@ -210,9 +221,13 @@ public class TextureManager {
             if (loadAsync && listener != null) {
                 final OnTextureAsyncLoadListener l = listener;
                 final Texture t = texture;
-                _director.runOnDraw(new Runnable() {
+//                Log.i("TM", "[[[[[ createTextureFromAssets2 runOnDraw~~~");
+//                _director.runOnDraw(new Runnable() {
+//                    @Override
+//                    public void run() {
+                _director.getScheduler().performFunctionInMainThread(new PERFORM_SEL() {
                     @Override
-                    public void run() {
+                    public void performSelector() {
                         l.onTextureLoaded(t);
                     }
                 });
@@ -244,9 +259,13 @@ public class TextureManager {
             if (texture.isValid() && loadAsync && listener != null) {
                 final OnTextureAsyncLoadListener l = listener;
                 final Texture t = texture;
-                _director.runOnDraw(new Runnable() {
+//                Log.i("TM", "[[[[[ createTextureFromFile runOnDraw~~~");
+//                _director.runOnDraw(new Runnable() {
+//                    @Override
+//                    public void run() {
+                _director.getScheduler().performFunctionInMainThread(new PERFORM_SEL() {
                     @Override
-                    public void run() {
+                    public void performSelector() {
                         l.onTextureLoaded(t);
                     }
                 });
@@ -275,9 +294,13 @@ public class TextureManager {
             if (loadAsync && listener != null) {
                 final OnTextureAsyncLoadListener l = listener;
                 final Texture t = texture;
-                _director.runOnDraw(new Runnable() {
+//                Log.i("TM", "[[[[[ createFakeAssetsTexture runOnDraw~~~");
+//                _director.runOnDraw(new Runnable() {
+//                    @Override
+//                    public void run() {
+                _director.getScheduler().performFunctionInMainThread(new PERFORM_SEL() {
                     @Override
-                    public void run() {
+                    public void performSelector() {
                         l.onTextureLoaded(t);
                     }
                 });
@@ -303,9 +326,13 @@ public class TextureManager {
             if (texture.isValid() && loadAsync && listener != null) {
                 final OnTextureAsyncLoadListener l = listener;
                 final Texture t = texture;
-                _director.runOnDraw(new Runnable() {
+//                Log.i("TM", "[[[[[ createFakeFileTexture runOnDraw~~~");
+//                _director.runOnDraw(new Runnable() {
+//                    @Override
+//                    public void run() {
+                _director.getScheduler().performFunctionInMainThread(new PERFORM_SEL() {
                     @Override
-                    public void run() {
+                    public void performSelector() {
                         l.onTextureLoaded(t);
                     }
                 });
@@ -332,9 +359,13 @@ public class TextureManager {
             if (texture.isValid() && listener != null) {
                 final OnTextureAsyncLoadListener l = listener;
                 final Texture t = texture;
-                _director.runOnDraw(new Runnable() {
+//                Log.i("TM", "[[[[[ createTextureFromNetwork runOnDraw~~~");
+//                _director.runOnDraw(new Runnable() {
+//                    @Override
+//                    public void run() {
+                _director.getScheduler().performFunctionInMainThread(new PERFORM_SEL() {
                     @Override
-                    public void run() {
+                    public void performSelector() {
                         l.onTextureLoaded(t);
                     }
                 });

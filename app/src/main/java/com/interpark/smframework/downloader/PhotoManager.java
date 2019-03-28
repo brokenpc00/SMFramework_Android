@@ -25,13 +25,16 @@ import java.util.concurrent.TimeUnit;
 
 import android.graphics.Bitmap;
 import android.support.v4.util.LruCache;
+import android.util.Log;
 
 import com.interpark.smframework.IDirector;
+import com.interpark.smframework.SMDirector;
 import com.interpark.smframework.base.sprite.Sprite;
 import com.interpark.smframework.base.texture.BitmapTexture;
 import com.interpark.smframework.base.texture.FileTexture;
 import com.interpark.smframework.base.texture.Texture;
 import com.interpark.smframework.base.texture.TextureManager;
+import com.interpark.smframework.base.types.PERFORM_SEL;
 import com.interpark.smframework.util.AppUtil;
 import com.interpark.smframework.util.KeyGenerateUtil;
 import com.interpark.smframework.view.DownloaderView;
@@ -190,9 +193,13 @@ public class PhotoManager {
 
     public void handleMessage(final int message, final PhotoTask photoTask) {
 
-        photoTask.getDirector().runOnDraw(new Runnable() {
+//        Log.i("PM", "[[[[[ handleMessage runOnDraw~~~");
+//        photoTask.getDirector().runOnDraw(new Runnable() {
+//            @Override
+//            public void run() {
+        SMDirector.getDirector().getScheduler().performFunctionInMainThread(new PERFORM_SEL() {
             @Override
-            public void run() {
+            public void performSelector() {
                 // Sets an PhotoView that's a weak reference to the
                 // input ImageView
                 DownloaderView localView = photoTask.getPhotoView();

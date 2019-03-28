@@ -63,13 +63,13 @@ public interface IDirector {
     public int getDeviceWidth();
     public int getDeviceHeight();
     public float getDisplayAdjust();
-    public void runOnUiThread(final Runnable action);
-    public void runOnDraw(final Runnable action);
-    public void runOnDrawDelayed(final Runnable targetAction, final long delayTimeMillis);
-    public void removeOnDraw(final Runnable targetAction);
-    public void removeOnDraw(final Class<?> targetClass);
-    public boolean hasOnDraw(final Runnable targetAction);
-    public boolean hasOnDraw(final Class<?> targetClass);
+//    public void runOnUiThread(final Runnable action);
+//    public void runOnDraw(final Runnable action);
+//    public void runOnDrawDelayed(final Runnable targetAction, final long delayTimeMillis);
+//    public void removeOnDraw(final Runnable targetAction);
+//    public void removeOnDraw(final Class<?> targetClass);
+//    public boolean hasOnDraw(final Runnable targetAction);
+//    public boolean hasOnDraw(final Class<?> targetClass);
     public boolean isGLThread();
     public RequestQueue getRequestQueue();
 

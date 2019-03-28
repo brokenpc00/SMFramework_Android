@@ -468,8 +468,7 @@ public class SMButton extends UIContainerView {
 
     @Override
     public void setContentSize(float width, float height) {
-        super.setContentSize(width, height);
-        registerUpdate(FLAG_CONTENT_SIZE);
+        this.setContentSize(new Size(width, height));
     }
 
     public void setButtonColor(final STATE state, final Color4B color) {

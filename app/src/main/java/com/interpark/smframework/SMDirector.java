@@ -32,6 +32,7 @@ import com.interpark.smframework.base.transition.SwipeDismiss;
 import com.interpark.smframework.base.transition.TransitionScene;
 import com.interpark.smframework.base.types.ActionManager;
 import com.interpark.smframework.base.types.Color4F;
+import com.interpark.smframework.base.types.PERFORM_SEL;
 import com.interpark.smframework.shader.Shader;
 import com.interpark.smframework.shader.ShaderManager;
 import com.interpark.smframework.shader.ShaderNode;
@@ -158,8 +159,8 @@ public class SMDirector implements IDirector, GLSurfaceView.Renderer {
     private float[] mFrameBufferMatrix;
     private final Stack<float[]> mMatrixStack = new Stack<float[]>();
     private final Queue<MotionEvent> _motionEventQueue = new LinkedList<MotionEvent>();
-    private final Queue<Runnable> mRunOnDraw = new LinkedList<Runnable>();
-    private final ArrayList<SMDirector.DelayedRunnable> mRunOnDrawDelayed = new ArrayList<>();
+//    private final Queue<Runnable> mRunOnDraw = new LinkedList<Runnable>();
+//    private final ArrayList<SMDirector.DelayedRunnable> mRunOnDrawDelayed = new ArrayList<>();
 
     protected SMScene _runningScene;
     protected SMScene _nextScene;
@@ -298,9 +299,10 @@ public class SMDirector implements IDirector, GLSurfaceView.Renderer {
     public void onResume() {
         mOrientationListener.enable();
         startSceneAnimation();
-        runOnDraw(new Runnable() {
+
+        _scheduler.performFunctionInMainThread(new PERFORM_SEL() {
             @Override
-            public void run() {
+            public void performSelector() {
                 final SMScene scene;
                 synchronized (_scenesStack) {
                     try {
@@ -326,6 +328,35 @@ public class SMDirector implements IDirector, GLSurfaceView.Renderer {
                 mTextureManager.onResume();
             }
         });
+
+//        runOnDraw(new Runnable() {
+//            @Override
+//            public void run() {
+//                final SMScene scene;
+//                synchronized (_scenesStack) {
+//                    try {
+//                        scene = getTopScene();
+//                    } catch (ArrayIndexOutOfBoundsException e) {
+//                        return;
+//                    }
+//                }
+//                _deltaTime = 0;
+//                setTouchEventDispatcherEnable(true);
+//                if (scene.isInitialized()) {
+//                    scene.onResume();
+//                }
+//
+//                for (int i=0; i<enumToIntForSharedLayer(SharedLayer.POPUP)+1; i++) {
+//                    if (_sharedLayer[i]!=null) {
+//                        if (_sharedLayer[i].isInitialized()) {
+//                            _sharedLayer[i].onResume();
+//                        }
+//                    }
+//                }
+//
+//                mTextureManager.onResume();
+//            }
+//        });
     }
 
     public void onPause() {
@@ -418,7 +449,7 @@ public class SMDirector implements IDirector, GLSurfaceView.Renderer {
     }
 
     private void endProjectionMatrix() {
-
+        popProjectionMatrix();
     };
 
     @Override
@@ -1199,20 +1230,20 @@ public class SMDirector implements IDirector, GLSurfaceView.Renderer {
         }
 
 
-        synchronized (mRunOnDraw) {
-            if (mRunOnDrawDelayed.size() > 0) {
-                int count = mRunOnDrawDelayed.size();
-                for (int i = count-1; i >= 0; i--) {
-                    if (mCurrentTime >= mRunOnDrawDelayed.get(i).startTickCount) {
-                        runOnDraw(mRunOnDrawDelayed.get(i).action);
-                        mRunOnDrawDelayed.remove(i);
-                    }
-                }
-            }
-            while (!mRunOnDraw.isEmpty()) {
-                mRunOnDraw.poll().run();
-            }
-        }
+//        synchronized (mRunOnDraw) {
+//            if (mRunOnDrawDelayed.size() > 0) {
+//                int count = mRunOnDrawDelayed.size();
+//                for (int i = count-1; i >= 0; i--) {
+//                    if (mCurrentTime >= mRunOnDrawDelayed.get(i).startTickCount) {
+//                        runOnDraw(mRunOnDrawDelayed.get(i).action);
+//                        mRunOnDrawDelayed.remove(i);
+//                    }
+//                }
+//            }
+//            while (!mRunOnDraw.isEmpty()) {
+//                mRunOnDraw.poll().run();
+//            }
+//        }
 
         if (_nextScene!=null) {
             setNextScene();
@@ -1476,82 +1507,83 @@ public class SMDirector implements IDirector, GLSurfaceView.Renderer {
 //        return null;
     }
 
-    @Override
-    public void runOnDraw(final Runnable action) {
-        synchronized (mRunOnDraw) {
-            mRunOnDraw.add(action);
-        }
-    }
-
-    @Override
-    public void runOnDrawDelayed(final Runnable action, long delayTimeMillis) {
-        synchronized (mRunOnDraw) {
-            mRunOnDrawDelayed.add(0, new SMDirector.DelayedRunnable(action, mCurrentTime+delayTimeMillis));
-        }
-    }
-
-    @Override
-    public void removeOnDraw(Runnable targetAction) {
-        synchronized (mRunOnDraw) {
-            mRunOnDraw.remove(targetAction);
-            if (mRunOnDrawDelayed.size() > 0) {
-                int count = mRunOnDrawDelayed.size();
-                for (int i = count-1; i >= 0; i--) {
-                    if (mRunOnDrawDelayed.get(i).action == targetAction) {
-                        mRunOnDrawDelayed.remove(i);
-                    }
-                }
-            }
-        }
-    }
-
-    @Override
-    public void removeOnDraw(Class<?> targetClass) {
-        synchronized (mRunOnDraw) {
-            Iterator<Runnable> iterator = mRunOnDraw.iterator();
-            while (iterator.hasNext()) {
-                Runnable runnable = iterator.next();
-                if (runnable.getClass() == targetClass) {
-                    iterator.remove();
-                }
-            }
-            if (mRunOnDrawDelayed.size() > 0) {
-                int count = mRunOnDrawDelayed.size();
-                for (int i = count-1; i >= 0; i--) {
-                    if (mRunOnDrawDelayed.get(i).action.getClass() == targetClass) {
-                        mRunOnDrawDelayed.remove(i);
-                    }
-                }
-            }
-        }
-    }
-
-    @Override
-    public boolean hasOnDraw(Runnable targetAction) {
-        synchronized (mRunOnDraw) {
-            return mRunOnDraw.contains(targetAction);
-        }
-    }
-
-    @Override
-    public boolean hasOnDraw(Class<?> targetClass) {
-        synchronized (mRunOnDraw) {
-            Iterator<Runnable> iterator = mRunOnDraw.iterator();
-            while (iterator.hasNext()) {
-                Runnable runnable = iterator.next();
-                if (runnable.getClass() == targetClass) {
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
-
-
-    @Override
-    public void runOnUiThread(Runnable action) {
-        ((FragmentActivity)mActivity).runOnUiThread(action);
-    }
+//    @Override
+//    public void runOnDraw(final Runnable action) {
+//        Log.i("SMDirector", "[[[[[ Director runOnDraw~~~");
+//        synchronized (mRunOnDraw) {
+//            mRunOnDraw.add(action);
+//        }
+//    }
+//
+//    @Override
+//    public void runOnDrawDelayed(final Runnable action, long delayTimeMillis) {
+//        synchronized (mRunOnDraw) {
+//            mRunOnDrawDelayed.add(0, new SMDirector.DelayedRunnable(action, mCurrentTime+delayTimeMillis));
+//        }
+//    }
+//
+//    @Override
+//    public void removeOnDraw(Runnable targetAction) {
+//        synchronized (mRunOnDraw) {
+//            mRunOnDraw.remove(targetAction);
+//            if (mRunOnDrawDelayed.size() > 0) {
+//                int count = mRunOnDrawDelayed.size();
+//                for (int i = count-1; i >= 0; i--) {
+//                    if (mRunOnDrawDelayed.get(i).action == targetAction) {
+//                        mRunOnDrawDelayed.remove(i);
+//                    }
+//                }
+//            }
+//        }
+//    }
+//
+//    @Override
+//    public void removeOnDraw(Class<?> targetClass) {
+//        synchronized (mRunOnDraw) {
+//            Iterator<Runnable> iterator = mRunOnDraw.iterator();
+//            while (iterator.hasNext()) {
+//                Runnable runnable = iterator.next();
+//                if (runnable.getClass() == targetClass) {
+//                    iterator.remove();
+//                }
+//            }
+//            if (mRunOnDrawDelayed.size() > 0) {
+//                int count = mRunOnDrawDelayed.size();
+//                for (int i = count-1; i >= 0; i--) {
+//                    if (mRunOnDrawDelayed.get(i).action.getClass() == targetClass) {
+//                        mRunOnDrawDelayed.remove(i);
+//                    }
+//                }
+//            }
+//        }
+//    }
+//
+//    @Override
+//    public boolean hasOnDraw(Runnable targetAction) {
+//        synchronized (mRunOnDraw) {
+//            return mRunOnDraw.contains(targetAction);
+//        }
+//    }
+//
+//    @Override
+//    public boolean hasOnDraw(Class<?> targetClass) {
+//        synchronized (mRunOnDraw) {
+//            Iterator<Runnable> iterator = mRunOnDraw.iterator();
+//            while (iterator.hasNext()) {
+//                Runnable runnable = iterator.next();
+//                if (runnable.getClass() == targetClass) {
+//                    return true;
+//                }
+//            }
+//        }
+//        return false;
+//    }
+//
+//
+//    @Override
+//    public void runOnUiThread(Runnable action) {
+//        ((FragmentActivity)mActivity).runOnUiThread(action);
+//    }
 
     @Override
     public SMScene getTopScene() {
@@ -1707,10 +1739,9 @@ public class SMDirector implements IDirector, GLSurfaceView.Renderer {
     }
 
     public void onActivityResult(final int requestCode, final int resultCode, final Intent data) {
-        runOnDraw(new Runnable() {
+        _scheduler.performFunctionInMainThread(new PERFORM_SEL() {
             @Override
-            public void run() {
-
+            public void performSelector() {
                 synchronized (_scenesStack) {
                     SMScene scene = getTopScene();
                     if (scene != null) {
@@ -1719,6 +1750,18 @@ public class SMDirector implements IDirector, GLSurfaceView.Renderer {
                 }
             }
         });
+//        runOnDraw(new Runnable() {
+//            @Override
+//            public void run() {
+//
+//                synchronized (_scenesStack) {
+//                    SMScene scene = getTopScene();
+//                    if (scene != null) {
+//                        scene.onActivityResult(requestCode, resultCode, data);
+//                    }
+//                }
+//            }
+//        });
     }
 
     private int mScreenOrientation = 0;

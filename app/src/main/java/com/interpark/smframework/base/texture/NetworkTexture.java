@@ -4,11 +4,13 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.opengl.GLES20;
 import android.opengl.GLUtils;
+import android.util.Log;
 
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.interpark.smframework.IDirector;
 import com.interpark.smframework.base.BitmapLoader;
+import com.interpark.smframework.base.types.PERFORM_SEL;
 import com.interpark.smframework.util.IOUtils;
 import com.interpark.smframework.util.KeyGenerateUtil;
 import com.interpark.smframework.util.NetworkStreamRequest;
@@ -143,10 +145,13 @@ public class NetworkTexture extends Texture implements Response.Listener<ByteArr
                 }
 
                 final Bitmap bitmap = getCachedBitmap(_director.getContext(), dir);
-
-                _director.runOnDraw(new Runnable() {
+//                Log.i("NT", "[[[[[ onResponse runOnDraw~~~");
+//                _director.runOnDraw(new Runnable() {
+//                    @Override
+//                    public void run() {
+                _director.getScheduler().performFunctionInMainThread(new PERFORM_SEL() {
                     @Override
-                    public void run() {
+                    public void performSelector() {
                         mCached = true;
                         if (bitmap != null) {
                             OnTextureAsyncLoadListener l = mWeakReference.get();

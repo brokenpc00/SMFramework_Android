@@ -128,7 +128,7 @@ public class SMKenBurnsView extends SMView implements IDownloadProtocol {
             dst.origin.y += _contentSize.height/2;
 //            Log.i("KenBurn", "[[[[[ src : (" + src.origin.x + ", " + src.origin.y + ", " + src.size.width + ", " + src.size.height + "), dst : (" + dst.origin.x + ", " + dst.origin.y + ", " + dst.size.width + ", " + dst.size.height + ")");
 
-            TransitionAction action = TransitionActionCreate(getDirector());
+            KenburnsTransitionAction action = KenburnsTransitionActionCreate(getDirector());
             action.setValue(imageView, src, dst, PAN_TIME, 0);
             action.setTag(17);
 
@@ -213,13 +213,13 @@ public class SMKenBurnsView extends SMView implements IDownloadProtocol {
 
     SMSolidRectView _dimLayer = null;
 
-    public TransitionAction TransitionActionCreate(IDirector director) {
-        TransitionAction action = new TransitionAction(director);
+    public KenburnsTransitionAction KenburnsTransitionActionCreate(IDirector director) {
+        KenburnsTransitionAction action = new KenburnsTransitionAction(director);
         action.initWithDuration(0);
         return action;
     }
-    public class TransitionAction extends DelayBaseAction {
-        public TransitionAction(IDirector director) {
+    public class KenburnsTransitionAction extends DelayBaseAction {
+        public KenburnsTransitionAction(IDirector director) {
             super(director);
         }
 

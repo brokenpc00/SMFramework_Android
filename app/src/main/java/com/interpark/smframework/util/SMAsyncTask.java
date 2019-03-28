@@ -1,8 +1,10 @@
 package com.interpark.smframework.util;
 
 import android.os.AsyncTask;
+import android.util.Log;
 
 import com.interpark.smframework.IDirector;
+import com.interpark.smframework.base.types.PERFORM_SEL;
 
 import java.util.ArrayDeque;
 import java.util.concurrent.BlockingQueue;
@@ -139,12 +141,22 @@ public abstract class SMAsyncTask<Params, Progress, Result> {
 
 
     private Result postResult(final Result result) {
-        _director.runOnDraw(new Runnable() {
+
+        _director.getScheduler().performFunctionInMainThread(new PERFORM_SEL() {
             @Override
-            public void run() {
+            public void performSelector() {
                 SMAsyncTask.this.finish(result);
             }
         });
+
+
+//        Log.i("SMAsync", "[[[[[ postResult runOnDraw~~~");
+//        _director.runOnDraw(new Runnable() {
+//            @Override
+//            public void run() {
+//                SMAsyncTask.this.finish(result);
+//            }
+//        });
 
         return result;
     }
@@ -220,12 +232,18 @@ public abstract class SMAsyncTask<Params, Progress, Result> {
 
     protected final void publishProgress(final Progress... values) {
         if (!isCancelled()) {
-            _director.runOnDraw(new Runnable() {
+            _director.getScheduler().performFunctionInMainThread(new PERFORM_SEL() {
                 @Override
-                public void run() {
+                public void performSelector() {
                     SMAsyncTask.this.onProgressUpdate(values);
                 }
             });
+//            _director.runOnDraw(new Runnable() {
+//                @Override
+//                public void run() {
+//                    SMAsyncTask.this.onProgressUpdate(values);
+//                }
+//            });
 
         }
     }

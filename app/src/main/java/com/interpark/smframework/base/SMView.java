@@ -22,6 +22,7 @@ import com.interpark.smframework.base.types.ActionManager;
 import com.interpark.smframework.base.types.BGColorTo;
 import com.interpark.smframework.base.types.Color4B;
 import com.interpark.smframework.base.types.Color4F;
+import com.interpark.smframework.base.types.DelayBaseAction;
 import com.interpark.smframework.base.types.Ref;
 import com.interpark.smframework.base.types.Scheduler;
 import com.interpark.smframework.base.types.SEL_SCHEDULE;
@@ -3121,6 +3122,52 @@ public class SMView extends Ref {
 
 
 
+
+
+    // view transition action
+    public ViewTransitionAction ViewTransitionActionCreate(IDirector director, SMView target) {
+        ViewTransitionAction action = new ViewTransitionAction(director);
+        action.startWithTarget(target);
+        action.initWithDuration(0);
+        return action;
+    }
+    public class ViewTransitionAction extends DelayBaseAction {
+        public ViewTransitionAction(IDirector director) {
+            super(director);
+        }
+
+        @Override
+        public void onStart() {
+
+        }
+
+        @Override
+        public void onUpdate(float dt) {
+            updateTextureRect(dt);
+        }
+
+        public void updateTextureRect(float t) {
+            float x = SMView.interpolation(_src.origin.x, _dst.origin.x, t);
+            float y = SMView.interpolation(_src.origin.y, _dst.origin.y, t);
+            float w = SMView.interpolation(_src.size.width, _dst.size.width, t);
+            float h = SMView.interpolation(_src.size.height, _dst.size.height, t);
+
+            _target.setContentSize(w, h);
+            _target.setPosition(x, y);
+        }
+
+        public void setValue(final Rect src, final Rect dst, float duration, float delay) {
+            setTimeValue(duration, delay);
+
+            _src = src;
+            _dst = dst;
+
+            updateTextureRect(0.0f);
+        }
+
+        protected Rect _src = new Rect(), _dst = new Rect();
+        protected float _panTime = 1.5f;
+    }
 
     // static utility method
     public static float interpolation(float from, float to, float t) {
