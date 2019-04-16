@@ -16,6 +16,8 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
 
+import static com.interpark.smframework.SMDirector.getDirector;
+
 public class Sprite extends DrawNode {
     protected float tx;
     protected float ty;
@@ -93,6 +95,9 @@ public class Sprite extends DrawNode {
 //                case GeineEffect:
 //                case GaussianBlur:
                     if (((ProgSprite)program).setDrawParam(texture, sMatrix, v, uv)) {
+                        if (_setColor) {
+                            getDirector().setColor(_color.r, _color.g, _color.b, _color.a);
+                        }
                         GLES20.glDrawArrays(drawMode, 0, numVertices);
                     }
                     break;
@@ -104,6 +109,9 @@ public class Sprite extends DrawNode {
                     float aaWidth = 2.0f / tw;
 
                     if (((ProgSpriteCircle)program).setDrawParam(texture, sMatrix, v, uv, cx, cy, radius, aaWidth)) {
+                        if (_setColor) {
+                            getDirector().setColor(_color.r, _color.g, _color.b, _color.a);
+                        }
                         GLES20.glDrawArrays(drawMode, 0, numVertices);
                     }
                 }
@@ -176,6 +184,9 @@ public class Sprite extends DrawNode {
         if (program != null && texture != null) {
             if (program.getType() == ShaderManager.ProgramType.Sprite) {
                 if (((ProgSprite)program).setDrawParam(texture, sMatrix, extra_v, extra_uv)) {
+                    if (_setColor) {
+                        getDirector().setColor(_color.r, _color.g, _color.b, _color.a);
+                    }
                     GLES20.glDrawArrays(extra_drawMode, 0, extra_numVertices);
                 }
             }

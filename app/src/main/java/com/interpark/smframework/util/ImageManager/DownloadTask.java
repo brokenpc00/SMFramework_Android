@@ -37,11 +37,13 @@ public class DownloadTask {
 
     private static int __task_count__ = 0;
 
+    private DownloadTask _this = null;
+
     public static DownloadTask createTaskForTarget(ImageDownloader downloader, IDownloadProtocol target) {
         DownloadTask task = new DownloadTask();
         task._targetRef = new WeakReference<>(target);
         task._downloader = downloader;
-
+        task._this = task;
         return task;
     }
 
@@ -68,7 +70,11 @@ public class DownloadTask {
         switch (type) {
             case NETWORK:
             {
-                key = requestPath.substring(0, requestPath.indexOf("?"));
+                int find = requestPath.indexOf("?");
+                if (find==-1) {
+                    find = requestPath.length()-1;
+                }
+                key = requestPath.substring(0, find);
             }
             break;
             case RESOURCE:
@@ -207,7 +213,9 @@ public class DownloadTask {
     }
 
 
-    public void interrupt() {_running=false;}
+    public void interrupt() {
+        _running=false;
+    }
     public boolean isRunning() {return _running;}
     public boolean isTargetAlive() {
         return getTarget()!=null;
@@ -291,7 +299,7 @@ public class DownloadTask {
 
                         if (_config.isEnableMemoryCache()) {
                             _downloader.getMemCache().put(_cacheKey, _cacheEntry);
-                            Log.i("DT", "[[[[[ MEM CACHE");
+//                            Log.i("DT", "[[[[[ MEM CACHE");
                         }
 
                         /*----------Check Thread Interrupt----------*/
@@ -304,6 +312,9 @@ public class DownloadTask {
                 }
 
                 _isSuccess = false;
+
+                _cacheEntry = MemoryCacheEntry.createEntry();
+
                 // downlod comm start
 
                 _netDownloader = new Downloader();
@@ -317,7 +328,10 @@ public class DownloadTask {
                         Log.i("Scene", "[[[[[ download error : " + errorStr);
 
                         _isSuccess = false;
-                        _cond.signal();
+                        synchronized (_this) {
+                            _this.notify();
+                        }
+//                        _cond.signal();
                     }
                 };
 
@@ -337,10 +351,13 @@ public class DownloadTask {
 
 
                 // wait
-                _mutex.lock();
-
-                _cond.wait();
-                _mutex.unlock();
+//                _mutex.lock();
+//
+//                _cond.wait();
+//                _mutex.unlock();
+                synchronized (_this) {
+                    _this.wait();
+                }
 
 
                 if (_isSuccess) {
@@ -348,7 +365,7 @@ public class DownloadTask {
 
                     if (_config.isEnableMemoryCache()) {
                         _downloader.getMemCache().put(_cacheKey, _cacheEntry);
-                        Log.i("DT", "[[[[[ MEM CACHE");
+//                        Log.i("DT", "[[[[[ MEM CACHE");
                     }
 
                     _netDownloader = null;
@@ -411,7 +428,7 @@ public class DownloadTask {
 
                         if (_config.isEnableMemoryCache()) {
                             _downloader.getMemCache().put(_cacheKey, _cacheEntry);
-                            Log.i("DT", "[[[[[ MEM CACHE");
+//                            Log.i("DT", "[[[[[ MEM CACHE");
                         }
 
 
@@ -431,7 +448,7 @@ public class DownloadTask {
                 byte[] data = fs.getDataFromFile(filePath);
 
                 if (data==null || data.length==0) {
-                    Log.i("DT", "[[[[[ Failed to resource file to loading!");
+//                    Log.i("DT", "[[[[[ Failed to resource file to loading!");
                     break;
                 }
 
@@ -442,7 +459,7 @@ public class DownloadTask {
 
                 if (_config.isEnableMemoryCache()) {
                     _downloader.getMemCache().put(_cacheKey, _cacheEntry);
-                    Log.i("DT", "[[[[[ MEM CACHE");
+//                    Log.i("DT", "[[[[[ MEM CACHE");
                 }
 
                 /*----------Check Thread Interrupt----------*/
@@ -495,16 +512,26 @@ public class DownloadTask {
                         public void onAlbumImageLoadComplete(ArrayList<PhoneAlbum> albums) {
                             _isSuccess = true;
                             _phoneAlbums = albums;
-                            _cond.notify();
+//                            _cond.notify();
+                            synchronized (_this) {
+                                _this.notify();
+                            }
                         }
 
                         @Override
                         public void onError() {
-                            _cond.notify();
+                            synchronized (_this) {
+                                _this.notify();
+                            }
+//                            _cond.notify();
                         }
                     });
 
-                    _cond.wait();
+                    synchronized (_this) {
+                        _this.wait();
+                    }
+
+//                    _cond.wait();
                 }
 
                 if (!_isSuccess || _phoneAlbums.size()==0) {
@@ -599,16 +626,25 @@ public class DownloadTask {
                         public void onAlbumImageLoadComplete(ArrayList<PhoneAlbum> albums) {
                             _isSuccess = true;
                             _phoneAlbums = albums;
-                            _cond.notify();
+//                            _cond.notify();
+                            synchronized (_this) {
+                                _this.notify();
+                            }
                         }
 
                         @Override
                         public void onError() {
-                            _cond.notify();
+                            synchronized (_this) {
+                                _this.notify();
+                            }
+//                            _cond.notify();
                         }
                     });
 
-                    _cond.wait();
+                    synchronized (_this) {
+                        _this.wait();
+                    }
+//                    _cond.wait();
                 }
 
                 if (!_isSuccess || _phoneAlbums.size()==0) {
@@ -819,7 +855,10 @@ public class DownloadTask {
             _isSuccess = true;
         }
 
-        _cond.signal();
+        synchronized (_this) {
+            _this.notify();
+        }
+//        _cond.signal();
     }
 
 

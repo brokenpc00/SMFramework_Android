@@ -19,10 +19,14 @@ import com.interpark.smframework.NativeImageProcess.ImageProcessing;
 import com.interpark.smframework.base.sprite.CanvasSprite;
 import com.interpark.smframework.base.types.Action;
 import com.interpark.smframework.base.types.ActionManager;
+import com.interpark.smframework.base.types.AffineTransform;
 import com.interpark.smframework.base.types.BGColorTo;
 import com.interpark.smframework.base.types.Color4B;
 import com.interpark.smframework.base.types.Color4F;
 import com.interpark.smframework.base.types.DelayBaseAction;
+//import com.interpark.smframework.base.types.Mat4;
+import com.interpark.smframework.base.types.Mat4;
+import com.interpark.smframework.base.types.Quaternion;
 import com.interpark.smframework.base.types.Ref;
 import com.interpark.smframework.base.types.Scheduler;
 import com.interpark.smframework.base.types.SEL_SCHEDULE;
@@ -40,6 +44,11 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.ListIterator;
+
+import static com.interpark.smframework.base.types.AffineTransform.AffineTransformConcat;
+import static com.interpark.smframework.base.types.AffineTransform.CGAffineToGL;
+import static com.interpark.smframework.base.types.AffineTransform.GLToCGAffine;
+import static com.interpark.smframework.base.types.AffineTransform.RectApplyAffineTransform;
 
 
 public class SMView extends Ref {
@@ -95,14 +104,16 @@ public class SMView extends Ref {
     public int getLocalZOrder() {return _localZOrder;}
 
     public void _setLocalZOrder(int z) {
-        _localZOrderAndArrival = ((long)(z) << 32) | (_localZOrderAndArrival & 0xffffffff);
+//        _localZOrderAndArrival = ((long)(z) << 32) | (_localZOrderAndArrival & 0xffffffff);
+        _localZOrderAndArrival = z;
         _localZOrder = z;
     }
 
     protected static int s_globalOrderOfArrival = 0;
 
     public void updateOrderOfArrival() {
-        _localZOrderAndArrival = (_localZOrderAndArrival & 0xffffffff00000000L) | (++s_globalOrderOfArrival);
+//        _localZOrderAndArrival = (_localZOrderAndArrival & 0xffffffff00000000L) | (++s_globalOrderOfArrival);
+        _localZOrderAndArrival += ++s_globalOrderOfArrival;
     }
 
     public void setGlobalZOrder(float globalZOrder) {
@@ -390,6 +401,8 @@ public class SMView extends Ref {
     protected float _rotationZ_X = 0.0f;
     protected float _rotationZ_Y = 0.0f;
 
+    protected Quaternion _rotationQuat = new Quaternion();
+
     protected float _scaleX = 1.0f;
     protected float _scaleY = 1.0f;
     protected float _scaleZ = 1.0f;
@@ -403,7 +416,7 @@ public class SMView extends Ref {
     protected Vec2 _anchorPointInPoints = new Vec2(0, 0);
 
     // ????
-    protected Vec2 _normalizePosition = new Vec2(0, 0);
+    protected Vec2 _normalizedPosition = new Vec2(0, 0);
 
     protected Size _contentSize = new Size(0, 0);
     protected boolean _contentSizeDirty = true;
@@ -644,6 +657,24 @@ public class SMView extends Ref {
         return new Vec2(pos);
     }
 
+    public float getSkewX() {return _skewX;}
+
+    public float getSkewY() {return _skewY;}
+
+    public void setSkewX(float skewX) {
+        if (_skewX==skewX) return;
+
+        _skewX = skewX;
+        _transformUpdated = _transformDirty = _inverseDirty = true;
+    }
+
+    public void setSkewY(float skewY) {
+        if (_skewY==skewY) return;
+
+        _skewY = skewY;
+        _transformUpdated = _transformDirty = _inverseDirty = true;
+    }
+
     public float getScaleX() {
         return _scaleX;
     }
@@ -713,6 +744,7 @@ public class SMView extends Ref {
         if (_rotationZ_X==rotationX) {
             return;
         }
+        _transformUpdated = _transformDirty = _inverseDirty = true;
 
         _rotationZ_X = rotationX;
     }
@@ -721,6 +753,7 @@ public class SMView extends Ref {
         if (_rotationZ_Y==rotationY) {
             return;
         }
+        _transformUpdated = _transformDirty = _inverseDirty = true;
 
         _rotationZ_Y = rotationY;
     }
@@ -791,7 +824,7 @@ public class SMView extends Ref {
 
     public void setRotationZ(float rotateZ, boolean immediate) {
         if (immediate) {
-            _realRotation.z = _newPosition.z = rotateZ;
+            _realRotation.z = _newRotation.z = rotateZ;
             float rotation = rotateZ + _animRotation.z;
             if (_rotationZ_X!=rotation) {
                 _rotationZ_X = _rotationZ_Y = rotation;
@@ -841,6 +874,7 @@ public class SMView extends Ref {
         if (immediate ) {
             _realScale = _newScale = scale;
             _scaleX = _scaleY = _scaleZ = scale * _animScale;
+            _transformUpdated = _transformDirty = _inverseDirty = true;
         } else {
             if (_newScale==scale) {
                 return;
@@ -940,6 +974,8 @@ public class SMView extends Ref {
             _positionZ = z;
 
             _realPosition.z = _newPosition.z = z;
+
+            _transformUpdated = _transformDirty = _inverseDirty = true;
         } else {
             if (_newPosition.z == z) {
                 return;
@@ -950,10 +986,23 @@ public class SMView extends Ref {
         }
     }
 
+    public void setPositionNormalized(final Vec2 position)
+    {
+        if (_normalizedPosition.equals(position))
+            return;
+
+        _normalizedPosition = position;
+        _usingNormalizedPosition = true;
+        _normalizedPositionDirty = true;
+        _transformUpdated = _transformDirty = _inverseDirty = true;
+    }
 
     public void setPosition(float x, float y, boolean immediate) {
         setPositionX(x, immediate);
         setPositionY(y, immediate);
+
+        _transformUpdated = _transformDirty = _inverseDirty = true;
+        _usingNormalizedPosition = false;
     }
 
     public void setPosition3D(Vec3 pos, boolean immediate) {
@@ -1020,6 +1069,59 @@ public class SMView extends Ref {
 //            _transformUpdated = true;
 //        }
     }
+
+    public void setParent(SMView parent)
+    {
+        _parent = parent;
+        _transformUpdated = _transformDirty = _inverseDirty = true;
+    }
+
+    public void setIgnoreAnchorPointForPosition(boolean newValue)
+    {
+        if (newValue != _ignoreAnchorPointForPosition)
+        {
+            _ignoreAnchorPointForPosition = newValue;
+            _transformUpdated = _transformDirty = _inverseDirty = true;
+        }
+    }
+
+    public int processParentFlags(final Mat4 parentTransform, int parentFlags)
+    {
+        if(_usingNormalizedPosition)
+        {
+            if ((parentFlags & FLAGS_CONTENT_SIZE_DIRTY) > 0 || _normalizedPositionDirty)
+            {
+                Size s = _parent.getContentSize();
+                _position.x = _normalizedPosition.x * s.width;
+                _position.y = _normalizedPosition.y * s.height;
+                _transformUpdated = _transformDirty = _inverseDirty = true;
+                _normalizedPositionDirty = false;
+            }
+        }
+
+        // Todo... camera visiting...
+//        if (!isVisitableByVisitingCamera())
+//            return parentFlags;
+
+        int flags = parentFlags;
+        flags |= (_transformUpdated ? FLAGS_TRANSFORM_DIRTY : 0);
+        flags |= (_contentSizeDirty ? FLAGS_CONTENT_SIZE_DIRTY : 0);
+
+
+        if((flags & FLAGS_DIRTY_MASK)>0)
+            _modelViewTransform = this.transform(parentTransform);
+
+        _transformUpdated = false;
+        _contentSizeDirty = false;
+
+        return flags;
+    }
+
+    public Mat4 transform(final Mat4 parentTransform)
+    {
+        return parentTransform.multiplyRet(this.getNodeToParentTransform());
+    }
+
 
     public void setAnchorPoint(Vec2 point, boolean immediate) {
 
@@ -1184,6 +1286,297 @@ public class SMView extends Ref {
         return _position.y - _anchorPointInPoints.y;
     }
 
+
+    public void updateRotationQuat() {
+        float halfRadx = (float) Math.toRadians (_rotationX / 2.f), halfRady = (float) Math.toRadians(_rotationY / 2.f), halfRadz = _rotationZ_X == _rotationZ_Y ? -(float) Math.toRadians(_rotationZ_X / 2.f) : 0;
+        float coshalfRadx = (float) Math.cos(halfRadx), sinhalfRadx = (float) Math.sin(halfRadx), coshalfRady = (float) Math.cos(halfRady), sinhalfRady = (float) Math.sin(halfRady), coshalfRadz = (float) Math.cos(halfRadz), sinhalfRadz = (float) Math.sin(halfRadz);
+        _rotationQuat.x = sinhalfRadx * coshalfRady * coshalfRadz - coshalfRadx * sinhalfRady * sinhalfRadz;
+        _rotationQuat.y = coshalfRadx * sinhalfRady * coshalfRadz + sinhalfRadx * coshalfRady * sinhalfRadz;
+        _rotationQuat.z = coshalfRadx * coshalfRady * sinhalfRadz - sinhalfRadx * sinhalfRady * coshalfRadz;
+        _rotationQuat.w = coshalfRadx * coshalfRady * coshalfRadz + sinhalfRadx * sinhalfRady * sinhalfRadz;
+        }
+
+    public void updateRotation3D()
+    {
+        //convert quaternion to Euler angle
+        float x = _rotationQuat.x, y = _rotationQuat.y, z = _rotationQuat.z, w = _rotationQuat.w;
+        _rotationX = (float)Math.atan2(2.f * (w * x + y * z), 1.f - 2.f * (x * x + y * y));
+        float sy = 2.f * (w * y - z * x);
+        sy = Vec2.clampf(sy, -1, 1);
+        _rotationY = (float) Math.asin(sy);
+        _rotationZ_X = (float) Math.atan2(2.f * (w * z + x * y), 1.f - 2.f * (y * y + z * z));
+
+        _rotationX = (float) Math.toDegrees(_rotationX);
+        _rotationY = (float) Math.toDegrees(_rotationY);
+        _rotationZ_X = _rotationZ_Y = -(float) Math.toDegrees(_rotationZ_X);
+    }
+
+    public void setRotationQuat(final Quaternion quat)
+    {
+        _rotationQuat = quat;
+        updateRotation3D();
+        _transformUpdated = _transformDirty = _inverseDirty = true;
+    }
+
+    public Quaternion getRotationQuat()
+    {
+        return _rotationQuat;
+    }
+
+    public Vec2 convertToWorldSpace(final Vec2 nodePos) {
+
+        Mat4 tmp = getNodeToWorldTransform();
+        Vec3 vec3 = new Vec3(nodePos.x, nodePos.y, 0);
+        Vec3 ret = new Vec3();
+        tmp.transformPoint(vec3, ret);
+        return new Vec2(ret.x, ret.y);
+
+
+
+
+//        return nodePos;
+//        return new Vec2(getScreenX(nodePos.x), getScreenY(nodePos.y));
+    }
+
+    public Vec2 convertTouchToNodeSpaceAR(Vec2 touchPoint) {
+        return this.convertToNodeSpaceAR(touchPoint);
+    }
+
+    public Vec2 convertToNodeSpaceAR(final Vec2 worldPoint) {
+        Vec2 nodePoint = new Vec2(convertToNodeSpace(worldPoint));
+        return nodePoint.minus(_anchorPointInPoints);
+    }
+
+    public Vec2 convertToWorldSpaceAR(final Vec2 nodePoint) {
+        return convertToWorldSpace(nodePoint.add(_anchorPointInPoints));
+    }
+
+    public Vec2 convertToWindowSpace(final Vec2 nodePoint) {
+        Vec2 worldPoint = new Vec2(this.convertToWorldSpace(nodePoint));
+        return _director.convertToUI(worldPoint);
+    }
+
+//    public Vec2 convertToWorldSpace(final Vec2 nodePos) {
+//
+////        Mat4 tmp = getNodeToWorldTransform();
+//        Vec3 vec = new Vec3(nodePos.x, nodePos.y, 0);
+//        Vec3 ret = new Vec3();
+////        tmp.trans
+//        return null;
+//    }
+
+    public Mat4 getNodeToWorldTransform() {
+        return this.getNodeToParentTransform(null);
+    }
+
+    public Mat4 getNodeToParentTransform(SMView ancestor) {
+        Mat4 t = new Mat4(this.getNodeToParentTransform());
+
+        for (SMView p=_parent; p!=null && p!=ancestor; p=p.getParent()) {
+            t = p.getNodeToParentTransform().multiplyRet(t);
+        }
+
+        return t;
+    }
+
+    public Mat4 getNodeToParentTransform() {
+        if (_transformDirty) {
+            float x = _position.x;
+            float y = _position.y;
+            float z = _positionZ;
+
+            if (_ignoreAnchorPointForPosition) {
+                x += _anchorPointInPoints.x;
+                y += _anchorPointInPoints.y;
+            }
+
+            boolean needsSkewMatrix = (_skewX>0 || _skewY>0);
+
+            Mat4 translation = new Mat4();
+            Mat4.createTranslation(x, y, z, translation);
+            Mat4.createRotation(_rotationQuat, _transform);
+
+            if (_rotationZ_X != _rotationZ_Y) {
+                float radiansX = - (float)Math.toRadians(_rotationZ_X);
+                float radiansY = - (float)Math.toRadians(_rotationZ_Y);
+                float cx = (float) Math.cos(radiansX);
+                float sx = (float) Math.sin(radiansX);
+                float cy = (float) Math.cos(radiansY);
+                float sy = (float) Math.sin(radiansY);
+                float m0 = _transform.m[0], m1 = _transform.m[1], m4 = _transform.m[4], m5 = _transform.m[5], m8 = _transform.m[8], m9 = _transform.m[9];
+                _transform.m[0] = cy * m0 - sx * m1;
+                _transform.m[4] = cy * m4 - sx * m5;
+                _transform.m[8] = cy * m8 - sx * m9;
+                _transform.m[1] = sy * m0 + cx * m1;
+                _transform.m[5] = sy * m4 + cx * m5;
+                _transform.m[9] = sy * m8 + cx * m9;
+            }
+
+            _transform.multiply(_transform);
+
+            if (_scaleX != 1.f)
+            {
+                _transform.m[0] *= _scaleX;
+                _transform.m[1] *= _scaleX;
+                _transform.m[2] *= _scaleX;
+            }
+            if (_scaleY != 1.f)
+            {
+                _transform.m[4] *= _scaleY;
+                _transform.m[5] *= _scaleY;
+                _transform.m[6] *= _scaleY;
+            }
+            if (_scaleZ != 1.f)
+            {
+                _transform.m[8] *= _scaleZ;
+                _transform.m[9] *= _scaleZ;
+                _transform.m[10] *= _scaleZ;
+            }
+
+            if (needsSkewMatrix)
+            {
+                float[] skewMatArray = new float[] {
+                    1, (float) Math.tan((float) Math.toRadians(_skewY)), 0, 0,
+                            (float)Math.tan((float) Math.toRadians(_skewX)), 1, 0, 0,
+                            0,  0,  1, 0,
+                            0,  0,  0, 1
+                };
+                Mat4 skewMatrix = new Mat4(skewMatArray);
+
+                _transform.multiply(skewMatrix);
+            }
+
+            if (!_anchorPointInPoints.isZero())
+            {
+                // FIXME:: Argh, Mat4 needs a "translate" method.
+                // FIXME:: Although this is faster than multiplying a vec4 * mat4
+                _transform.m[12] += _transform.m[0] * -_anchorPointInPoints.x + _transform.m[4] * -_anchorPointInPoints.y;
+                _transform.m[13] += _transform.m[1] * -_anchorPointInPoints.x + _transform.m[5] * -_anchorPointInPoints.y;
+                _transform.m[14] += _transform.m[2] * -_anchorPointInPoints.x + _transform.m[6] * -_anchorPointInPoints.y;
+            }
+        }
+
+        if (_additionalTransform!=null) {
+
+            if (_transformDirty) {
+                _additionalTransform[1] = _transform;
+            }
+
+            if (_transformUpdated) {
+                _transform = _additionalTransform[1].multiplyRet(_additionalTransform[0]);
+            }
+        }
+
+        _transformDirty = _additionalTransformDirty = false;
+
+        return _transform;
+    }
+
+    public void setNodeToParentTransform(final Mat4 transform)
+    {
+        _transform = transform;
+        _transformDirty = false;
+        _transformUpdated = true;
+
+        if (_additionalTransform!=null)
+            // _additionalTransform[1] has a copy of lastest transform
+            _additionalTransform[1] = transform;
+    }
+
+    public void setAdditionalTransform(final AffineTransform additionalTransform)
+    {
+        Mat4 tmp = new Mat4();
+        CGAffineToGL(additionalTransform, tmp.m);
+        setAdditionalTransform(tmp);
+    }
+
+    public void setAdditionalTransform(final Mat4 additionalTransform)
+    {
+        if (additionalTransform == null)
+        {
+            if(_additionalTransform!=null)  _transform = _additionalTransform[1];
+            _additionalTransform = null;
+        }
+        else
+        {
+            if (_additionalTransform==null) {
+                _additionalTransform = new Mat4[2];
+
+                _additionalTransform[1] = _transform;
+            }
+
+            _additionalTransform[0] = additionalTransform;
+        }
+        _transformUpdated = _additionalTransformDirty = _inverseDirty = true;
+    }
+
+    public AffineTransform getParentToNodeAffineTransform() {
+        AffineTransform ret = new AffineTransform();
+
+        GLToCGAffine(getParentToNodeTransform().m, ret);
+        return ret;
+    }
+
+    public Mat4 getParentToNodeTransform() {
+        if ( _inverseDirty )
+        {
+            _inverse = getNodeToParentTransform().getInversed();
+            _inverseDirty = false;
+        }
+
+        return _inverse;
+    }
+
+    public Rect getBoundingBox() {
+        Rect rect = new Rect(0, 0, _contentSize.width, _contentSize.height);
+        return RectApplyAffineTransform(rect, getNodeToParentAffineTransform());
+    }
+
+    public AffineTransform getNodeToWorldAffineTransform() {
+        return this.getNodeToParentAffineTransform(null);
+    }
+
+    public AffineTransform getNodeToParentAffineTransform() {
+        AffineTransform ret = new AffineTransform();
+        GLToCGAffine(getNodeToParentTransform().m, ret);
+
+        return ret;
+    }
+
+    public AffineTransform getNodeToParentAffineTransform(SMView ancestor) {
+        AffineTransform t = new AffineTransform(this.getNodeToParentAffineTransform());
+
+        for (SMView p = _parent; p != null && p != ancestor; p = p.getParent())
+            t = AffineTransformConcat(t, p.getNodeToParentAffineTransform());
+
+        return t;
+    }
+
+    public Mat4 getWorldToNodeTransform() {
+        return getNodeToWorldTransform().getInversed();
+    }
+
+    public Vec2 convertToNodeSpace(final Vec2 worldPoint) {
+//        float baseX = getScreenX();
+//        float baseY = getScreenY();
+//
+//        float posX = worldPoint.x - baseX;
+//        float posY = worldPoint.y - baseY;
+//
+//        return new Vec2(posX, posY);
+
+        Mat4 tmp = getWorldToNodeTransform();
+        Vec3 vec3 = new Vec3(worldPoint.x, worldPoint.y, 0);
+        Vec3 ret = new Vec3();
+        tmp.transformPoint(vec3, ret);
+        return new Vec2(ret.x, ret.y);
+
+    }
+
+    public Vec2 getScreenPosition() {
+        return new Vec2(getScreenX(), getScreenY());
+    }
+
     public float getScreenX() {
 
         float x = 0;
@@ -1195,29 +1588,16 @@ public class SMView extends Ref {
         return x + getOriginX();
     }
 
-    public Vec2 convertToWorldSpace(final Vec2 nodePos) {
 
-        return new Vec2(getScreenX(nodePos.x), getScreenY(nodePos.y));
-    }
-
-    public Vec2 convertToNodeSpace(final Vec2 worldPos) {
-        float baseX = getScreenX();
-        float baseY = getScreenY();
-
-        float posX = worldPos.x - baseX;
-        float posY = worldPos.y - baseY;
-
-        return new Vec2(posX, posY);
-    }
-
-    public float getScreenX(float posX) {
-        float x = 0;
-        if (_parent != null) {
-            x = _parent.getScreenX();
-            return x + _parent.getScale()*posX;
-        }
-        return x + posX;
-    }
+//    public float getScreenX(float posX) {
+//        // 내 부모의 screen에서 posX를 추가
+//        float x = 0;
+//        if (_parent != null) {
+//            x = _parent.getScreenX();
+//            return x + _parent.getScale()*posX;
+//        }
+//        return x + posX;
+//    }
 
     public float getScreenY() {
         float y = 0;
@@ -1229,21 +1609,26 @@ public class SMView extends Ref {
         return y + getOriginY();
     }
 
-    public float getScreenY(float posY) {
-        float y = 0;
-        if (_parent != null) {
-            y = _parent.getScreenY();
-            return y + _parent.getScale()*posY;
-        }
-        return y + posY;
-    }
+//    public float getScreenY(float posY) {
+//        // 내 부모의 screen에서 posX를 추가
+//        float y = 0;
+//        if (_parent != null) {
+//            y = _parent.getScreenY();
+//            return y + _parent.getScale()*posY;
+//        }
+//        return y + posY;
+//    }
 
     public float getScreenScale() {
-        float scale = 1;
+        float scale = 1.0f;
         if (_parent != null) {
             scale = _parent.getScreenScale();
         }
         return scale * _scaleX;
+    }
+
+    public float getScreenAngle() {
+        return getScreenAngleZ();
     }
 
     public float getScreenAngleX() {
@@ -1577,6 +1962,7 @@ public class SMView extends Ref {
         _children.ensureCapacity(4);
     }
 
+    protected boolean _additionalTransformDirty = false;
     protected boolean _transformUpdated = true;
     protected boolean _reorderChildDirty = false;
     protected boolean _isTransitionFinished = false;
@@ -1785,13 +2171,13 @@ public class SMView extends Ref {
     protected boolean _inverseDirty = true;
 
 
-    protected Matrix4f _modelViewTransform;
+    protected Mat4 _modelViewTransform = new Mat4();
 
-    protected Matrix4f _transform;
+    protected Mat4 _transform = new Mat4();
 
-    protected Matrix4f _inverse;
+    protected Mat4 _inverse = new Mat4();
 
-    protected Matrix4f[] _additionalTransform = null;
+    protected Mat4[] _additionalTransform = null;
 
 
 
@@ -1808,7 +2194,7 @@ public class SMView extends Ref {
 //
 //            boolean needSkewMatrix = (_skewX > 0 || _skewY > 0);
 //
-//            Matrix4f translation = new Matrix4f();
+//            Mat4 translation = new Mat4();
 //            translation.loadTranslate(x, y, z);
 //
 ////            _transform.loadRotate();
@@ -2366,6 +2752,10 @@ public class SMView extends Ref {
         }
     }
 
+    public void visit() {
+
+    }
+
     public void visit(float a) {
 
         if (!_visible) {
@@ -2373,6 +2763,7 @@ public class SMView extends Ref {
         }
 
         _director.pushProjectionMatrix();
+//        transformMatrix(_modelViewTransform.m);
         transformMatrix(_director.getProjectionMatrix());
         _director.updateProjectionMatrix();
 
@@ -2381,9 +2772,7 @@ public class SMView extends Ref {
         }
 
         // base property... draw first me...
-        renderOwn(a);
-
-
+        if (renderOwn(a)) {
         // and children
         int i = 0;
 
@@ -2408,6 +2797,7 @@ public class SMView extends Ref {
         } else {
             draw(a);
         }
+        }
 
         if (_scissorEnable) {
             enableScissorTest(false);
@@ -2417,7 +2807,7 @@ public class SMView extends Ref {
 
         }
 
-    private void renderOwn(float  alpha) {
+    private boolean renderOwn(float  alpha) {
 
         if (_updateFlags>0) {
             onUpdateOnVisit();
@@ -2434,9 +2824,11 @@ public class SMView extends Ref {
                 w = _scissorRect.size.width * scale;
                 h = _scissorRect.size.height * scale;
 
-                x = getScreenX(_scissorRect.origin.x);
+                x = getScreenX() + _scissorRect.origin.x;
+//                x = getScreenX(_scissorRect.origin.x);
                 // gl은 세로 좌표가 반대
-                y = _director.getWinSize().height - (getScreenY(_scissorRect.origin.y) + h);
+//                y = _director.getWinSize().height - (getScreenY(_scissorRect.origin.y) + h);
+                y = _director.getWinSize().height - (getScreenY() + h + _scissorRect.origin.y);
             } else {
                 w = _contentSize.width * scale;
                 h = _contentSize.height * scale;
@@ -2450,11 +2842,12 @@ public class SMView extends Ref {
 
             if (!intersectRectInWindow(_targetScissorRect, _director.getWinSize())) {
                 // scissor에 해당. 그리지 않음.
-                return;
+                return false;
             }
 
         }
 
+        return true;
     }
 
     protected void draw(float a) { }
@@ -3065,17 +3458,25 @@ public class SMView extends Ref {
 
 //    private static final String CAPTURE_SCREEN = "_CAPTURE_SCREEN_";
 
+    public static Bitmap copyBitmap(Bitmap src) {
+        return src.copy(src.getConfig(), true);
+    }
+
     public Bitmap captureView() {
+        return captureView(getContentSize(), new Vec2(getContentSize().width/2, getContentSize().height/2), Vec2.MIDDLE, 1.0f, 1.0f);
+    }
+
+    public Bitmap captureView(final Size canvasSize, final Vec2 position, final Vec2 anchorPoint, final float scaleX, final float scaleY) {
         // 현재 뷰 크기로 그린다.
         String captureKeyName = "CAPTURE_VIEW_" + hashCode();
-        CanvasSprite canvas = CanvasSprite.createCanvasSprite(getDirector(), (int)getContentSize().width, (int)getContentSize().height, captureKeyName);
+        CanvasSprite canvas = CanvasSprite.createCanvasSprite(getDirector(), (int)canvasSize.width, (int)canvasSize.height, captureKeyName);
         Bitmap bitmap = null;
 
         float oldScale = getScale();
         Vec2 oldPos = getPosition();
         Vec2 oldAnchor = getAnchorPoint();
+        float oldRotate = getRotation();
 
-        Vec2 drawPos = new Vec2(getContentSize().width/2, getContentSize().height/2);
 
         if (canvas.setRenderTarget(getDirector(), true)) {
 
@@ -3084,9 +3485,11 @@ public class SMView extends Ref {
             GLES20.glEnable(GLES20.GL_BLEND);
             GLES20.glBlendFunc(GLES20.GL_ONE, GLES20.GL_ONE_MINUS_SRC_ALPHA);
 
-            setPosition(drawPos);
-            setAnchorPoint(Vec2.MIDDLE);
-            setScale(1.0f);
+            setPosition(position);
+            setAnchorPoint(anchorPoint);
+            setRotation(0);
+            setScaleX(scaleX);
+            setScaleY(scaleY);
 
             getDirector().pushProjectionMatrix();
             {
@@ -3103,6 +3506,7 @@ public class SMView extends Ref {
         }
         canvas.removeTexture();
 
+        setRotation(oldRotate);
         setScale(oldScale);
         setAnchorPoint(oldAnchor);
         setPosition(oldPos);
@@ -3213,8 +3617,8 @@ public class SMView extends Ref {
         Collections.sort(nodes, new Comparator<SMView>(){
             @Override
             public int compare(SMView a, SMView b) {
-//                return a._localZOrder < b._localZOrder ? -1 : (a._localZOrder > b._localZOrder) ? 1 : 0;
-                return a._localZOrderAndArrival < b._localZOrderAndArrival ? -1 : (a._localZOrderAndArrival > b._localZOrderAndArrival) ? 1 : 0;
+                return a._localZOrder < b._localZOrder ? -1 : (a._localZOrder > b._localZOrder) ? 1 : 0;
+//                return a._localZOrderAndArrival < b._localZOrderAndArrival ? -1 : (a._localZOrderAndArrival > b._localZOrderAndArrival) ? 1 : 0;
                 //_localZOrderAndArrival
 //                return a._localZOrder > b._localZOrder ? -1 : (a._localZOrder < b._localZOrder) ? 1 : 0;
             }
@@ -3301,7 +3705,7 @@ public class SMView extends Ref {
     }
 
     public static double toDegrees(double radians) {
-        return ( radians * 180.0 ) / M_PI ;
+        return ( radians * 180.0f ) / M_PI ;
     }
 
     public static int round(float value) {
@@ -3376,7 +3780,7 @@ public class SMView extends Ref {
 
     }
 
-    public static final double M_PI = Math.PI;
+    public static final double M_PI = 3.14159265358979323846264338327950288f;
     public static final double M_PI_2 = Math.PI/2;
     public static final double M_PI_4 = Math.PI/4;
     public static final double M_1_PI = 1/Math.PI;

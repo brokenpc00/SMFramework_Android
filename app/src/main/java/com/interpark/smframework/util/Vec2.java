@@ -26,6 +26,10 @@ public final class Vec2 implements Cloneable {
         this.y = y;
     }
 
+    public Size toSize() {
+        return new Size(this.x, this.y);
+    }
+
     public boolean isZero() {
         return this.x==0.0f && this.y==0.0f;
     }
@@ -41,10 +45,10 @@ public final class Vec2 implements Cloneable {
         return false;
     }
 
-    public float length() {
-        double v = (double)(this.x*this.x + this.y*this.y);
-        return (float)Math.sqrt(v);
-    }
+//    public float length() {
+//        double v = (double)(this.x*this.x + this.y*this.y);
+//        return (float)Math.sqrt(v);
+//    }
 
     public void Normalize() {
         double len = length();
@@ -180,15 +184,25 @@ public final class Vec2 implements Cloneable {
         return value < min_inclusive ? min_inclusive : value < max_inclusive? value : max_inclusive;
     }
 
+    public float distance(Vec2 v) {
+//        float dx = v.x - this.x;
+//        float dy = v.y - this.y;
+//        return (float) Math.sqrt(dx*dx + dy*dy);
+        return (float) Math.sqrt(distanceSquared(v));
+    }
 
     public float distanceSquared(Vec2 v) {
         float dx = v.x - this.x;
         float dy = v.y - this.y;
-        return (dx*dx + dy*dy);
+        return dx*dx + dy*dy;
     }
 
     public float lengthSquared() {
         return (this.x*this.x + this.y*this.y);
+    }
+    public float length() {
+        return (float)Math.sqrt(x*x+y*y);
+//        return (float)Math.sqrt(lengthSquared());
     }
 
     public void negate() {

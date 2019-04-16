@@ -37,6 +37,7 @@ public class AppConst {
         public static final float TOP_MENU_HEIGHT = 130.0f;
         public static final float TOP_MENU_BUTTON_HEIGHT = 120.0f;
         public static final float MENUBAR_HEIGHT = 130.0f;
+        public static final float BOTTOM_MENU_HEIGHT = 160.0f;
         public static final float DOT_DIAMETER = 20.0f;
         public static final float LINE_DIAMETER = 5.0f;
         public static final float TOP_MENU_BUTTONE_SIZE = 120.0f;

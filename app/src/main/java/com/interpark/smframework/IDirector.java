@@ -18,6 +18,7 @@ import com.interpark.smframework.base.sprite.SpriteSet;
 import com.interpark.smframework.base.texture.Texture;
 import com.interpark.smframework.base.texture.TextureManager;
 import com.interpark.smframework.util.Size;
+import com.interpark.smframework.util.Vec2;
 
 public interface IDirector {
 
@@ -152,6 +153,8 @@ public interface IDirector {
     public void stopSceneAnimation();
     public SMScene getPreviousScene();
     public int getSceneStackCount();
+
+    public Vec2 convertToUI(final Vec2 glPoint);
 
     public void paused();
     public void resume();

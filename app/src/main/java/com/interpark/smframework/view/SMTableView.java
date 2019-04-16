@@ -232,6 +232,7 @@ public class SMTableView extends BaseTableView {
         } else {
             int numChild = getChildrenCount(0);
             Cursor cursor = new Cursor(info.getViewLastCursor());
+//            Cursor cursor = info.getViewLastCursor();
             for (int i=numChild-1; i>=0; i--) {
                 cursor.dec(true);
                 if (cursor.getIndexPath().getIndex()!=currentPage) {
@@ -407,6 +408,7 @@ public class SMTableView extends BaseTableView {
 
 
                 Cursor cursor = new Cursor(info.getViewFirstCursor());
+//                Cursor cursor = info.getViewFirstCursor();
 
 
                 for (int i=0; i<numChild; i++, cursor.inc(false)) {
@@ -562,6 +564,7 @@ public class SMTableView extends BaseTableView {
             if (numChild>0) {
                 for (int i = 0; i < numChild; i++) {
                     Cursor cursor = new Cursor(info.getViewFirstCursor());
+//                    Cursor cursor = info.getViewFirstCursor();
 
                     SMView child = getChildAt(col, 0);
 
@@ -587,6 +590,7 @@ public class SMTableView extends BaseTableView {
             if (numChild>0) {
                 for (int i=numChild-1; i>=0; i--) {
                     Cursor cursor = new Cursor(info.getViewLastCursor(-1));
+//                    Cursor cursor = info.getViewLastCursor(-1);
 
                     SMView child = getChildAt(col, i);
                     if (child!=null && startLocation + cursor.getLocation()>=containerSize+_preloadPadding) {
@@ -738,6 +742,7 @@ public class SMTableView extends BaseTableView {
 
             // cursor 진행
             Cursor cursor = new Cursor(info.advanceViewLast(new IndexPath(0, column, indexPath.getIndex()), _reuseScrapper._internalReuseType, childSize));
+//            Cursor cursor = info.advanceViewLast(new IndexPath(0, column, indexPath.getIndex()), _reuseScrapper._internalReuseType, childSize);
 
             if (reload) {
                 info.resizeCursor(cursor);
@@ -829,6 +834,7 @@ public class SMTableView extends BaseTableView {
             info = _column[column];
 
             Cursor cursor = new Cursor(info.advanceViewFirst());
+//            Cursor cursor = info.advanceViewFirst();
             Item item = cursor.getItem();
 
             if (item.isDeleted()) {
@@ -842,7 +848,7 @@ public class SMTableView extends BaseTableView {
                         child.setContentSize(new Size(child.getContentSize().width, item._size));
                     } else {
                         // 아이템의 넓이
-                        child.setContentSize(new Size(item._size, child.getContentSize().height));
+                        child.setContentSize(new Size(item._size, child.getContentSize().width));
                     }
                 }
             } else {
@@ -1117,6 +1123,7 @@ public class SMTableView extends BaseTableView {
 
                 // 수행중인 Animation 종료
                 for (Cursor cursor = new Cursor(info.getFirstCursor()); cursor._position<info.getViewLastCursor()._position; cursor.inc(true)) {
+//                for (Cursor cursor = info.getFirstCursor(); cursor._position<info.getViewLastCursor()._position; cursor.inc(true)) {
                     if (cursor.getItem()._tag>0) {
                         stopActionByTag(cursor.getItem()._tag);
                     }
@@ -1126,6 +1133,7 @@ public class SMTableView extends BaseTableView {
                 int numChild = getChildrenCount(col);
                 if (numChild>0) {
                     Cursor cursor = new Cursor(info.getViewFirstCursor());
+//                    Cursor cursor = info.getViewFirstCursor();
                     for (int i=0; i<numChild; i++, cursor.inc(true)) {
                         SMView child = getChildAt(col, 0);
                         // reload면 reuse하지 않는다.
@@ -2473,17 +2481,31 @@ public class SMTableView extends BaseTableView {
         }
 
         public void popBack(final int reuseType) {
-            int lastIndex = _data.get(reuseType).size()-1;
-            _data.get(reuseType).remove(lastIndex);
+
+            ArrayList<SMView> al = _data.get(reuseType);
+            if (al.size()>0) {
+                al.remove(al.size()-1);
+            }
+//
+//            int lastIndex = _data.get(reuseType).size()-1;
+//            _data.get(reuseType).remove(lastIndex);
         }
 
         public SMView back(final int reuseType) {
-            if (_data.get(reuseType).size()>0) {
-                int lastIndex = _data.get(reuseType).size()-1;
-                return _data.get(reuseType).get(lastIndex);
-            }
 
+            ArrayList<SMView> al = _data.get(reuseType);
+            if (al.size()>0) {
+                return al.get(al.size()-1);
+            }
             return null;
+
+//
+//            if (_data.get(reuseType).size()>0) {
+//                int lastIndex = _data.get(reuseType).size()-1;
+//                return _data.get(reuseType).get(lastIndex);
+//            }
+//
+//            return null;
         }
 
         public void clear() {
@@ -2740,7 +2762,10 @@ public class SMTableView extends BaseTableView {
         }
         public float getLocation() {return _location;}
         public float getLastLocation() {
+            if (getItem()!=null) {
             return _location + getItem()._size;
+        }
+            return _location;
         }
         public void offsetLocation(final float offset) {_location += offset;}
 

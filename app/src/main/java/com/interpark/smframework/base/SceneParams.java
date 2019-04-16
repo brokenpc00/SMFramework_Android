@@ -19,6 +19,10 @@ public class SceneParams {
         }
     }
 
+    public static SceneParams create() {
+        return new SceneParams();
+    }
+
     public int getPopStackCount() {
         return mPopStackCount;
     }

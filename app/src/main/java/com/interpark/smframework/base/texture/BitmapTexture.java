@@ -10,7 +10,7 @@ import com.interpark.smframework.IDirector;
 public class BitmapTexture extends Texture {
     private Bitmap mTempBitamp;
 
-    BitmapTexture(IDirector director, String key, Bitmap bitmap) {
+    public BitmapTexture(IDirector director, String key, Bitmap bitmap) {
         super(director, key, false, null);
         mOriginalWidth = mWidth = bitmap.getWidth();
         mOriginalHeight = mHeight = bitmap.getHeight();

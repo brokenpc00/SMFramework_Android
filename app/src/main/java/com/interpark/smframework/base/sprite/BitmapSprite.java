@@ -13,6 +13,10 @@ public class BitmapSprite extends Sprite {
         return createFromFile(director, fileName, loadAsync, listener, degrees, -1);
     }
 
+    public static BitmapSprite createFromTexture(IDirector director, Texture texture) {
+        return new BitmapSprite(director, texture, 0, 0);
+    }
+
     public static BitmapSprite createFromFile(IDirector director, String fileName, boolean loadAsync, OnTextureAsyncLoadListener listener, int degrees, int maxSideLength) {
         Texture texture = director.getTextureManager().createTextureFromFile(fileName, loadAsync, listener, degrees, maxSideLength);
         if (texture != null && texture.isValid()) {
@@ -28,12 +32,13 @@ public class BitmapSprite extends Sprite {
 
     public static BitmapSprite createFromAsset(IDirector director, String fileName, boolean loadAsync, OnTextureAsyncLoadListener listener, int width, int height) {
         Texture texture = director.getTextureManager().createTextureFromAssets(fileName, loadAsync, listener, width, height);
-        return new BitmapSprite(director, texture, width/2f, height/2f);
+        return new BitmapSprite(director, texture, 0, 0);
     }
 
     public static BitmapSprite createFromAsset(IDirector director, String fileName, boolean loadAsync, OnTextureAsyncLoadListener listener, int width, int height, float cx, float cy) {
         Texture texture = director.getTextureManager().createTextureFromAssets(fileName, loadAsync, listener, width, height);
-        return new BitmapSprite(director, texture, cx, cy);
+//        return new BitmapSprite(director, texture, cx, cy);
+        return new BitmapSprite(director, texture, 0, 0);
     }
 
     public static BitmapSprite createFromBitmap(IDirector director, String key, Bitmap bitmap) {
@@ -41,13 +46,14 @@ public class BitmapSprite extends Sprite {
     }
     public static BitmapSprite createFromBitmap(IDirector director, String key, Bitmap bitmap, boolean alignCenter) {
         Texture texture = director.getTextureManager().createTextureFromBitmap(bitmap, key);
-        BitmapSprite s;
-        if (alignCenter) {
-            s = new BitmapSprite(director, texture, texture.getWidth()/2, texture.getHeight()/2);
-        } else {
-            s = new BitmapSprite(director, texture, 0, 0);
-        }
-        return s;
+//        BitmapSprite s;
+//        if (alignCenter) {
+//            s = new BitmapSprite(director, texture, texture.getWidth()/2, texture.getHeight()/2);
+//        } else {
+//            s = new BitmapSprite(director, texture, 0, 0);
+//        }
+//        s = new BitmapSprite(director, texture, 0, 0);
+        return new BitmapSprite(director, texture, 0, 0);
     }
 
     public static BitmapSprite createFromResource(IDirector director, int resId) {
@@ -74,23 +80,32 @@ public class BitmapSprite extends Sprite {
     public static BitmapSprite createFromDrawable(IDirector director, Drawable drawable, boolean loadAsync, OnTextureAsyncLoadListener listener, boolean alignCenter) {
         Texture texture = director.getTextureManager().createTextureFromDrawable(drawable, loadAsync, listener);
 
-        BitmapSprite s;
-        if (alignCenter) {
-            s = new BitmapSprite(director, texture, texture.getWidth()/2, texture.getHeight()/2);
-        } else {
-            s = new BitmapSprite(director, texture, 0, 0);
-        }
-
-        return s;
+//        BitmapSprite s;
+//        if (alignCenter) {
+//            s = new BitmapSprite(director, texture, texture.getWidth()/2, texture.getHeight()/2);
+//        } else {
+//            s = new BitmapSprite(director, texture, 0, 0);
+//        }
+//
+//        return s;
+        return new BitmapSprite(director, texture, 0, 0);
     }
 
 
     private BitmapSprite(IDirector director, Texture texture, float cx, float cy) {
+//        super(director,
+//                texture.getWidth(),
+//                texture.getHeight(),
+//                cx,
+//                cy,
+//                0,
+//                0,
+//                texture);
         super(director,
                 texture.getWidth(),
                 texture.getHeight(),
-                cx,
-                cy,
+                0,
+                0,
                 0,
                 0,
                 texture);

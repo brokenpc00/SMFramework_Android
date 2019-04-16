@@ -6,9 +6,9 @@ public final class DownloadTask {
     public static final int ERROR_FILE_OP_FAILED = -2;
     public static final int ERROR_IMPL_INTERNAL = -3;
 
-    public String identifier;
-    public String requestURL;
-    public String storagePath;
+    public String identifier = "";
+    public String requestURL = "";
+    public String storagePath = "";
 
     public DownloadTask() {
 

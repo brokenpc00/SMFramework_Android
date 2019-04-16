@@ -6,6 +6,7 @@ import android.util.Log;
 
 import com.interpark.smframework.IDirector;
 import com.interpark.smframework.SideMenu;
+import com.interpark.smframework.base.types.Color4F;
 import com.interpark.smframework.shader.ShaderManager.ProgramType;
 import com.interpark.smframework.base.texture.Texture;
 import com.interpark.smframework.shader.ShaderProgram;
@@ -239,4 +240,28 @@ public abstract class DrawNode implements Cloneable {
             texture = null;
         }
     }
+
+    public void setOpacity(int opacity) {
+        if (opacity>0xff) {
+            opacity = 0xff;
+        }
+
+        if (opacity<0) {
+            opacity = 0;
+        }
+
+        _color.a = (float) opacity/255.0f;
+    }
+
+    public void setAlpha(float alpha) {
+        _color.a = alpha;
+    }
+
+    public void setColor(final Color4F color) {
+        _setColor = true;
+        _color.set(color);
+    }
+
+    protected boolean _setColor = false;
+    protected Color4F _color = new Color4F(1, 1, 1, 0);
 }

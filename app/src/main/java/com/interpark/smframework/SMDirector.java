@@ -32,6 +32,7 @@ import com.interpark.smframework.base.transition.SwipeDismiss;
 import com.interpark.smframework.base.transition.TransitionScene;
 import com.interpark.smframework.base.types.ActionManager;
 import com.interpark.smframework.base.types.Color4F;
+import com.interpark.smframework.base.types.Mat4;
 import com.interpark.smframework.base.types.PERFORM_SEL;
 import com.interpark.smframework.shader.Shader;
 import com.interpark.smframework.shader.ShaderManager;
@@ -43,6 +44,8 @@ import com.interpark.smframework.util.OpenGlUtils;
 import com.interpark.smframework.base.types.Scheduler;
 import com.interpark.smframework.util.Size;
 import com.interpark.smframework.util.Vec2;
+import com.interpark.smframework.util.Vec3;
+import com.interpark.smframework.util.Vec4;
 import com.interpark.smframework.view.EdgeSwipeForDismiss;
 import com.interpark.smframework.view.EdgeSwipeForDismiss.SWIPTE_DISMISS_UPDATE_CALLBCK;
 import com.interpark.smframework.view.EdgeSwipeLayerForPushBack;
@@ -57,6 +60,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.Stack;
+import java.util.Vector;
 import java.util.logging.SocketHandler;
 
 import javax.microedition.khronos.egl.EGLConfig;
@@ -202,7 +206,9 @@ public class SMDirector implements IDirector, GLSurfaceView.Renderer {
         }
     }
 
-    public SMDirector(FragmentActivity activity) {
+    private GLSurfaceView _openGLView = null;
+
+    public SMDirector(FragmentActivity activity, GLSurfaceView openGLView) {
         mActivity = activity;
 
         _scheduler = new Scheduler(this);
@@ -225,11 +231,12 @@ public class SMDirector implements IDirector, GLSurfaceView.Renderer {
             mMatrixBuffer[i] = new float[16];
         }
 
+        _openGLView = openGLView;
+        _winSizeInPoints.set(_openGLView.getWidth(), _openGLView.getHeight());
+        // renderer init
+
         // Texture Packer에서 얻어옴..
 //        mSpriteSet = new SpriteSetCommon(this);
-
-        // 나중에 네트웍 구현
-//        mRequestQueue = Volley.newRequestQueue(mActivity, new OkHttpStack());
 
         // for texture packer... 좌표체계.. 바꿈.
 //        mSpriteSet.get(SR.camera_guide_head).changeStertch3Seg(490, 0.266f, 1-0.266f);
@@ -1249,6 +1256,12 @@ public class SMDirector implements IDirector, GLSurfaceView.Renderer {
             setNextScene();
         }
 
+
+
+
+
+
+
         final CanvasTexture frameBuffer = (CanvasTexture)mFrameBuffer.getTexture();
 
         frameBuffer.setFrameBuffer(this, true);
@@ -1416,6 +1429,136 @@ public class SMDirector implements IDirector, GLSurfaceView.Renderer {
         OpenGlUtils.copyMatrix(m, mActiveMatrix);
         mMatrixStack.push(m);
     }
+
+    public void pushProjectionMatrix(int index) {
+        _projectionMatrixStackList.get(index).push(_projectionMatrixStackList.get(index).peek());
+    }
+
+    public Mat4 getProjectionMatrix(int index) {
+        return _projectionMatrixStackList.get(index).peek();
+    }
+
+    public enum Projection {
+        _2D,
+        _3D,
+        CUSTOM,
+    }
+
+    private Projection _projection = Projection._3D;
+    private Size _winSizeInPoints = new Size();
+
+    public void setViewport()
+    {
+        if (_openGLView!=null)
+        {
+//            _openGLView.setW setViewPortInPoints(0, 0, _winSizeInPoints.width, _winSizeInPoints.height);
+        }
+    }
+
+    public void loadMatrix(MATRIX_STACK_TYPE type, final Mat4 mat) {
+        if(MATRIX_STACK_TYPE.MATRIX_STACK_MODELVIEW == type) {
+            _modelViewMatrixStack.set(_modelViewMatrixStack.size()-1, mat);
+        } else if(MATRIX_STACK_TYPE.MATRIX_STACK_PROJECTION == type) {
+            _projectionMatrixStackList.get(0).set(_projectionMatrixStackList.get(0).size()-1, mat);
+        } else if(MATRIX_STACK_TYPE.MATRIX_STACK_TEXTURE == type) {
+            _textureMatrixStack.set(_textureMatrixStack.size()-1, mat);
+        }
+    }
+
+    public void loadProjectionMatrix(final Mat4 mat, int index)
+    {
+        _projectionMatrixStackList.get(index).set(_projectionMatrixStackList.get(index).size()-1, mat);
+    }
+
+    public void multiplyMatrix(MATRIX_STACK_TYPE type, final Mat4 mat) {
+        if(MATRIX_STACK_TYPE.MATRIX_STACK_MODELVIEW == type)
+        {
+            _modelViewMatrixStack.set(_modelViewMatrixStack.size()-1, _modelViewMatrixStack.peek().multiplyRet(mat));
+        } else if(MATRIX_STACK_TYPE.MATRIX_STACK_PROJECTION == type) {
+            _projectionMatrixStackList.get(0).set(_projectionMatrixStackList.get(0).size()-1, _projectionMatrixStackList.get(0).peek().multiplyRet(mat));
+        } else if(MATRIX_STACK_TYPE.MATRIX_STACK_TEXTURE == type) {
+            _textureMatrixStack.set(_modelViewMatrixStack.size()-1, _modelViewMatrixStack.peek().multiplyRet(mat));
+        }
+    }
+
+    public void loadIdentityMatrix(MATRIX_STACK_TYPE type)
+    {
+        if(MATRIX_STACK_TYPE.MATRIX_STACK_MODELVIEW == type) {
+            Mat4 m = new Mat4(Mat4.IDENTITY);
+            _modelViewMatrixStack.set(_modelViewMatrixStack.size()-1, m);
+        } else if(MATRIX_STACK_TYPE.MATRIX_STACK_PROJECTION == type) {
+            Mat4 m = new Mat4(Mat4.IDENTITY);
+            _projectionMatrixStackList.get(0).set(_projectionMatrixStackList.get(0).size()-1, m);
+        } else if(MATRIX_STACK_TYPE.MATRIX_STACK_TEXTURE == type) {
+            Mat4 m = new Mat4(Mat4.IDENTITY);
+            _textureMatrixStack.set(_textureMatrixStack.size()-1, m);
+        }
+    }
+
+    public float getZEye() {
+        return (_winSizeInPoints.height / 1.154700538379252f);//(2 * tanf(M_PI/6))
+    }
+
+    public void setProjection(Projection projection)
+    {
+        Size size = _winSizeInPoints;
+
+        if (size.width == 0 || size.height == 0)
+        {
+
+            return;
+        }
+
+        setViewport();
+
+        switch (projection)
+        {
+            case _2D:
+            {
+                Mat4 orthoMatrix = new Mat4();
+                Mat4.createOrthographicOffCenter(0, size.width, 0, size.height, -1024, 1024, orthoMatrix);
+                loadMatrix(MATRIX_STACK_TYPE.MATRIX_STACK_PROJECTION, orthoMatrix);
+                loadIdentityMatrix(MATRIX_STACK_TYPE.MATRIX_STACK_MODELVIEW);
+                break;
+            }
+
+            case _3D:
+            {
+                float zeye = this.getZEye();
+
+                Mat4 matrixPerspective = new Mat4();
+                Mat4 matrixLookup = new Mat4();
+
+                // issue #1334
+                Mat4.createPerspective(60, size.width/size.height, 10, zeye+size.height/2, matrixPerspective);
+
+                Vec3 eye = new Vec3(size.width/2, size.height/2, zeye);
+                Vec3 center = new Vec3(size.width/2, size.height/2, 0.0f);
+                Vec3 up = new Vec3(0.0f, 1.0f, 0.0f);
+                Mat4.createLookAt(eye, center, up, matrixLookup);
+                Mat4 proj3d = matrixPerspective.multiplyRet(matrixLookup);
+
+                loadMatrix(MATRIX_STACK_TYPE.MATRIX_STACK_PROJECTION, proj3d);
+                loadIdentityMatrix(MATRIX_STACK_TYPE.MATRIX_STACK_MODELVIEW);
+                break;
+            }
+
+            case CUSTOM:
+                // Projection Delegate is no longer needed
+                // since the event "PROJECTION CHANGED" is emitted
+                break;
+
+            default:
+
+                break;
+        }
+
+        _projection = projection;
+//        GL::setProjectionMatrixDirty();
+
+//        _eventDispatcher.dispatchEvent(_eventProjectionChanged);
+    }
+
 
     @Override
     public void popProjectionMatrix() {
@@ -2006,6 +2149,69 @@ public class SMDirector implements IDirector, GLSurfaceView.Renderer {
             _sendCleanupToScene = true;
             _nextScene = scene;
         }
+    }
+
+
+    protected Stack<Mat4> _modelViewMatrixStack = new Stack<>();
+
+    protected Vector<Stack<Mat4>> _projectionMatrixStackList = new Vector<>();
+
+    protected Stack<Mat4> _textureMatrixStack = new Stack<>();
+
+    public enum MATRIX_STACK_TYPE {
+        MATRIX_STACK_MODELVIEW,
+        MATRIX_STACK_PROJECTION,
+        MATRIX_STACK_TEXTURE
+    }
+
+    public Mat4 getMatrix(MATRIX_STACK_TYPE type) {
+        if(type == MATRIX_STACK_TYPE.MATRIX_STACK_MODELVIEW)
+        {
+            return _modelViewMatrixStack.peek();
+        }
+        else if(type == MATRIX_STACK_TYPE.MATRIX_STACK_PROJECTION)
+        {
+            return _projectionMatrixStackList.get(0).peek();
+        }
+        else if(type == MATRIX_STACK_TYPE.MATRIX_STACK_TEXTURE)
+        {
+            return _textureMatrixStack.peek();
+        }
+
+        return  _modelViewMatrixStack.peek();
+    }
+
+    public static void GLToClipTransform(Mat4 transformOut)
+    {
+        if(null == transformOut) return;
+
+        IDirector director = SMDirector.getDirector();
+
+
+//        float[] projection = director.getProjectionMatrix();
+//        auto projection = director->getMatrix(MATRIX_STACK_TYPE.MATRIX_STACK_PROJECTION);
+//        auto modelview = director->getMatrix(MATRIX_STACK_TYPE.MATRIX_STACK_MODELVIEW);
+//        transformOut = projection * modelview;
+    }
+
+    @Override
+    public Vec2 convertToUI(final Vec2 glPoint) {
+        Mat4 transform = new Mat4();
+        GLToClipTransform(transform);
+
+        Vec4 clipCoord = new Vec4();
+        // Need to calculate the zero depth from the transform.
+        Vec4 glCoord = new Vec4(glPoint.x, glPoint.y, 0.0f, 1.0f);
+
+        transform.transformVector(glCoord, clipCoord);
+
+        clipCoord.x = clipCoord.x / clipCoord.w;
+        clipCoord.y = clipCoord.y / clipCoord.w;
+        clipCoord.z = clipCoord.z / clipCoord.w;
+
+        Size glSize = getWinSize();
+        float factor = 1.0f / glCoord.w;
+        return new Vec2(glSize.width * (clipCoord.x * 0.5f + 0.5f) * factor, glSize.height * (-clipCoord.y * 0.5f + 0.5f) * factor);
     }
 
     @Override

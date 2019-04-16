@@ -12,12 +12,19 @@ import com.interpark.smframework.base.sprite.Sprite;
 import com.interpark.smframework.base.texture.BitmapTexture;
 import com.interpark.smframework.base.texture.Texture;
 import com.interpark.smframework.base.types.Color4F;
+import com.interpark.smframework.network.Downloader.Downloader;
 import com.interpark.smframework.util.AppConst;
+import com.interpark.smframework.util.ImageManager.DownloadTask;
+import com.interpark.smframework.util.ImageManager.IDownloadProtocol;
+import com.interpark.smframework.util.ImageManager.ImageDownloader;
 import com.interpark.smframework.util.Rect;
 import com.interpark.smframework.util.Size;
 import com.interpark.smframework.util.Vec2;
 
-public class SMImageView extends UIContainerView {
+import java.util.ArrayList;
+import java.util.ListIterator;
+
+public class SMImageView extends UIContainerView implements IDownloadProtocol {
 
     public static final int GRAVITY_LEFT = 1;
     public static final int GRAVITY_RIGHT = 1<<1;
@@ -105,11 +112,22 @@ public class SMImageView extends UIContainerView {
     private Size _spriteSize = new Size(Size.ZERO);
     private Rect _imageRect = new Rect();
 
+    public static SMImageView create(IDirector director) {
+        SMImageView view = new SMImageView(director);
+        view.init();
+        return view;
+    }
+
     public static SMImageView create(IDirector director, String assetName) {
-        SMImageView imageView = new SMImageView(director, assetName);
+        return create(director, assetName, false);
+    }
+    public static SMImageView create(IDirector director, String assetName, boolean isNetwork) {
+        SMImageView imageView = new SMImageView(director, assetName, isNetwork);
+        if (!isNetwork) {
             if (imageView.getContentSize().width==0 && imageView.getContentSize().height==0) {
                 imageView.setContentSize(imageView.getSprite().getWidth(), imageView.getSprite().getHeight());
             }
+        }
         return imageView;
     }
     public static SMImageView create(IDirector director, String assetName, float x, float y, float width, float height) {
@@ -120,14 +138,14 @@ public class SMImageView extends UIContainerView {
         return view;
         }
 
-    public static SMImageView create(IDirector director, BitmapSprite sprite) {
+    public static SMImageView create(IDirector director, Sprite sprite) {
         SMImageView view = new SMImageView(director, sprite);
         view.setContentSize(new Size(0, 0));
         view.setPosition(0, 0);
         view.setAnchorPoint(Vec2.ZERO);
         return view;
     }
-    public static SMImageView create(IDirector director, BitmapSprite sprite, float x, float y, float width, float height) {
+    public static SMImageView create(IDirector director, Sprite sprite, float x, float y, float width, float height) {
         SMImageView view = new SMImageView(director, sprite);
         view.setContentSize(new Size(width, height));
         view.setPosition(x, y);
@@ -139,15 +157,22 @@ public class SMImageView extends UIContainerView {
         super(director);
     }
 
-    public SMImageView(IDirector director, BitmapSprite sprite) {
+    public SMImageView(IDirector director, Sprite sprite) {
         super(director);
         setSprite(sprite);
     }
 
     public SMImageView(IDirector director, String assetName) {
+        this(director, assetName, false);
+    }
+    public SMImageView(IDirector director, String assetName, boolean isNetwork) {
         this(director);
+        if (isNetwork) {
+            ImageDownloader.getInstance().loadImageFromNetwork(this, assetName, 0, ImageDownloader.DEFAULT);
+        } else {
         BitmapSprite sprite = BitmapSprite.createFromAsset(getDirector(), assetName, true, null);
         setSprite(sprite);
+    }
     }
 
     public SMImageView (IDirector director, DrawNode sprite) {
@@ -425,4 +450,81 @@ public class SMImageView extends UIContainerView {
         _imageScale = imageScale;
     }
 
+
+    private ArrayList<DownloadTask> _downloadTask = new ArrayList<>();
+    @Override
+    public void onImageLoadComplete(Sprite sprite, int tag, boolean direct) {
+        if (sprite!=null) {
+            setSprite(sprite);
+            if (getContentSize().width==0 && getContentSize().height==0) {
+                setContentSize(getSprite().getWidth(), getSprite().getHeight());
+            }
+        }
+    }
+    @Override
+    public void onImageCacheComplete(boolean success, int tag) { }
+    @Override
+    public void onImageLoadStart(DownloadStartState state) { }
+    @Override
+    public void onDataLoadComplete(byte[] data, int size, int tag) { }
+    @Override
+    public void onDataLoadStart(DownloadStartState state) { }
+    @Override
+    public void resetDownload() {
+        synchronized (_downloadTask) {
+            for (DownloadTask task : _downloadTask) {
+                if (task.isTargetAlive()) {
+                    if (task.isRunning()) {
+                        task.interrupt();
+                    }
+                }
+                task = null;
+            }
+            _downloadTask.clear();
+        }
+    }
+    @Override
+    public void removeDownloadTask(DownloadTask task) {
+        synchronized (_downloadTask) {
+            ListIterator<DownloadTask> iter = _downloadTask.listIterator();
+            while (iter.hasNext()) {
+                DownloadTask t = iter.next();
+                if (!t.isTargetAlive()) {
+                    _downloadTask.remove(t);
+                } else if (task!=null && (t.equals(task) || task.getCacheKey().compareTo(t.getCacheKey())==0)) {
+                    task.interrupt();
+                    _downloadTask.remove(t);
+                    t = null;
+                }
+            }
+        }
+    }
+    @Override
+    public boolean isDownloadRunning(final String requestPath, int requestTag) {
+        synchronized (_downloadTask) {
+            for (DownloadTask t : _downloadTask) {
+                if (t.getRequestPath().compareTo(requestPath)==0 && t.getTag()==requestTag) {
+                    return true;
+                }
+            }
+            return false;
+        }
+    }
+    @Override
+    public boolean addDownloadTask(DownloadTask task) {
+        synchronized (_downloadTask) {
+            ListIterator<DownloadTask> iter = _downloadTask.listIterator();
+            while (iter.hasNext()) {
+                DownloadTask t = iter.next();
+                if (!t.isTargetAlive()) {
+                    _downloadTask.remove(t);
+                } else if (task!=null && t.isRunning() && (t.equals(task) || task.getCacheKey().compareTo(t.getCacheKey())==0)) {
+                    return false;
+                }
+            }
+
+            _downloadTask.add(task);
+            return true;
+        }
+    }
 }

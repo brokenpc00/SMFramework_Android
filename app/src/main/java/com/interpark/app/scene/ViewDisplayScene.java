@@ -4,15 +4,27 @@ import android.graphics.Paint;
 import android.util.Log;
 
 import com.interpark.app.menu.MenuBar;
+import com.interpark.app.scene.StickerLayer.ItemListView;
+import com.interpark.app.scene.StickerLayer.StickerItemListView;
+import com.interpark.app.scene.StickerLayer.StickerItemThumbView;
+import com.interpark.app.scene.StickerLayer.StickerItemView;
+import com.interpark.app.scene.StickerLayer.StickerLayer;
 import com.interpark.smframework.IDirector;
 import com.interpark.smframework.base.ICircularCell;
 import com.interpark.smframework.base.SMMenuTransitionScene;
 import com.interpark.smframework.base.scroller.SMScroller;
 import com.interpark.smframework.base.sprite.BitmapSprite;
+import com.interpark.smframework.base.sprite.Sprite;
+import com.interpark.smframework.base.texture.Texture;
+import com.interpark.smframework.base.types.Action;
 import com.interpark.smframework.base.types.Color4B;
 import com.interpark.smframework.base.types.IndexPath;
 import com.interpark.smframework.base.types.Mat4;
 import com.interpark.smframework.base.types.TransformAction;
+import com.interpark.smframework.util.ImageManager.DownloadTask;
+import com.interpark.smframework.util.ImageManager.IDownloadProtocol;
+import com.interpark.smframework.util.ImageProcess.ImageProcessProtocol;
+import com.interpark.smframework.util.ImageProcess.ImageProcessTask;
 import com.interpark.smframework.util.Rect;
 import com.interpark.smframework.view.RingWave;
 import com.interpark.smframework.view.RingWave2;
@@ -33,10 +45,14 @@ import com.interpark.smframework.util.Size;
 import com.interpark.smframework.util.Vec2;
 import com.interpark.smframework.view.SMButton;
 import com.interpark.smframework.view.SMImageView;
+import com.interpark.smframework.view.Sticker.StickerCanvasView;
+import com.interpark.smframework.view.Sticker.StickerControlView;
+import com.interpark.smframework.view.Sticker.StickerItem;
 
 import java.util.ArrayList;
+import java.util.ListIterator;
 
-public class ViewDisplayScene extends SMMenuTransitionScene implements SMView.OnClickListener, SMPageView.OnPageChangedCallback {
+public class ViewDisplayScene extends SMMenuTransitionScene implements SMView.OnClickListener, SMPageView.OnPageChangedCallback, StickerControlView.StickerControlListener, StickerItemView.StickerLayoutListener, StickerCanvasView.StickerCanvasListener, IDownloadProtocol, ImageProcessProtocol, ItemListView.OnItemClickListener {
     public ViewDisplayScene _mainScene = null;
 
     public ViewDisplayScene(IDirector director) {
@@ -83,6 +99,8 @@ public class ViewDisplayScene extends SMMenuTransitionScene implements SMView.On
 
         Size s = getDirector().getWinSize();
         _contentView = SMView.create(getDirector(), 0, 0, AppConst.SIZE.MENUBAR_HEIGHT, s.width, s.height-AppConst.SIZE.MENUBAR_HEIGHT);
+        _contentView.setAnchorPoint(Vec2.MIDDLE);
+        _contentView.setPosition(s.width/2, s.height/2+AppConst.SIZE.MENUBAR_HEIGHT/2);
         _contentView.setBackgroundColor(Color4F.WHITE);
         addChild(_contentView);
 
@@ -139,17 +157,18 @@ public class ViewDisplayScene extends SMMenuTransitionScene implements SMView.On
                 ringWaveDisplay();
             }
             break;
+//            case 7:
+//            {
+//                // Stencil View
+//            }
+//            break;
             case 7:
             {
-                // Stencil View
+                // Sticker View
+                stickerDisplay();
             }
             break;
             case 8:
-            {
-                // Sticker View
-            }
-            break;
-            case 9:
             default:
             {
                 // Swipe View
@@ -157,6 +176,255 @@ public class ViewDisplayScene extends SMMenuTransitionScene implements SMView.On
             break;
         }
     }
+
+    // sticker start
+
+    private SMView _stickerMenuView = null;
+    private StickerLayer _stickerLayer = null;
+
+    private StickerItemListView _stickerListView = null;
+
+    private void stickerDisplay() {
+        Size s = _contentView.getContentSize();
+
+//        _contentView.setBackgroundColor(new Color4F(1, 0, 0, 0.4f));
+
+        // zoom layer
+        Size borderSize = new Size(s.width, s.height-AppConst.SIZE.BOTTOM_MENU_HEIGHT);
+        _stickerLayer = StickerLayer.create(getDirector(), BitmapSprite.createFromAsset(getDirector(), "images/defaults.jpg", false, null), borderSize);
+        _stickerLayer.setAnchorPoint(Vec2.MIDDLE);
+        _stickerLayer.setPosition(s.width/2, borderSize.height/2);
+        _stickerLayer.setStickerListener(this, this);
+        _contentView.addChild(_stickerLayer);
+//        _stickerLayer.setBackgroundColor(new Color4F(1, 1, 0, 0.4f));
+
+        _stickerMenuView = SMView.create(getDirector(), 0, 0, s.height-AppConst.SIZE.BOTTOM_MENU_HEIGHT, s.width, AppConst.SIZE.BOTTOM_MENU_HEIGHT);
+        _stickerMenuView.setBackgroundColor(Color4F.WHITE);
+        _contentView.addChild(_stickerMenuView);
+        _stickerMenuView.setLocalZOrder(10);
+
+        SMView bottomUpperLine = SMView.create(getDirector(), 0, 0, 0, s.width, ShaderNode.DEFAULT_ANTI_ALIAS_WIDTH);
+        bottomUpperLine.setBackgroundColor(Color4F.XADAFB3);
+        _stickerMenuView.addChild(bottomUpperLine);
+        bottomUpperLine.setLocalZOrder(10);
+
+        _stickerListView = StickerItemListView.create(getDirector());
+        _stickerListView.setOnItemClickListener(this);
+        _stickerMenuView.addChild(_stickerListView);
+
+        Action action = _stickerListView.getActionByTag(AppConst.TAG.USER+1);
+        if (action!=null) {
+            action.stop();
+        }
+
+        _stickerListView.setVisible(true);
+
+    }
+    @Override
+    public void onStickerMenuClick(SMView view, int menuId) {
+        if (view instanceof StickerItemView) {
+            StickerItemView sticker = (StickerItemView)view;
+            if (sticker!=null) {
+                sticker.prepareRemove();
+            }
+
+            _stickerLayer.startGeineRemove(view);
+        }
+    }
+    @Override
+    public void onStickerLayout(StickerItemView itemView, Sprite sprite, final StickerItem item, final int colorIndex) {
+
+    }
+
+
+    private ArrayList<DownloadTask> _downloadTask = new ArrayList<>();
+    @Override
+    public void onImageLoadComplete(Sprite sprite, int tag, boolean direct) {
+        if (sprite!=null) {
+
+        }
+    }
+    @Override
+    public void onImageCacheComplete(boolean success, int tag) { }
+    @Override
+    public void onImageLoadStart(DownloadStartState state) { }
+    @Override
+    public void onDataLoadComplete(byte[] data, int size, int tag) { }
+    @Override
+    public void onDataLoadStart(DownloadStartState state) { }
+    @Override
+    public void resetDownload() {
+        synchronized (_downloadTask) {
+            for (DownloadTask task : _downloadTask) {
+                if (task.isTargetAlive()) {
+                    if (task.isRunning()) {
+                        task.interrupt();
+                    }
+                }
+                task = null;
+            }
+
+            _downloadTask.clear();
+
+        }
+    }
+
+    @Override
+    public void removeDownloadTask(DownloadTask task) {
+        synchronized (_downloadTask) {
+            ListIterator<DownloadTask> iter = _downloadTask.listIterator();
+            while (iter.hasNext()) {
+                DownloadTask t = iter.next();
+                if (!t.isTargetAlive()) {
+                    _downloadTask.remove(t);
+                } else if (task!=null&& (t.equals(task) || task.getCacheKey().compareTo(t.getCacheKey())==0)) {
+                    task.interrupt();
+                    _downloadTask.remove(t);
+                    t = null;
+                }
+            }
+        }
+    }
+
+    @Override
+    public boolean isDownloadRunning(final String requestPath, int requestTag) {
+        synchronized (_downloadTask) {
+            for (DownloadTask t : _downloadTask) {
+                if (t.getRequestPath().compareTo(requestPath)==0 && t.getTag()==requestTag) {
+                    return true;
+                }
+            }
+            return false;
+        }
+    }
+
+    @Override
+    public boolean addDownloadTask(DownloadTask task) {
+        synchronized (_downloadTask) {
+            ListIterator<DownloadTask> iter = _downloadTask.listIterator();
+            while (iter.hasNext()) {
+                DownloadTask t = iter.next();
+                if (!t.isTargetAlive()) {
+                    _downloadTask.remove(t);
+                } else if (task!=null && t.isRunning() && (t.equals(task) || task.getCacheKey().compareTo(t.getCacheKey())==0)) {
+                    return false;
+                }
+            }
+
+            _downloadTask.add(task);
+            return true;
+        }
+    }
+    @Override
+    public void onImageProcessComplete(int tag, final boolean success, Sprite sprite, SceneParams params) {
+
+    }
+    @Override
+    public void onImageCaptureComplete(int tag, Texture texture, byte[] data, final Size size, final int bpp) {
+
+    }
+    @Override
+    public void onImageProcessProgress(final int tag, final float progress) {
+
+    }
+    @Override
+    public void resetImageProcess() {
+        ListIterator<ImageProcessTask> iter = _imageProcessTask.listIterator();
+        while (iter.hasNext()) {
+            ImageProcessTask task = iter.next();
+            if (task.isRunning()) {
+                task.interrupt();
+            }
+        }
+
+        _imageProcessTask.clear();
+    }
+    @Override
+    public void removeImageProcessTask(ImageProcessTask task) {
+        ListIterator<ImageProcessTask> iter = _imageProcessTask.listIterator();
+        while (iter.hasNext()) {
+            ImageProcessTask iterTask = iter.next();
+            if (!iterTask.isTargetAlive()) {
+                _imageProcessTask.remove(iterTask);
+            } else if (task==iterTask) {
+                task.interrupt();
+                _imageProcessTask.remove(iterTask);
+            }
+        }
+    }
+    @Override
+    public boolean addImageProcessTask(ImageProcessTask task) {
+        ListIterator<ImageProcessTask> iter = _imageProcessTask.listIterator();
+        while (iter.hasNext()) {
+            ImageProcessTask iterTask = iter.next();
+            if (!iterTask.isTargetAlive()) {
+                _imageProcessTask.remove(iterTask);
+            } else if (task!=null && task==iterTask && iterTask.isRunning()) {
+                return false;
+            }
+        }
+
+        _imageProcessTask.add(task);
+        return true;
+    }
+    @Override
+    public void onItemClick(ItemListView sender, StickerItemThumbView view) {
+        runSelectSticker(view.getTag());
+    }
+    @Override
+    public void onStickerSelected(SMView view, final boolean select) {
+
+    }
+    @Override
+    public void onStickerRemoveBegin(SMView view) {
+
+    }
+    @Override
+    public void onStickerRemoveEnd(SMView view) {
+
+    }
+    @Override
+    public void onStickerDoubleClicked(SMView view, final Vec2 worldPoint) {
+
+    }
+    @Override
+    public void onStickerTouch(SMView view, int action) {
+
+    }
+
+    private StickerItemView runSelectSticker(int index) {
+        return runSelectSticker(index, false);
+    }
+    private StickerItemView runSelectSticker(int index, boolean fromTemplate) {
+        return runSelectSticker(index, fromTemplate, 0);
+    }
+    private StickerItemView runSelectSticker(int index, boolean fromTemplate, int colorIndex) {
+        return runSelectSticker(index, fromTemplate, colorIndex, -1);
+    }
+    private StickerItemView runSelectSticker(int index, boolean fromTemplate, int colorIndex, int code) {
+        if (index==0 && code<0) {
+            _stickerLayer.removeAllStickerWithFly();
+        } else {
+            StickerItemView sticker = null;
+            StickerItem item = _stickerListView.getItem(index);
+            if (item!=null) {
+                sticker = StickerItemView.createWithItem(getDirector(), item, this);
+                _stickerLayer.addSticker(sticker);
+            }
+
+            if (sticker!=null) {
+                sticker.setPosition(_stickerLayer.getContentSize().divide(2));
+                _stickerLayer.getCanvas().setSelectedSticker(sticker);
+            }
+        }
+
+        return null;
+    }
+
+
+    // sticker end
+
+
 
     private RingWave2 _ringView = null;
     private SMSolidCircleView _alarmCircle = null;

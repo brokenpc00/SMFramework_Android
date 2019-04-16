@@ -9,6 +9,8 @@ public class ImageProcessing {
      */
     public static native String stringFromJNI();
 
+//    public static native float[] transformVec4(final float[] m, float x, float y, float z, float w, float[] dst);
+
     public static native void callTest();
 
     public static native void glGrabPixels(int x, int y, Bitmap bitmap, boolean zeroNonVisiblePixels);

@@ -1,6 +1,6 @@
 package com.interpark.smframework.util.ImageManager;
 
-import com.interpark.smframework.base.sprite.BitmapSprite;
+import com.interpark.smframework.base.sprite.Sprite;
 
 import java.util.ArrayList;
 
@@ -11,8 +11,7 @@ public interface IDownloadProtocol {
         IMAGE_CACHE
     }
 
-    public void resetDownload();
-    public void onImageLoadComplete(BitmapSprite sprite, int tag, boolean direct);
+    public void onImageLoadComplete(Sprite sprite, int tag, boolean direct);
     public void onImageCacheComplete(boolean success, int tag);
     //    public void onPolygonInfoComplete(Poly)
     public void onImageLoadStart(DownloadStartState state);
@@ -20,16 +19,32 @@ public interface IDownloadProtocol {
     public void onDataLoadStart(DownloadStartState state);
 
 
+    public void resetDownload();
     public void removeDownloadTask(DownloadTask task);
     public boolean isDownloadRunning(final String requestPath, int requestTag);
     public boolean addDownloadTask(DownloadTask task);
 
-    public ArrayList<DownloadTask> _downloadTask = new ArrayList<>();
+//    public ArrayList<DownloadTask> _downloadTask = new ArrayList<>();
 }
 
 /*
 // must override
     // IDownloadProtocol
+    private ArrayList<DownloadTask> _downloadTask = new ArrayList<>();
+    @Override
+    public void onImageLoadComplete(Sprite sprite, int tag, boolean direct) {
+        if (sprite!=null) {
+
+        }
+    }
+    @Override
+    public void onImageCacheComplete(boolean success, int tag) { }
+    @Override
+    public void onImageLoadStart(DownloadStartState state) { }
+    @Override
+    public void onDataLoadComplete(byte[] data, int size, int tag) { }
+    @Override
+    public void onDataLoadStart(DownloadStartState state) { }
     @Override
     public void resetDownload() {
         synchronized (_downloadTask) {

@@ -167,7 +167,7 @@ public class Sequence extends ActionInterval {
     protected boolean initWithTwoActions(FiniteTimeAction action1, FiniteTimeAction action2) {
 
         assert (action1!=null);
-        assert (action2==null);
+        assert (action2!=null);
 
         if (action1==null || action2==null) {
             return false;

@@ -555,20 +555,20 @@ public class ImageDownloader {
     protected void init() {
         _memCache = new MemoryLRUCache(_memCacheSize);
         _imageCache = new ImageLRUCache(_imageCacheSize);
-        _decodeThreadPool = new ThreadPool(_decodePoolSize);
-        _downloadThreadPool = new ThreadPool(_downloadPoolSize);
-        _fileCacheWriteThreadPool = new ThreadPool(1);
+        _decodeThreadPool = new ImageThreadPool(_decodePoolSize);
+        _downloadThreadPool = new ImageThreadPool(_downloadPoolSize);
+        _fileCacheWriteThreadPool = new ImageThreadPool(1);
     }
 
-    private static final int MEM_CACHE_SIZE = (2*1024*1024);
+    private static final int MEM_CACHE_SIZE = (32*1024*1024);
     private static final int IMAGE_CACHE_SIZE = (4*1080*1920);
     private static final int CORE_POOL_SIZE = 8; // thread count 8
     private static final int MAXIMUM_POOL_SIZE = 8; //
 
-    private ThreadPool _downloadThreadPool = null;
-    private ThreadPool _decodeThreadPool = null;
-    private ThreadPool _fileCacheWriteThreadPool = null;
-    private ThreadPool _decompressThreadPool = null;
+    private ImageThreadPool _downloadThreadPool = null;
+    private ImageThreadPool _decodeThreadPool = null;
+    private ImageThreadPool _fileCacheWriteThreadPool = null;
+    private ImageThreadPool _decompressThreadPool = null;
 
     private MemoryLRUCache _memCache = null;
     private ImageLRUCache _imageCache = null;
@@ -609,117 +609,4 @@ public class ImageDownloader {
 
 
     public final int DEFAULT_POOL_SIZE = 4;
-
-    public class ThreadPool {
-        public ThreadPool(int threadCount) {
-            _running = true;
-
-            for (int i=0; i<threadCount; i++) {
-                Thread t = new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        try {
-                            threadFunc();
-                        } catch (InterruptedException e) {
-
-                        }
-                    }
-                });
-                t.start();
-                _workers.add(t);
-            }
-        }
-
-        public void interrupt() {
-            _running = false;
-//            _mutex.lock();
-            synchronized (_cond) {
-            _cond.signalAll();
-            }
-//            _mutex.unlock();
-        }
-
-        public void addTask(final PERFORM_SEL task) {
-
-//            Log.i("ImageDownloader", "[[[[[ thread pool addTask!!!!!!");
-
-            synchronized (_queue) {
-            _queue.add(task);
-            }
-
-//            _mutex.lock();
-//            _queue.add(task);
-            synchronized (_cond) {
-            _cond.notify();
-            }
-//            _mutex.unlock();
-        }
-
-        private void threadFunc() throws InterruptedException {
-            while (true) {
-                PERFORM_SEL task = null;
-
-                if (!_running) {
-                    break;
-                }
-
-                boolean isEmpty = false;
-                synchronized (_queue) {
-                    isEmpty = _queue.isEmpty();
-                }
-
-                if (!isEmpty) {
-                    synchronized (_queue) {
-                    task = _queue.poll();
-                    }
-                } else {
-                    synchronized (_cond) {
-                    _cond.wait();
-                    }
-                    if (!_running) {
-                        break;
-                    }
-                    continue;
-                }
-
-                if (task!=null) {
-                    task.performSelector();
-                }
-
-
-
-//                _mutex.lock();
-//                if (!_running) {
-//                    break;
-//                }
-//
-//                if (!_queue.isEmpty()) {
-//                    task = _queue.poll();
-//                } else {
-//                    synchronized (_cond) {
-//                        _cond.wait();
-//                    }
-//                    if (!_running) {
-//                        _mutex.unlock();
-//                        break;
-//                    }
-//                    _mutex.unlock();
-//                    continue;
-//                }
-//
-//                _mutex.unlock();
-//
-//                if (task!=null) {
-//                    task.performSelector();
-//                }
-            }
-        }
-
-        private final Lock _mutex = new ReentrantLock(true);
-        private final Condition _cond = _mutex.newCondition();
-        private ArrayList<Thread> _workers = new ArrayList<>();
-
-        private Queue<PERFORM_SEL> _queue = new LinkedList<>();
-        private boolean _running;;
-    }
 }

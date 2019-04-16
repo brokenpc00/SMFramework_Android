@@ -6,6 +6,7 @@ import android.util.Log;
 import com.interpark.smframework.IDirector;
 import com.interpark.smframework.base.SMView;
 import com.interpark.smframework.base.sprite.BitmapSprite;
+import com.interpark.smframework.base.sprite.Sprite;
 import com.interpark.smframework.base.types.Color4F;
 import com.interpark.smframework.base.types.DelayBaseAction;
 import com.interpark.smframework.base.types.PERFORM_SEL;
@@ -111,7 +112,7 @@ public class SMKenBurnsView extends SMView implements IDownloadProtocol {
     }
 
     @Override
-    public void onImageLoadComplete(BitmapSprite sprite, int tag, boolean direct) {
+    public void onImageLoadComplete(Sprite sprite, int tag, boolean direct) {
         if (sprite!=null) {
             SMImageView imageView = SMImageView.create(getDirector(), sprite);
             imageView.setScaleType(SMImageView.ScaleType.CENTER);
@@ -298,6 +299,7 @@ public class SMKenBurnsView extends SMView implements IDownloadProtocol {
 
 
     // IDownloadProtocol copy
+    private ArrayList<DownloadTask> _downloadTask = new ArrayList<>();
     @Override
     public void resetDownload() {
         synchronized (_downloadTask) {
@@ -318,10 +320,12 @@ public class SMKenBurnsView extends SMView implements IDownloadProtocol {
     @Override
     public void removeDownloadTask(DownloadTask task) {
         synchronized (_downloadTask) {
-            for (DownloadTask t : _downloadTask) {
+            ListIterator<DownloadTask> iter = _downloadTask.listIterator();
+            while (iter.hasNext()) {
+                DownloadTask t = iter.next();
                 if (!t.isTargetAlive()) {
                     _downloadTask.remove(t);
-                } else if (task!=null && t!=null && (t.equals(task) || task.getCacheKey().compareTo(t.getCacheKey())==0)) {
+                } else if (task!=null && (t.equals(task) || task.getCacheKey().compareTo(t.getCacheKey())==0)) {
                     task.interrupt();
                     _downloadTask.remove(t);
                     t = null;
@@ -345,10 +349,12 @@ public class SMKenBurnsView extends SMView implements IDownloadProtocol {
     @Override
     public boolean addDownloadTask(DownloadTask task) {
         synchronized (_downloadTask) {
-            for (DownloadTask t : _downloadTask) {
+            ListIterator<DownloadTask> iter = _downloadTask.listIterator();
+            while (iter.hasNext()) {
+                DownloadTask t = iter.next();
                 if (!t.isTargetAlive()) {
                     _downloadTask.remove(t);
-                } else if (task!=null && t!=null && t.isRunning() && (t.equals(task) || task.getCacheKey().compareTo(t.getCacheKey())==0)) {
+                } else if (task!=null && t.isRunning() && (t.equals(task) || task.getCacheKey().compareTo(t.getCacheKey())==0)) {
                     return false;
                 }
             }

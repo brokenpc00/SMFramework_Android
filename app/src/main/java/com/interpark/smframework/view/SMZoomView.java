@@ -524,7 +524,7 @@ public class SMZoomView extends UIContainerView {
     }
 
     @Override
-    protected void performDoubleClick(Vec2 worldPoint) {
+    public void performDoubleClick(Vec2 worldPoint) {
         if (!_zoomEnable || _contentView==null) {
             return;
         }

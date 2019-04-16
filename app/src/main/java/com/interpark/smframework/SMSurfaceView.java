@@ -34,7 +34,7 @@ public class SMSurfaceView extends GLSurfaceView {
         }
 
 
-        mDirector= new SMDirector(activity);
+        mDirector = new SMDirector(activity, this);
 
         setRenderer(mDirector);
         setRenderMode(GLSurfaceView.RENDERMODE_CONTINUOUSLY);
@@ -63,7 +63,7 @@ public class SMSurfaceView extends GLSurfaceView {
 
     public void startSMFrameWorkScene(SMScene scene) {
         if (mDirector==null) {
-            mDirector= new SMDirector(mActivity);
+            mDirector = new SMDirector(mActivity, this);
 
             setRenderer(mDirector);
             setRenderMode(GLSurfaceView.RENDERMODE_CONTINUOUSLY);

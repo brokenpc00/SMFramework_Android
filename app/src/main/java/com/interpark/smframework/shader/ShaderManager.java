@@ -40,7 +40,26 @@ public class ShaderManager {
         Sprite3D(8, "glsl/sprite3d.vsh", "glsl/sprite3d.fsh", new ProgSprite3D()),
         /** yuv2rgb */
         // 속도 때문에 yuv로 받아야 한다. argb로 받으면 겁나 느림..
-        CameraPreview(9, "glsl/sprite.vsh", "glsl/yuv2rgb.fsh", new ProgCameraPreview());
+        CameraPreview(9, "glsl/sprite.vsh", "glsl/yuv2rgb.fsh", new ProgCameraPreview()),
+        /** Bilateral filter */
+        Bilateral(10, "glsl/bilateral_filter.vsh", "glsl/bilateral_filter.fsh", new ProgBilateralFilter()),
+        /** Gaussian blur filter */
+        GaussianBlur(11, "glsl/gaussian_blur.vsh", "glsl/gaussian_blur.fsh", new ProgGaussianBlur()),
+        /** Edge glow */
+        EdgeGlow(12, "glsl/sprite.vsh", "glsl/edge_glow.fsh", new ProgEdgeGlow()),
+        /** Geine Effect */
+        GeineEffect(13, "glsl/geine_effect.vsh", "glsl/sprite.fsh", new ProgGeineEffect()),
+        //        /** Geine Effect */
+        GeineEffect2(14, "glsl/sprite.vsh", "glsl/geine_effect.fsh", new ProgGeineEffect2()),
+        /** Adjust color */
+        AdjustColor(15, "glsl/sprite.vsh", "glsl/adjust_color.fsh", new ProgAdjustColor()),
+        /** Radial alpha */
+        RadialAlpha(16, "glsl/sprite.vsh", "glsl/radial_alpha.fsh", new ProgRadialAlpha()),
+        /** Adjust color */
+        ShapeSurface(17, "glsl/sprite.vsh", "glsl/shape_surface.fsh", new ProgPrimitiveSolidRect()),
+        /** Adjust color */
+        FishEyeCircle(18, "glsl/sprite.vsh", "glsl/fisheye_circle.fsh", new ProgSprite());
+
 
 
         private int key;

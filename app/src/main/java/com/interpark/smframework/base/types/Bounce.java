@@ -31,10 +31,10 @@ public class Bounce extends ActionInterval {
     }
 
     @Override
-    public void startWithTarget(SMView view) {
-        super.startWithTarget(view);
-        if (view!=null) {
-            _view = view;
+    public void startWithTarget(SMView target) {
+        super.startWithTarget(target);
+        if (target!=null) {
+            _view = target;
         }
     }
 

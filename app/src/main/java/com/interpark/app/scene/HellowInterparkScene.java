@@ -6,8 +6,11 @@ import android.util.Pair;
 
 import com.interpark.app.menu.MenuBar;
 import com.interpark.smframework.IDirector;
+import com.interpark.smframework.NativeImageProcess.ImageProcessing;
 import com.interpark.smframework.SideMenu;
 import com.interpark.smframework.base.SMScene;
+import com.interpark.smframework.base.shape.ShapeConstant;
+import com.interpark.smframework.base.sprite.BitmapSprite;
 import com.interpark.smframework.network.Downloader.AndroidDownloader;
 import com.interpark.smframework.network.Downloader.DownloadTask;
 import com.interpark.smframework.network.Downloader.Downloader;
@@ -15,6 +18,9 @@ import com.interpark.smframework.network.HttpClient.HttpClient;
 import com.interpark.smframework.network.HttpClient.HttpRequest;
 import com.interpark.smframework.network.HttpClient.HttpResponse;
 import com.interpark.smframework.util.FileUtils;
+import com.interpark.smframework.util.ImageProcess.ImageProcessor;
+import com.interpark.smframework.util.Vec3;
+import com.interpark.smframework.view.SMRoundRectView;
 import com.interpark.smframework.view.SMTableView;
 import com.interpark.smframework.base.transition.SlideInToLeft;
 import com.interpark.smframework.base.types.Color4F;
@@ -107,6 +113,59 @@ public class HellowInterparkScene extends SMScene implements SMTableView.CellFor
 
 
 
+//        imgPath.add("sticker/thumb/001.png");
+//        imgPath.add("sticker/thumb/002.png");
+//        imgPath.add("sticker/thumb/003.png");
+//        imgPath.add("sticker/thumb/004.png");
+//        imgPath.add("sticker/thumb/005.png");
+//        imgPath.add("sticker/thumb/006.png");
+//        imgPath.add("sticker/thumb/007.png");
+//        imgPath.add("sticker/thumb/008.png");
+//        imgPath.add("sticker/thumb/009.png");
+//        imgPath.add("sticker/thumb/010.png");
+//        imgPath.add("sticker/thumb/011.png");
+//        imgPath.add("sticker/thumb/012.png");
+//        imgPath.add("sticker/thumb/013.png");
+//        imgPath.add("sticker/thumb/014.png");
+//        imgPath.add("sticker/thumb/015.png");
+//        imgPath.add("sticker/thumb/016.png");
+//        imgPath.add("sticker/thumb/017.png");
+//        imgPath.add("sticker/thumb/018.png");
+//        imgPath.add("sticker/thumb/019.png");
+//        imgPath.add("sticker/thumb/020.png");
+//
+//        tmpTableView = SMTableView.createMultiColumn(getDirector(), SMTableView.Orientation.HORIZONTAL, 1);
+//        tmpTableView.setContentSize(new Size(s.width, 400));
+//        tmpTableView.setAnchorPoint(Vec2.MIDDLE);
+//        tmpTableView.setPosition(s.divide(2));
+//        _contentView.addChild(tmpTableView);
+//
+//        tmpTableView.numberOfRowsInSection = new SMTableView.NumberOfRowsInSection() {
+//            @Override
+//            public int numberOfRowsInSection(int section) {
+//                return imgPath.size();
+//            }
+//        };
+//
+//        tmpTableView.cellForRowAtIndexPath = new SMTableView.CellForRowAtIndexPath() {
+//            @Override
+//            public SMView cellForRowAtIndexPath(IndexPath indexPath) {
+//                int index = indexPath.getIndex();
+//
+//                SMView view = tmpTableView.dequeueReusableCellWithIdentifier("CELL");
+//                SMImageView imgView = null;
+//                if (view!=null) {
+//                    imgView = (SMImageView)view;
+//                    BitmapSprite sprite = BitmapSprite.createFromAsset(getDirector(), imgPath.get(index), false, null);
+//                    imgView.setSprite(sprite);
+//                } else {
+//                    imgView = SMImageView.create(getDirector(), imgPath.get(index));
+//                }
+//
+//                return imgView;
+//            }
+//        };
+
 //        String str = "http://www.interpark.com/index.html?test=false&parse=true";
 //        doParse(str);
 
@@ -132,8 +191,38 @@ public class HellowInterparkScene extends SMScene implements SMTableView.CellFor
 
 //        commTest();
 
+//        SMRoundRectView dashRect = SMRoundRectView.create(getDirector(), 4.0f, ShapeConstant.LineType.Dash, 4);
+//        dashRect.setContentSize(new Size(s.width/2, s.height/2));
+//        dashRect.setAnchorPoint(Vec2.MIDDLE);
+//        dashRect.setLineColor(new Color4F(1, 0, 0, 1));
+//        dashRect.setPosition(s.divide(2));
+//        _contentView.addChild(dashRect);
+
+//        String imgUrl = "http://openimage.interpark.com/goods_image_big/7/2/5/3/6403007253_l.jpg";
+//        SMImageView testImg = SMImageView.create(getDirector(), imgUrl, true);
+//        testImg.setContentSize(new Size(s.width/2, s.height/2));
+//        testImg.setAnchorPoint(Vec2.MIDDLE);
+//        testImg.setPosition(s.divide(2));
+//        _contentView.addChild(testImg);
+
+
+//        float x = 0, y=0, z=0;
+//        float[] dst = new float[3];
+//        dst[0] = 0;
+//        dst[1] = 1;
+//        dst[2] = 0;
+//
+//        float[] m = getDirector().getProjectionMatrix();
+//
+//        float[] ret = ImageProcessing.transformVec4(m, x, y, z, 1.0f, dst);
+//
+
+
         return true;
     }
+
+    private SMTableView tmpTableView = null;
+    private  ArrayList<String> imgPath = new ArrayList<>();
 
     public void commTest() {
         final HttpRequest request = new HttpRequest(getDirector());

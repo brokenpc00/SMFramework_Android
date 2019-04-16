@@ -124,6 +124,10 @@ public final class Size implements Cloneable  {
         this.height *= r;
     }
 
+    public Vec2 toVec() {
+        return new Vec2(this.width, this.height);
+    }
+
     public Size divide(float r) {
         Size ret = new Size();
         ret.setWidth(this.width/r);

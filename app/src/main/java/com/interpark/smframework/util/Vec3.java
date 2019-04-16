@@ -11,9 +11,7 @@ public final class Vec3 implements Cloneable  {
     public float z;
 
     public Vec3(Vec3 v) {
-        this.x = v.x;
-        this.y = v.y;
-        this.z = v.z;
+        set(v);
     }
 
     public Vec3(Vec3 p1, Vec3 p2) {
@@ -33,9 +31,27 @@ public final class Vec3 implements Cloneable  {
     }
 
     public Vec3(float[] val) {
-        this.x = val[0];
-        this.y = val[1];
-        this.z = val[2];
+        set(val);
+    }
+
+    public Vec3 fromColor(int color) {
+        float[] components = new float[3];
+        int componentIndex = 0;
+        for (int i=2; i>=0; --i) {
+            int component = (color >> i*8) & 0x0000ff;
+
+            components[componentIndex++] = (float)(component/255.0f);
+        }
+
+        return new Vec3(components);
+    }
+
+    public static float angle(final Vec3 v1, final Vec3 v2) {
+        float dx = v1.y * v2.z - v1.z * v2.y;
+        float dy = v1.z * v2.x - v1.x * v2.z;
+        float dz = v1.x * v2.y - v1.y * v2.x;
+
+        return (float) Math.atan2((float)Math.sqrt(dx * dx + dy * dy + dz * dz) + MATH_FLOAT_SMALL, dot(v1, v2));
     }
 
     public float x() {return this.x;}
@@ -126,6 +142,53 @@ public final class Vec3 implements Cloneable  {
         return v;
     }
 
+    public static void add(final Vec3 v1, final Vec3 v2, Vec3 dst) {
+        dst.x = v1.x + v2.x;
+        dst.y = v1.y + v2.y;
+        dst.z = v1.z + v2.z;
+    }
+
+    public void clamp(final Vec3 min, final Vec3 max) {
+        if (x < min.x)
+            x = min.x;
+        if (x > max.x)
+            x = max.x;
+
+        // Clamp the y value.
+        if (y < min.y)
+            y = min.y;
+        if (y > max.y)
+            y = max.y;
+
+        // Clamp the z value.
+        if (z < min.z)
+            z = min.z;
+        if (z > max.z)
+            z = max.z;
+    }
+
+    public static void clamp(final Vec3 v, final Vec3 min, final Vec3 max, Vec3 dst) {
+        dst.x = v.x;
+        if (dst.x < min.x)
+            dst.x = min.x;
+        if (dst.x > max.x)
+            dst.x = max.x;
+
+        // Clamp the y value.
+        dst.y = v.y;
+        if (dst.y < min.y)
+            dst.y = min.y;
+        if (dst.y > max.y)
+            dst.y = max.y;
+
+        // Clamp the z value.
+        dst.z = v.z;
+        if (dst.z < min.z)
+            dst.z = min.z;
+        if (dst.z > max.z)
+            dst.z = max.z;
+    }
+
     public Vec3 add(Vec3 r) {
         Vec3 ret = new Vec3();
         ret.x = this.x + r.x();
@@ -139,6 +202,42 @@ public final class Vec3 implements Cloneable  {
         this.y += r.y();
         this.z += r.z();
     }
+
+    public void cross(final Vec3 v) {
+        cross(this, v, this);
+    }
+
+    public static void cross(final Vec3 v1, final Vec3 v2, Vec3 dst) {
+        float[] v1x = new float[1];
+        float[] v2x = new float[1];
+        float[] dstx = new float[1];
+        v1x[0] = v1.x;
+        v2x[0] = v2.x;
+        dstx[0] = dst.x;
+        MathUtilC.crossVec3(v1x, v2x, dstx);
+        v1.x = v1x[0];
+        v2.x = v2x[0];
+        dst.x = dstx[0];
+    }
+
+    public float distance(final Vec3 v) {
+        float dx = v.x - x;
+        float dy = v.y - y;
+        float dz = v.z - z;
+
+        return (float)Math.sqrt(dx * dx + dy * dy + dz * dz);
+    }
+
+    public float distanceSquared(final Vec3 v) {
+        float dx = v.x - x;
+        float dy = v.y - y;
+        float dz = v.z - z;
+
+        return (dx * dx + dy * dy + dz * dz);
+    }
+
+
+
 
     public Vec3 scale(float v) {
         Vec3 ret = new Vec3();
@@ -166,10 +265,22 @@ public final class Vec3 implements Cloneable  {
         return ret;
     }
 
-    public void minusLocal(Vec3 r) {
+    public Vec3 minusLocal(Vec3 r) {
         this.x -= r.x();
         this.y -= r.y();
         this.z -= r.z();
+
+        return this;
+    }
+
+    public Vec3 subtractLocal(Vec3 r) {
+        return minusLocal(r);
+    }
+
+    public void smooth(final Vec3 target, float elapsedTime, float responseTime) {
+        if (elapsedTime > 0) {
+            this.addLocal(target.minus(this).multiply(elapsedTime/(elapsedTime-responseTime)));
+        }
     }
 
     public static void minus(final Vec3 v1, final Vec3 v2, Vec3 dst) {
@@ -179,6 +290,15 @@ public final class Vec3 implements Cloneable  {
         dst.y = v1.y-v2.y;
         dst.z = v1.z-v2.z;
     }
+
+    public static void subtract(final Vec3 v1, final Vec3 v2, Vec3 dst) {
+        assert (dst!=null);
+
+        dst.x = v1.x-v2.x;
+        dst.y = v1.y-v2.y;
+        dst.z = v1.z-v2.z;
+    }
+
 
     public Vec3 multiply(float r) {
         Vec3 ret = new Vec3();

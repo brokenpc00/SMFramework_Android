@@ -4,13 +4,18 @@ import android.opengl.GLES20;
 
 import com.interpark.smframework.IDirector;
 import com.interpark.smframework.base.texture.Texture;
+import com.interpark.smframework.shader.ProgGeineEffect;
+import com.interpark.smframework.shader.ProgGeineEffect2;
 import com.interpark.smframework.shader.ProgSprite;
 import com.interpark.smframework.shader.ShaderManager.ProgramType;
 import com.interpark.smframework.shader.ShaderProgram;
+import com.interpark.smframework.util.Vec2;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.ShortBuffer;
+
+import static com.interpark.smframework.SMDirector.getDirector;
 
 public class GridSprite extends Sprite {
     public static final int DEFAULT_GRID_SIZE = 10;
@@ -44,6 +49,16 @@ public class GridSprite extends Sprite {
 
     public ShortBuffer getIndices() {
         return mIndices;
+    }
+
+    public static GridSprite create(IDirector director, Sprite sprite) {
+        if (sprite instanceof GridSprite) {
+            return (GridSprite)sprite;
+        } else {
+            Texture texture = sprite.getTexture();
+//            return new GridSprite(director, texture, sprite.getWidth()/2, sprite.getHeight()/2, DEFAULT_GRID_SIZE);
+            return new GridSprite(director, texture, 0, 0, DEFAULT_GRID_SIZE);
+        }
     }
 
     public GridSprite(IDirector director, Texture texture, float cx, float cy, int gridSize) {
@@ -149,15 +164,31 @@ public class GridSprite extends Sprite {
                 default:
                 case Sprite:
                     if (((ProgSprite)program).setDrawParam(texture, sMatrix, v, uv)) {
+                        if (_setColor) {
+                            getDirector().setColor(_color.r, _color.g, _color.b, _color.a);
+                        }
+
                         GLES20.glDrawElements(GLES20.GL_TRIANGLES, mNumFaces*3, GLES20.GL_UNSIGNED_SHORT, mIndices);
                     }
                     break;
-//                case GeineEffect:
-//                    if (((ProgGeineEffect)program).setDrawParam(texture, sMatrix, v, uv)) {
-//                        ((ProgGeineEffect)program).setGeineValue(mGenieMinimize, mGenieBend, mGenieSide);
-//                        GLES20.glDrawElements(GLES20.GL_TRIANGLES, mNumFaces*3, GLES20.GL_UNSIGNED_SHORT, mIndices);
-//                    }
-//                    break;
+                case GeineEffect:
+                    if (((ProgGeineEffect)program).setDrawParam(texture, sMatrix, v, uv)) {
+                        if (_setColor) {
+                            getDirector().setColor(_color.r, _color.g, _color.b, _color.a);
+                        }
+                        ((ProgGeineEffect)program).setGeineValue(mGenieMinimize, mGenieBend, mGenieSide);
+                        GLES20.glDrawElements(GLES20.GL_TRIANGLES, mNumFaces*3, GLES20.GL_UNSIGNED_SHORT, mIndices);
+                    }
+                    break;
+                case GeineEffect2:
+                    if (((ProgGeineEffect2)program).setDrawParam(texture, sMatrix, v, uv)) {
+                        if (_setColor) {
+                            getDirector().setColor(_color.r, _color.g, _color.b, _color.a);
+                        }
+                        ((ProgGeineEffect2)program).setGeineValue(_genieAnchor, _genieProgress);
+                        GLES20.glDrawElements(GLES20.GL_TRIANGLES, mNumFaces*3, GLES20.GL_UNSIGNED_SHORT, mIndices);
+                    }
+                    break;
             }
         }
     }
@@ -171,6 +202,16 @@ public class GridSprite extends Sprite {
         vertex.put(lr);
         vertex.put(ur);
         vertex.put(ul);
+    }
+
+    private Vec2 _genieAnchor = new Vec2();
+    private float _genieProgress = 0;
+
+    public void setGenieAnchor(final Vec2 v) {
+        _genieAnchor.set(v);
+    }
+    public void setGenieProgress(final float f) {
+        _genieProgress = f;
     }
 
     private float mGenieMinimize = 0;
