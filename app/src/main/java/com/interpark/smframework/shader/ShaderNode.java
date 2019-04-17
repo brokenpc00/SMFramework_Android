@@ -3,6 +3,7 @@ package com.interpark.smframework.shader;
 import com.interpark.smframework.IDirector;
 import com.interpark.smframework.base.SMView;
 import com.interpark.smframework.base.types.Color4F;
+import com.interpark.smframework.base.types.Mat4;
 
 public class ShaderNode extends SMView {
     public ShaderNode(IDirector director) {
@@ -24,7 +25,7 @@ public class ShaderNode extends SMView {
     public static float DEFAULT_ANTI_ALIAS_WIDTH = 1.5f;
 
     @Override
-    protected void draw(float a) {
+    protected void draw(final Mat4 m, int flags) {
 
     }
 

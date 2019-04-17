@@ -20,8 +20,8 @@ public class OpenGlUtils {
                 upX, upY, upZ);
     }
 
-    public static void copyMatrix(float[] dst, float[] src) {
-        for (int i = 0; i < 16; i++) {
+    public static void copyMatrix(float[] dst, float[] src, int count) {
+        for (int i = 0; i < count; i++) {
             dst[i] = src[i];
         }
     }

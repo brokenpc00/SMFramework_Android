@@ -8,6 +8,7 @@ import com.interpark.smframework.base.SMView;
 import com.interpark.smframework.base.UIContainerView;
 import com.interpark.smframework.base.sprite.TextSprite;
 import com.interpark.smframework.base.types.Color4F;
+import com.interpark.smframework.base.types.Mat4;
 import com.interpark.smframework.util.Size;
 import com.interpark.smframework.util.Vec2;
 
@@ -208,14 +209,14 @@ public class SMLabel extends UIContainerView {
     }
 
     @Override
-    protected void draw(float a) {
+    protected void draw(final Mat4 m, int flags) {
         if (_letters!=null && _letters.size()>0) {
             return;
         }
 
         if (_textSprite==null) return;;
 
-        setRenderColor(a);
+        setRenderColor();
 
         _textSprite.draw(_textSprite.getWidth()/2, _textSprite.getHeight()/2);
     }

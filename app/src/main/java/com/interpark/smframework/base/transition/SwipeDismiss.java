@@ -4,6 +4,7 @@ import android.util.Log;
 
 import com.interpark.smframework.IDirector;
 import com.interpark.smframework.base.SMScene;
+import com.interpark.smframework.base.types.Mat4;
 
 import javax.security.auth.login.LoginException;
 
@@ -22,14 +23,14 @@ public class SwipeDismiss extends SwipeBack {
     }
 
     @Override
-    protected void draw(float a) {
+    protected void draw(final Mat4 m, int flags) {
         float progress = (_outScene.getY()-getDirector().getWinSize().height/2) / getDirector().getWinSize().height;
         updateProgress(progress);
         if (_menuDrawContainer!=null) {
             // Todo... If you need another menu
         }
 
-        BaseTransitionDraw(a);
+        BaseTransitionDraw(m, flags);
     }
 
     @Override

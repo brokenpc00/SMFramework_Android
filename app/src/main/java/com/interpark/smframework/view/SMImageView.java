@@ -12,6 +12,7 @@ import com.interpark.smframework.base.sprite.Sprite;
 import com.interpark.smframework.base.texture.BitmapTexture;
 import com.interpark.smframework.base.texture.Texture;
 import com.interpark.smframework.base.types.Color4F;
+import com.interpark.smframework.base.types.Mat4;
 import com.interpark.smframework.network.Downloader.Downloader;
 import com.interpark.smframework.util.AppConst;
 import com.interpark.smframework.util.ImageManager.DownloadTask;
@@ -282,19 +283,19 @@ public class SMImageView extends UIContainerView implements IDownloadProtocol {
     }
 
     @Override
-    protected void draw(float a) {
+    protected void draw(final Mat4 m, int flags) {
         if (_sprite == null)
             return;
 
 //        float x = mContentsBounds.left + _sprite.getCX()*mScaleX;
 //        float y = mContentsBounds.top + _sprite.getCY()*mScaleY;
 
-        drawImage(_spritePosition.x, _spritePosition.y, _spriteSize.width*_imageScale, _spriteSize.height*_imageScale, a);
+        drawImage(_spritePosition.x, _spritePosition.y, _spriteSize.width*_imageScale, _spriteSize.height*_imageScale);
     }
 
-    protected void drawImage(float x, float y, float scaleX, float scaleY, float a) {
+    protected void drawImage(float x, float y, float scaleX, float scaleY) {
 
-        setRenderColor(a);
+        setRenderColor();
 
         _sprite.drawScaleXY(x, y, scaleX, scaleY);
     }

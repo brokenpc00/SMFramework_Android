@@ -4,6 +4,7 @@ import com.interpark.smframework.IDirector;
 import com.interpark.smframework.base.SMView;
 import com.interpark.smframework.base.shape.PrimitiveCircle;
 import com.interpark.smframework.base.shape.PrimitiveTriangle;
+import com.interpark.smframework.base.types.Mat4;
 import com.interpark.smframework.util.Rect;
 import com.interpark.smframework.util.Size;
 import com.interpark.smframework.util.Vec2;
@@ -60,8 +61,8 @@ public class SMTriangleView extends SMShapeView {
     protected PrimitiveTriangle bgShape = null;
 
     @Override
-    protected void draw(float a) {
-        super.draw(a);
+    protected void draw(final Mat4 m, int flags) {
+        super.draw(m, flags);
         bgShape.drawTrinalge(_p0, _p1, _p2, _aaWidth);
     }
 

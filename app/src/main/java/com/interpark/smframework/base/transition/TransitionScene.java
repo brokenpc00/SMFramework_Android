@@ -7,6 +7,7 @@ import com.interpark.smframework.IDirector;
 import com.interpark.smframework.base.SMScene;
 import com.interpark.smframework.base.SMView;
 import com.interpark.smframework.base.SceneParams;
+import com.interpark.smframework.base.types.Mat4;
 import com.interpark.smframework.base.types.SEL_SCHEDULE;
 import com.interpark.smframework.util.Size;
 import com.interpark.smframework.util.Vec2;
@@ -68,16 +69,16 @@ public class TransitionScene extends SMScene {
     }
 
     @Override
-    protected void draw(float a) {
-        super.draw(a);
+    protected void draw(final Mat4 m, int flags) {
+        super.draw(m, flags);
 
         if (_isInSceneOnTop) {
-            _outScene.visit(a);
+            _outScene.visit(m, flags);
 
-            _inScene.visit(a);
+            _inScene.visit(m, flags);
         } else {
-            _inScene.visit(a);
-            _outScene.visit(a);
+            _inScene.visit(m, flags);
+            _outScene.visit(m, flags);
         }
     }
 

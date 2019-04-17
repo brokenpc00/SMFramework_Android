@@ -2,6 +2,7 @@ package com.interpark.smframework.shader;
 
 import android.opengl.GLES20;
 
+import com.interpark.smframework.IDirector;
 import com.interpark.smframework.base.texture.Texture;
 
 import java.nio.FloatBuffer;
@@ -42,7 +43,7 @@ public class ProgSprite3D extends ShaderProgram {
     @Override
     public void bind() {
         GLES20.glUseProgram(programId);
-        GLES20.glUniformMatrix4fv(uniformProjectionMatrix, 1, false, director.getProjectionMatrix(), 0);
+        GLES20.glUniformMatrix4fv(uniformProjectionMatrix, 1, false, director.getMatrix(IDirector.MATRIX_STACK_TYPE.MATRIX_STACK_MODELVIEW).m, 0);
         GLES20.glUniform1i(uniformTexture, 0);
         GLES20.glEnableVertexAttribArray(attrPosition);
         GLES20.glEnableVertexAttribArray(attrTextureCoordinate);
@@ -59,7 +60,7 @@ public class ProgSprite3D extends ShaderProgram {
 
     @Override
     public void setMatrix(float[] matrix) {
-        GLES20.glUniformMatrix4fv(uniformProjectionMatrix, 1, false, director.getProjectionMatrix(), 0);
+        GLES20.glUniformMatrix4fv(uniformProjectionMatrix, 1, false, director.getMatrix(IDirector.MATRIX_STACK_TYPE.MATRIX_STACK_MODELVIEW).m, 0);
     }
 
     public boolean setDrawParam(Texture texture, float[] modelMatrix, FloatBuffer v, FloatBuffer uv, FloatBuffer c) {

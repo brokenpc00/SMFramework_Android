@@ -16,6 +16,7 @@ import android.view.View;
 
 import com.interpark.smframework.IDirector;
 import com.interpark.smframework.NativeImageProcess.ImageProcessing;
+import com.interpark.smframework.SMDirector;
 import com.interpark.smframework.base.sprite.CanvasSprite;
 import com.interpark.smframework.base.types.Action;
 import com.interpark.smframework.base.types.ActionManager;
@@ -31,6 +32,7 @@ import com.interpark.smframework.base.types.Ref;
 import com.interpark.smframework.base.types.Scheduler;
 import com.interpark.smframework.base.types.SEL_SCHEDULE;
 import com.interpark.smframework.util.AppConst;
+import com.interpark.smframework.util.OpenGlUtils;
 import com.interpark.smframework.util.Rect;
 import com.interpark.smframework.util.Size;
 import com.interpark.smframework.util.Vec2;
@@ -41,6 +43,7 @@ import com.interpark.smframework.view.ViewConfig;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.ListIterator;
@@ -1323,7 +1326,23 @@ public class SMView extends Ref {
         return _rotationQuat;
     }
 
+    public void transformMatrixToParent(float[] matrix) {
+        transformMatrix(matrix, 1);
+        Mat4 mat = new Mat4(matrix);
+
+        for (SMView p=getParent(); p!=null; p=p.getParent()) {
+            Mat4 tmp = new Mat4(Mat4.IDENTITY);
+            p.transformMatrix(tmp.m, 1);
+            mat.multiply(tmp);
+        }
+
+        OpenGlUtils.copyMatrix(matrix, mat.m, 16);
+    }
+
     public Vec2 convertToWorldSpace(final Vec2 nodePos) {
+
+//        Mat4 tmp2 = new Mat4(Mat4.IDENTITY);
+//        transformMatrixToParent(tmp2.m);
 
         Mat4 tmp = getNodeToWorldTransform();
         Vec3 vec3 = new Vec3(nodePos.x, nodePos.y, 0);
@@ -1331,11 +1350,6 @@ public class SMView extends Ref {
         tmp.transformPoint(vec3, ret);
         return new Vec2(ret.x, ret.y);
 
-
-
-
-//        return nodePos;
-//        return new Vec2(getScreenX(nodePos.x), getScreenY(nodePos.y));
     }
 
     public Vec2 convertTouchToNodeSpaceAR(Vec2 touchPoint) {
@@ -1356,16 +1370,8 @@ public class SMView extends Ref {
         return _director.convertToUI(worldPoint);
     }
 
-//    public Vec2 convertToWorldSpace(final Vec2 nodePos) {
-//
-////        Mat4 tmp = getNodeToWorldTransform();
-//        Vec3 vec = new Vec3(nodePos.x, nodePos.y, 0);
-//        Vec3 ret = new Vec3();
-////        tmp.trans
-//        return null;
-//    }
-
     public Mat4 getNodeToWorldTransform() {
+//        return this.getViewToParentTransform(null);
         return this.getNodeToParentTransform(null);
     }
 
@@ -1373,10 +1379,148 @@ public class SMView extends Ref {
         Mat4 t = new Mat4(this.getNodeToParentTransform());
 
         for (SMView p=_parent; p!=null && p!=ancestor; p=p.getParent()) {
-            t = p.getNodeToParentTransform().multiplyRet(t);
+            t.multiply(p.getNodeToParentTransform());
         }
 
         return t;
+    }
+
+    public Mat4 getViewToWorldTransform() {
+        return this.getViewToParentTransform(null);
+    }
+
+    public Mat4 getViewToParentTransform(SMView ancestor) {
+        Mat4 t = new Mat4(this.getViewToParentTransform());
+
+        for (SMView p=_parent; p!=null && p!=ancestor; p=p.getParent()) {
+            t.multiply(p.getViewToParentTransform());
+        }
+
+        return t;
+    }
+
+    public Mat4 getViewToParentTransform() {
+        if (_transformDirty) {
+            float x = _position.x;
+            float y = _position.y;
+            float z = _positionZ;
+
+            if (_ignoreAnchorPointForPosition) {
+                x += _anchorPointInPoints.x;
+                y += _anchorPointInPoints.y;
+            }
+
+            boolean needsSkewMatrix = (_skewX>0 || _skewY>0);
+
+            Mat4 translation = new Mat4();
+            Mat4.createTranslation(x, y, z, translation);
+            Mat4.createRotation(_rotationQuat, _transform);
+
+            if (_rotationZ_X != _rotationZ_Y) {
+                float radiansX = - (float)Math.toRadians(_rotationZ_X);
+                float radiansY = - (float)Math.toRadians(_rotationZ_Y);
+                float cx = (float) Math.cos(radiansX);
+                float sx = (float) Math.sin(radiansX);
+                float cy = (float) Math.cos(radiansY);
+                float sy = (float) Math.sin(radiansY);
+                float m0 = _transform.m[0], m1 = _transform.m[1], m4 = _transform.m[4], m5 = _transform.m[5], m8 = _transform.m[8], m9 = _transform.m[9];
+                _transform.m[0] = cy * m0 - sx * m1;
+                _transform.m[4] = cy * m4 - sx * m5;
+                _transform.m[8] = cy * m8 - sx * m9;
+                _transform.m[1] = sy * m0 + cx * m1;
+                _transform.m[5] = sy * m4 + cx * m5;
+                _transform.m[9] = sy * m8 + cx * m9;
+            }
+
+            _transform.multiply(translation);
+
+            if (_scaleX != 1.f)
+            {
+                _transform.m[0] *= _scaleX;
+                _transform.m[1] *= _scaleX;
+                _transform.m[2] *= _scaleX;
+            }
+            if (_scaleY != 1.f)
+            {
+                _transform.m[4] *= _scaleY;
+                _transform.m[5] *= _scaleY;
+                _transform.m[6] *= _scaleY;
+            }
+            if (_scaleZ != 1.f)
+            {
+                _transform.m[8] *= _scaleZ;
+                _transform.m[9] *= _scaleZ;
+                _transform.m[10] *= _scaleZ;
+            }
+
+            if (needsSkewMatrix)
+            {
+                float[] skewMatArray = new float[] {
+                        1, (float) Math.tan((float) Math.toRadians(_skewY)), 0, 0,
+                        (float)Math.tan((float) Math.toRadians(_skewX)), 1, 0, 0,
+                        0,  0,  1, 0,
+                        0,  0,  0, 1
+                };
+                Mat4 skewMatrix = new Mat4(skewMatArray);
+
+                _transform.multiply(skewMatrix);
+            }
+
+            if (!_anchorPointInPoints.isZero())
+            {
+                _transform.m[12] += _transform.m[0] * -_anchorPointInPoints.x + _transform.m[4] * -_anchorPointInPoints.y;
+                _transform.m[13] += _transform.m[1] * -_anchorPointInPoints.x + _transform.m[5] * -_anchorPointInPoints.y;
+                _transform.m[14] += _transform.m[2] * -_anchorPointInPoints.x + _transform.m[6] * -_anchorPointInPoints.y;
+            }
+        }
+
+        if (_additionalTransform!=null) {
+
+            if (_transformDirty) {
+                _additionalTransform[1] = _transform;
+            }
+
+            if (_transformUpdated) {
+                _transform = _additionalTransform[1].multiplyRet(_additionalTransform[0]);
+            }
+        }
+
+        _transformDirty = _additionalTransformDirty = false;
+
+        return _transform;
+//        Mat4 mat = new Mat4(Mat4.IDENTITY);
+//
+//        float x = _position.x;
+//        float y = _position.y;
+//        float z = _positionZ;
+//
+//        // 현재 x, y, z를 입력하고
+//        android.opengl.Matrix.translateM(mat.m, 0, x, y, z);
+//        // scale
+//        if (_scaleX!=1.0f || _scaleY!=1.0f || _scaleZ!=1.0f) {
+//            android.opengl.Matrix.scaleM(mat.m, 0, _scaleX, _scaleY, _scaleZ);
+//        }
+//
+//        // rotate
+//        if (_rotationX != 0) {
+//            android.opengl.Matrix.rotateM(mat.m, 0, _rotationX, 1, 0, 0);
+//        }
+//        if (_rotationY != 0) {
+//            android.opengl.Matrix.rotateM(mat.m, 0, _rotationY, 0, 1, 0);
+//        }
+//        if (_rotationZ_X != 0) {
+//            android.opengl.Matrix.rotateM(mat.m, 0, _rotationZ_X, 0, 0, 1);
+//        }
+//
+//
+//        if (!_anchorPointInPoints.equals(Vec2.ZERO)) {
+//            mat.m[12] += mat.m[0] * -_anchorPointInPoints.x + mat.m[4] * -_anchorPointInPoints.y;
+//            mat.m[13] += mat.m[1] * -_anchorPointInPoints.x + mat.m[5] * -_anchorPointInPoints.y;
+//            mat.m[14] += mat.m[2] * -_anchorPointInPoints.x + mat.m[6] * -_anchorPointInPoints.y;
+//            // m[12 + mi] += m[mi] * x + m[4 + mi] * y + m[8 + mi] * z;
+//        }
+//
+//        return mat;
     }
 
     public Mat4 getNodeToParentTransform() {
@@ -1412,7 +1556,7 @@ public class SMView extends Ref {
                 _transform.m[9] = sy * m8 + cx * m9;
             }
 
-            _transform.multiply(_transform);
+            _transform.multiply(translation);
 
             if (_scaleX != 1.f)
             {
@@ -1448,8 +1592,6 @@ public class SMView extends Ref {
 
             if (!_anchorPointInPoints.isZero())
             {
-                // FIXME:: Argh, Mat4 needs a "translate" method.
-                // FIXME:: Although this is faster than multiplying a vec4 * mat4
                 _transform.m[12] += _transform.m[0] * -_anchorPointInPoints.x + _transform.m[4] * -_anchorPointInPoints.y;
                 _transform.m[13] += _transform.m[1] * -_anchorPointInPoints.x + _transform.m[5] * -_anchorPointInPoints.y;
                 _transform.m[14] += _transform.m[2] * -_anchorPointInPoints.x + _transform.m[6] * -_anchorPointInPoints.y;
@@ -1565,7 +1707,12 @@ public class SMView extends Ref {
 //
 //        return new Vec2(posX, posY);
 
+//        Mat4 tmp2 = new Mat4(Mat4.IDENTITY);
+//        transformMatrixToParent(tmp2.m);
+//        tmp2 = tmp2.getInversed();
+//
         Mat4 tmp = getWorldToNodeTransform();
+
         Vec3 vec3 = new Vec3(worldPoint.x, worldPoint.y, 0);
         Vec3 ret = new Vec3();
         tmp.transformPoint(vec3, ret);
@@ -1679,8 +1826,11 @@ public class SMView extends Ref {
     }
 
     // View Transform Matrix
-    public void transformMatrix(final float[] matrix) {
+    public int transformMatrix(final float[] matrix, int parentFlags) {
         if (matrix != null) {
+
+
+            int flags = parentFlags;
 
             float x = _position.x;
             float y = _position.y;
@@ -1711,11 +1861,13 @@ public class SMView extends Ref {
                 matrix[14] += matrix[2] * -_anchorPointInPoints.x + matrix[6] * -_anchorPointInPoints.y;
                 // m[12 + mi] += m[mi] * x + m[4 + mi] * y + m[8 + mi] * z;
             }
-            // 아래와 동일함.
-
+//            // 아래와 동일함.
             // anchor point를 적용한 길이 x -> 0~width, y -> 1~height
 //            android.opengl.Matrix.translateM(matrix, 0, -_anchorPointInPoints.x, -_anchorPointInPoints.y, 0);
+
+            return flags;
         }
+        return 0;
     }
 
 
@@ -2173,9 +2325,9 @@ public class SMView extends Ref {
 
     protected Mat4 _modelViewTransform = new Mat4();
 
-    protected Mat4 _transform = new Mat4();
+    protected Mat4 _transform = new Mat4(Mat4.IDENTITY);
 
-    protected Mat4 _inverse = new Mat4();
+    protected Mat4 _inverse = new Mat4(Mat4.IDENTITY);
 
     protected Mat4[] _additionalTransform = null;
 
@@ -2753,26 +2905,43 @@ public class SMView extends Ref {
     }
 
     public void visit() {
-
+        Mat4 parentTransform = _director.getMatrix(IDirector.MATRIX_STACK_TYPE.MATRIX_STACK_MODELVIEW);
+        visit(parentTransform, 1);
     }
 
-    public void visit(float a) {
+    public void visit(final Mat4 parentTransform, int parentFlags) {
 
         if (!_visible) {
             return;
         }
 
+//        int flags = processParentFlags(parentTransform, parentFlags);
+
+
+
         _director.pushProjectionMatrix();
-//        transformMatrix(_modelViewTransform.m);
-        transformMatrix(_director.getProjectionMatrix());
-        _director.updateProjectionMatrix();
+
+
+        float[] currentMatrix = _director.getMatrix(IDirector.MATRIX_STACK_TYPE.MATRIX_STACK_MODELVIEW).m;
+//        Mat4 mat = new Mat4(currentMatrix);
+//
+//        Mat4 cur = getViewToParentTransform();
+//        cur.multiply(mat);
+//        int flags = parentFlags;
+//        _director.updateProjectionMatrix(cur.m);
+
+//        int flags = processParentFlags(parentTransform, parentFlags);
+
+//        float[] currentMatrix = _director.getProjectionMatrix();
+        int flags = transformMatrix(currentMatrix, parentFlags);
+        _director.updateProjectionMatrix(currentMatrix);
 
         if (_scissorEnable) {
             enableScissorTest(true);
         }
 
         // base property... draw first me...
-        if (renderOwn(a)) {
+        if (renderOwn(_modelViewTransform, flags)) {
         // and children
         int i = 0;
 
@@ -2783,19 +2952,19 @@ public class SMView extends Ref {
                 SMView view = _children.get(i);
 
                 if (view!=null && view._localZOrder<0) {
-                    view.visit(a);
+                        view.visit(_modelViewTransform, flags);
                 } else break;
     }
 
-            draw(a);
+                draw(_modelViewTransform, flags);
 
             ListIterator<SMView> iter = _children.listIterator(i);
             while (iter.hasNext()) {
                 SMView child = iter.next();
-                child.visit(a);
+                    child.visit(_modelViewTransform, flags);
             }
         } else {
-            draw(a);
+                draw(_modelViewTransform, flags);
         }
         }
 
@@ -2805,9 +2974,10 @@ public class SMView extends Ref {
 
         _director.popProjectionMatrix();
 
+//        _director.popMatrix(SMDirector.MATRIX_STACK_TYPE.MATRIX_STACK_MODELVIEW);
         }
 
-    private boolean renderOwn(float  alpha) {
+    private boolean renderOwn(final Mat4 parentTransform, int parentFlags) {
 
         if (_updateFlags>0) {
             onUpdateOnVisit();
@@ -2850,7 +3020,12 @@ public class SMView extends Ref {
         return true;
     }
 
-    protected void draw(float a) { }
+    protected void draw()
+    {
+        draw(_modelViewTransform, 1);
+    }
+
+    protected void draw(final Mat4 m, int flags) { }
 
 
     // clip to bounds
@@ -3164,9 +3339,9 @@ public class SMView extends Ref {
         }
     }
 
-    protected void setRenderColor(float a) {
+    protected void setRenderColor() {
         // color setting is here!!!!
-        getDirector().setColor(a*_displayedColor.r, a*_displayedColor.g, a*_displayedColor.b, a*_displayedColor.a);
+        getDirector().setColor(_displayedColor.r, _displayedColor.g, _displayedColor.b, _displayedColor.a);
         }
 
     public Color4F getBackgroundColor() {return new Color4F(_bgColor);}
@@ -3493,9 +3668,11 @@ public class SMView extends Ref {
 
             getDirector().pushProjectionMatrix();
             {
-                transformMatrix(getDirector().getProjectionMatrix());
-                getDirector().updateProjectionMatrix();
-                visit(1);
+//                float[] currentMatrix = _director.getProjectionMatrix();
+                float[] currentMatrix = _director.getMatrix(IDirector.MATRIX_STACK_TYPE.MATRIX_STACK_MODELVIEW).m;
+                transformMatrix(currentMatrix, 1);
+                getDirector().updateProjectionMatrix(currentMatrix);
+                visit(new Mat4(Mat4.IDENTITY), 1);
             }
             getDirector().popProjectionMatrix();
 

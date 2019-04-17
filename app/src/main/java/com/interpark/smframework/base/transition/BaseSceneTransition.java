@@ -11,6 +11,7 @@ import com.interpark.smframework.base.types.Color4F;
 import com.interpark.smframework.base.types.DelayBaseAction;
 import com.interpark.smframework.base.types.DelayTime;
 import com.interpark.smframework.base.types.FiniteTimeAction;
+import com.interpark.smframework.base.types.Mat4;
 import com.interpark.smframework.base.types.PERFORM_SEL;
 import com.interpark.smframework.base.types.Sequence;
 import com.interpark.smframework.util.Size;
@@ -28,7 +29,7 @@ public class BaseSceneTransition extends TransitionScene {
         return _outScene;
     }
 
-    public void BaseTransitionDraw(float a) {
+    public void BaseTransitionDraw(final Mat4 m, int flags) {
         if (isDimLayerEnable() && _lastProgress > 0 && _dimLayer==null) {
             _dimLayer = new SMSolidRectView(getDirector());
             _dimLayer.setContentSize(new Size(getDirector().getWidth(), getDirector().getHeight()));
@@ -39,52 +40,52 @@ public class BaseSceneTransition extends TransitionScene {
 
         if (_isInSceneOnTop) {
             // new scene entered!!
-            _outScene.visit(a);
+            _outScene.visit(m, flags);
 
             if (_menuDrawContainer!=null && _menuDrawType==MenuDrawType.OX) {
                 _menuDrawContainer.setVisible(true);
-                _menuDrawContainer.visit(a);
+                _menuDrawContainer.visit(m, flags);
             }
 
 
             if (_lastProgress>0.0f && _lastProgress<1.0f && _dimLayer!=null) {
                     float alpha = 0.4f*_lastProgress;
                 _dimLayer.setColor(new Color4F(0,0, 0, alpha));
-                _dimLayer.visit(a);
+                _dimLayer.visit(m, flags);
                 }
 
-            _inScene.visit(a);
+            _inScene.visit(m, flags);
 
             if (_menuDrawContainer!=null && _menuDrawType==MenuDrawType.XO) {
                 _menuDrawContainer.setVisible(true);
-                _menuDrawContainer.visit(a);
+                _menuDrawContainer.visit(m, flags);
             }
         } else {
             // top scene exist
-            _inScene.visit(a);
+            _inScene.visit(m, flags);
 
             if (_menuDrawContainer!=null && _menuDrawType==MenuDrawType.XO) {
                 _menuDrawContainer.setVisible(true);
-                _menuDrawContainer.visit(a);
+                _menuDrawContainer.visit(m, flags);
             }
 
             if (_lastProgress>0.0f && _lastProgress<1.0f && _dimLayer!=null) {
                 _dimLayer.setColor(new Color4F(0,0, 0, 0.4f * (1.0f-_lastProgress)));
-                _dimLayer.visit(a);
+                _dimLayer.visit(m, flags);
             }
 
-            _outScene.visit(a);
+            _outScene.visit(m, flags);
 
             if (_menuDrawContainer!=null && _menuDrawType==MenuDrawType.OX) {
                 _menuDrawContainer.setVisible(true);
-                _menuDrawContainer.visit(a);
+                _menuDrawContainer.visit(m, flags);
             }
         }
     }
 
     @Override
-    protected void draw(float a) {
-        BaseTransitionDraw(a);
+    protected void draw(final Mat4 m, int flags) {
+        BaseTransitionDraw(m, flags);
     }
 
 

@@ -4,6 +4,7 @@ import android.util.Log;
 
 import com.interpark.smframework.IDirector;
 import com.interpark.smframework.base.SMScene;
+import com.interpark.smframework.base.types.Mat4;
 import com.interpark.smframework.base.types.PERFORM_SEL;
 import com.interpark.smframework.base.types.SEL_SCHEDULE;
 
@@ -46,14 +47,14 @@ public class SwipeBack extends BaseSceneTransition {
     }
 
     @Override
-    protected void draw(float a) {
+    protected void draw(final Mat4 m, int flags) {
         float progress = (_outScene.getPositionX()-getDirector().getWinSize().width/2) / getDirector().getWinSize().width;
         updateProgress(progress);
 
         if (_menuDrawContainer!=null) {
             // Todo... If you need another menu
         }
-        super.draw(a);
+        super.draw(m, flags);
     }
 
 

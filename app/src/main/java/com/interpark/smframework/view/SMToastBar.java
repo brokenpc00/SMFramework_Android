@@ -5,6 +5,7 @@ import android.util.Log;
 import com.interpark.smframework.IDirector;
 import com.interpark.smframework.base.SMView;
 import com.interpark.smframework.base.types.Color4F;
+import com.interpark.smframework.base.types.Mat4;
 import com.interpark.smframework.base.types.SEL_SCHEDULE;
 import com.interpark.smframework.base.types.TransformAction;
 import com.interpark.smframework.util.AppConst;
@@ -153,12 +154,12 @@ public class SMToastBar extends SMView {
     }
 
     @Override
-    public void visit(float alpha) {
+    public void visit(final Mat4 m, int flags) {
         if (!_visible) return;
 
         float reqHeight = Math.max(MIN_HEIGHT, _label[_labelIndex].getContentSize().height + PADDING*2);
         setScissorRect(new Rect(0, reqHeight, _contentSize.width, getPositionY()));
-        super.visit(alpha);
+        super.visit(m, flags);
     }
 
     protected boolean initWithCallback(SMToastBar.ToastBarCallback callback) {

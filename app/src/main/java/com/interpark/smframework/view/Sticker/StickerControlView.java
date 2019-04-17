@@ -14,6 +14,7 @@ import com.interpark.smframework.base.types.TransformAction;
 import com.interpark.smframework.util.Size;
 import com.interpark.smframework.util.Vec2;
 import com.interpark.smframework.util.Vec3;
+import com.interpark.smframework.util.Vec4;
 import com.interpark.smframework.view.RingWave;
 import com.interpark.smframework.view.RingWave2;
 import com.interpark.smframework.view.SMButton;
@@ -206,7 +207,42 @@ public class StickerControlView extends SMView implements SMView.OnClickListener
 						mSticker.setRotateZ((float)Math.toDegrees(slope-baseSlope));
 * */
 
+                Vec2 pt =  new Vec2(view.getPosition().minus(new Vec2(BORDER_MARGIN, BORDER_MARGIN)).add(point).minus(_grabPt)).multiply(0.5f);
+                float dist = (float) Math.sqrt(pt.x*pt.x+pt.y*pt.y);
 
+
+
+                // size button 의 대칭점(스티커 중심으로)을 구한다.
+                Vec2 ppt = _uiView.convertToWorldSpace(pt).minus(_uiView.convertToWorldSpace(Vec2.ZERO));
+                float rot = (float) Math.atan2(ppt.y, ppt.x);
+
+                Size tsize = _targetView.getContentSize();
+                float ww = tsize.width/2;
+                float hh = tsize.height/2;
+                float baseDist = (float) Math.sqrt(ww*ww + hh*hh);
+                float baseRot = (float) Math.atan2(hh, ww);
+
+                // StickerCanvas에서의 실제 사이즈를 구하기 위해 scale을 계산
+                float canvasScale = 1.0f;
+                for (SMView p = _targetView.getParent();  p != null; p = p.getParent()) {
+                    canvasScale *= p.getScale();
+                }
+
+                // StickerControl(view가 붙어 있는 넘 - parent)의 world scale을 계산
+                float controlScale = 1.0f;
+                for (SMView p = getParent();  p != null; p = p.getParent()) {
+                    controlScale *= p.getScale();
+                }
+
+                baseDist *= canvasScale / controlScale;
+
+                // 실제 거리 및 scale 계산
+                float scale = dist / baseDist;
+                if (scale * tsize.width <= BORDER_MARGIN || scale * tsize.height <= BORDER_MARGIN) {
+                    scale = Math.max((1+BORDER_MARGIN) / tsize.width, (1+BORDER_MARGIN) / tsize.height);
+                }
+                _targetView.setScale(scale);
+                _targetView.setRotation(-(float)Math.toDegrees(rot-baseRot));
 
 
                 // distance touch point to sticker select view's center point
@@ -668,27 +704,72 @@ public class StickerControlView extends SMView implements SMView.OnClickListener
 */
 
 
-        float localScale = getScreenScale();
-        float localRotation = getScreenAngle();
+//        float localScale = getScreenScale();
+//        float localRotation = getScreenAngle();
+//
+//        // auto targetPosition = _targetNode->getParent()->convertToWorldSpace(_targetNode->getPosition());
+////        Vec2 targetPosition = new Vec2(_targetView.getScreenX(_targetView.getPositionX()), _targetView.getScreenY(_targetView.getPositionY()));
+//
+//        Vec2 targetPosition = new Vec2(_targetView.getParent().getScreenX() + _targetView.getPositionX(), _targetView.getParent().getScreenY() + _targetView.getPositionY());
+//
+////        Log.i("CONTROL", "[[[[[ center : " + _targetView.getPositionX() + " >>> " + _targetView.getScreenX() + " >>> " + _targetView.getScreenX()+_targetView.getPositionX() + " >>> " + _targetView.getScreenX()+_targetView.getPositionX()*_targetView.getScreenScale() + " >>> " + _director.getWinSize().width/2);
+//
+//        float targetScale = _targetView.getScreenScale();
+//        float targetRotation = _targetView.getScreenAngle();
+//
+//        float scale = targetScale / localScale;
+//        float rotation = targetRotation - localRotation;
+////        Vec2 position = convertToNodeSpace(targetPosition);
+//
+//        // auto position = convertToNodeSpace(targetPosition);
+//        Vec2 position = targetPosition.minus(new Vec2(_targetView.getParent().getScreenX(), _targetView.getParent().getScreenY()));
+//
+//        Size size = _targetView.getContentSize().multiply(scale);
+//
+//        if (_reset || size.width != _targetSize.width || size.height != _targetSize.height) {
+//            _reset = false;
+//            _targetSize = size;
+//
+//            Size viewSize = size.add(new Size(BORDER_MARGIN, BORDER_MARGIN));
+//            _uiView.setContentSize(viewSize);
+//            _borderRect.setContentSize(viewSize);
+//            _borderRect.setPosition(viewSize.width/2, viewSize.height/2);
+//            _sizeButton.setPosition(viewSize.width, 0);
+//            _utilButton.setPosition(0, viewSize.height);
+////            _uiView.setPosition(position);
+//        }
+//
+//        _uiView.setPosition(position);
+//        _uiView.setRotation(rotation);
 
-        // auto targetPosition = _targetNode->getParent()->convertToWorldSpace(_targetNode->getPosition());
-//        Vec2 targetPosition = new Vec2(_targetView.getScreenX(_targetView.getPositionX()), _targetView.getScreenY(_targetView.getPositionY()));
 
-        Vec2 targetPosition = new Vec2(_targetView.getParent().getScreenX() + _targetView.getPositionX(), _targetView.getParent().getScreenY() + _targetView.getPositionY());
 
-//        Log.i("CONTROL", "[[[[[ center : " + _targetView.getPositionX() + " >>> " + _targetView.getScreenX() + " >>> " + _targetView.getScreenX()+_targetView.getPositionX() + " >>> " + _targetView.getScreenX()+_targetView.getPositionX()*_targetView.getScreenScale() + " >>> " + _director.getWinSize().width/2);
 
-        float targetScale = _targetView.getScreenScale();
-        float targetRotation = _targetView.getScreenAngle();
+
+
+        float localScale = getScale();
+        float localRotation = getRotation();
+
+        for (SMView p=getParent(); p!=null; p=p.getParent()) {
+            localScale *= p.getScale();
+            localRotation += p.getRotation();
+        }
+
+        Vec2 targetPosition = _targetView.getParent().convertToWorldSpace(_targetView.getPosition());
+        float targetScale = _targetView.getScale();
+        float targetRotation = _targetView.getRotation();
+
+        for (SMView p=_targetView.getParent(); p!=null; p=p.getParent()) {
+            targetScale *= p.getScale();
+            targetRotation += p.getRotation();
+        }
 
         float scale = targetScale / localScale;
         float rotation = targetRotation - localRotation;
-//        Vec2 position = convertToNodeSpace(targetPosition);
-
-        // auto position = convertToNodeSpace(targetPosition);
-        Vec2 position = targetPosition.minus(new Vec2(_targetView.getParent().getScreenX(), _targetView.getParent().getScreenY()));
+        Vec2 position = convertToNodeSpace(targetPosition);
 
         Size size = _targetView.getContentSize().multiply(scale);
+
 
         if (_reset || size.width != _targetSize.width || size.height != _targetSize.height) {
             _reset = false;
@@ -700,11 +781,14 @@ public class StickerControlView extends SMView implements SMView.OnClickListener
             _borderRect.setPosition(viewSize.width/2, viewSize.height/2);
             _sizeButton.setPosition(viewSize.width, 0);
             _utilButton.setPosition(0, viewSize.height);
-//            _uiView.setPosition(position);
         }
 
         _uiView.setPosition(position);
         _uiView.setRotation(rotation);
+
+//        Vec2 targetPosition2 = new Vec2(_targetView.getParent().getScreenX() + _targetView.getPositionX(), _targetView.getParent().getScreenY() + _targetView.getPositionY());
+
+//        Log.i("CONTROL", "[[[[[ targetPosition ("+targetPosition.x+", "+targetPosition.y+") == ("+targetPosition2.x+", "+targetPosition2.y+")");
     }
 
     private SMView _uiView = null;

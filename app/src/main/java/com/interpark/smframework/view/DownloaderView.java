@@ -4,6 +4,7 @@ import com.interpark.smframework.IDirector;
 import com.interpark.smframework.base.SMView;
 import com.interpark.smframework.base.UIContainerView;
 import com.interpark.smframework.base.sprite.Sprite;
+import com.interpark.smframework.base.types.Mat4;
 import com.interpark.smframework.downloader.PhotoManager;
 import com.interpark.smframework.downloader.PhotoTask;
 
@@ -80,8 +81,8 @@ public class DownloaderView extends UIContainerView {
      * it simply passes the existing Canvas to the super method
      */
     @Override
-    public void draw(float a) {
-        super.draw(a);
+    public void draw(final Mat4 m, int flags) {
+        super.draw(m, flags);
 
         if ((!mIsDrawn) && (mImagePath != null)) {
 

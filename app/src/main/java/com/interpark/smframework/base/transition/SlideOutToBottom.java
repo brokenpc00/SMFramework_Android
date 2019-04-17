@@ -5,6 +5,7 @@ import com.interpark.smframework.base.SMScene;
 import com.interpark.smframework.base.types.Color4F;
 import com.interpark.smframework.base.types.EaseSineOut;
 import com.interpark.smframework.base.types.FiniteTimeAction;
+import com.interpark.smframework.base.types.Mat4;
 import com.interpark.smframework.base.types.MoveTo;
 import com.interpark.smframework.util.Size;
 import com.interpark.smframework.util.Vec2;
@@ -27,7 +28,7 @@ public class SlideOutToBottom extends BaseSceneTransition {
     }
 
     @Override
-    protected void draw(float a) {
+    protected void draw(final Mat4 m, int flags) {
         if (isDimLayerEnable() && _lastProgress > 0 && _dimLayer==null) {
             _dimLayer = new SMSolidRectView(getDirector());
             _dimLayer.setContentSize(new Size(getDirector().getWidth(), getDirector().getHeight()));
@@ -38,25 +39,25 @@ public class SlideOutToBottom extends BaseSceneTransition {
 
         if (_isInSceneOnTop) {
             // new scene entered!!
-            _outScene.visit(a);
+            _outScene.visit(m, flags);
             if (_lastProgress>0.0f && _lastProgress<1.0f && _dimLayer!=null) {
                     float alpha = 0.4f*_lastProgress;
                 _dimLayer.setColor(0, 0, 0, alpha);
-                _dimLayer.visit(a);
+                _dimLayer.visit(m, flags);
             }
 
-            _inScene.visit(a);
+            _inScene.visit(m, flags);
         } else {
             // top scene exist
                 float minusScale = 0.6f*_lastProgress;
                 _inScene.setScale(1.6f-minusScale);
-            _inScene.visit(a);
+            _inScene.visit(m, flags);
 
             if (_lastProgress>0.0f && _lastProgress<1.0f && _dimLayer!=null) {
                 _dimLayer.setColor(new Color4F(0, 0, 0, 0.4f * (1.0f-_lastProgress)));
-                _dimLayer.visit(a);
+                _dimLayer.visit(m, flags);
             }
-            _outScene.visit(a);
+            _outScene.visit(m, flags);
         }
     }
 

@@ -6,6 +6,7 @@ import com.interpark.smframework.base.sprite.BitmapSprite;
 import com.interpark.smframework.base.sprite.Sprite;
 import com.interpark.smframework.base.texture.Texture;
 import com.interpark.smframework.base.types.Color4F;
+import com.interpark.smframework.base.types.Mat4;
 
 public class LoadingSprite extends SMImageView {
     public LoadingSprite(IDirector director) {
@@ -68,7 +69,7 @@ public class LoadingSprite extends SMImageView {
     }
 
     @Override
-    public void draw(float alpha) {
+    public void draw(final Mat4 m, int flags) {
         // calc spend time
         float t = _director.getGlobalTime() - _visibleTime;
 
@@ -97,7 +98,7 @@ public class LoadingSprite extends SMImageView {
             setRotation(angle);
         }
 
-        super.draw(alpha);
+        super.draw(m, flags);
     }
 
     private float _start = 0.0f;

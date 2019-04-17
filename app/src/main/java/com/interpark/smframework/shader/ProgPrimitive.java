@@ -2,6 +2,8 @@ package com.interpark.smframework.shader;
 
 import android.opengl.GLES20;
 
+import com.interpark.smframework.IDirector;
+
 import java.nio.FloatBuffer;
 
 // 제일 기본 shader
@@ -29,7 +31,7 @@ public class ProgPrimitive extends ShaderProgram {
     @Override
     public void bind() {
         GLES20.glUseProgram(programId);
-        GLES20.glUniformMatrix4fv(uniformProjectionMatrix, 1, false, director.getProjectionMatrix(), 0);
+        GLES20.glUniformMatrix4fv(uniformProjectionMatrix, 1, false, director.getMatrix(IDirector.MATRIX_STACK_TYPE.MATRIX_STACK_MODELVIEW).m, 0);
         GLES20.glEnableVertexAttribArray(attrPosition);
     }
 

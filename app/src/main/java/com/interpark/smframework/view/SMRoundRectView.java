@@ -6,6 +6,7 @@ import android.util.Log;
 
 import com.interpark.smframework.IDirector;
 import com.interpark.smframework.R;
+import com.interpark.smframework.base.types.Mat4;
 import com.interpark.smframework.view.SMShapeView;
 import com.interpark.smframework.base.shape.PrimitiveRoundRectLine;
 import com.interpark.smframework.base.shape.ShapeConstant.LineType;
@@ -83,8 +84,8 @@ public class SMRoundRectView extends SMShapeView {
     private LineType mType = LineType.Solid;
 
     @Override
-    protected void draw(float a) {
-        super.draw(a);
+    protected void draw(final Mat4 m, int flags) {
+        super.draw(m, flags);
 
         bgShape.setSize(_contentSize.width, _contentSize.height, mRound);
         bgShape.drawRotate(_contentSize.width/2, _contentSize.height/2, 0);

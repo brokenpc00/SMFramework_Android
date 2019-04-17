@@ -2,6 +2,7 @@ package com.interpark.smframework.view;
 
 import com.interpark.smframework.IDirector;
 import com.interpark.smframework.base.types.Color4F;
+import com.interpark.smframework.base.types.Mat4;
 import com.interpark.smframework.util.Size;
 import com.interpark.smframework.util.Vec2;
 
@@ -92,7 +93,7 @@ public class SMRoundLine extends SMSolidRoundRectView {
     public Vec2 getToPosition() {return new Vec2(_x2, _y2);}
 
     @Override
-    protected void draw(float a) {
+    protected void draw(final Mat4 m, int flags) {
         if (_dirty) {
             updateLineShape();
         }
@@ -100,7 +101,7 @@ public class SMRoundLine extends SMSolidRoundRectView {
         if (_lineWidth == 0)
             return;
 
-        super.draw(a);
+        super.draw(m, flags);
     }
 
     private void updateLineShape() {

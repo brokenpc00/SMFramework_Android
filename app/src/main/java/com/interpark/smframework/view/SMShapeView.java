@@ -4,6 +4,7 @@ import com.interpark.smframework.IDirector;
 import com.interpark.smframework.base.SMView;
 import com.interpark.smframework.base.UIContainerView;
 import com.interpark.smframework.base.types.Color4F;
+import com.interpark.smframework.base.types.Mat4;
 import com.interpark.smframework.util.Size;
 import com.interpark.smframework.util.Vec2;
 
@@ -105,8 +106,8 @@ public class SMShapeView extends SMView {
     }
 
     @Override
-    protected void draw(float a) {
-        getDirector().setColor(_shapeColor.r*a, _shapeColor.g*a, _shapeColor.b*a, _shapeColor.a*a);
+    protected void draw(final Mat4 m, int flags) {
+        getDirector().setColor(_shapeColor.r, _shapeColor.g, _shapeColor.b, _shapeColor.a);
     }
 
     protected Color4F _shapeColor = new Color4F(Color4F.TRANSPARENT);

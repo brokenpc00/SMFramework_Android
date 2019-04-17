@@ -2,6 +2,7 @@ package com.interpark.smframework;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Path;
 import android.graphics.RectF;
 import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
@@ -56,6 +57,7 @@ import org.apache.http.cookie.SM;
 
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Queue;
@@ -159,9 +161,10 @@ public class SMDirector implements IDirector, GLSurfaceView.Renderer {
     public ShaderManager getShaderManager() {return mShaderManager;}
     private TextureManager mTextureManager;
 
-    private float[] mActiveMatrix = null;
-    private float[] mFrameBufferMatrix;
-    private final Stack<float[]> mMatrixStack = new Stack<float[]>();
+    private Mat4 _frameBufferMat = new Mat4(Mat4.IDENTITY);
+//    private float[] _activeMatrix = null;
+//    private float[] mFrameBufferMatrix = new float[16];
+//    private final Stack<float[]> _matrixStack = new Stack<float[]>();
     private final Queue<MotionEvent> _motionEventQueue = new LinkedList<MotionEvent>();
 //    private final Queue<Runnable> mRunOnDraw = new LinkedList<Runnable>();
 //    private final ArrayList<SMDirector.DelayedRunnable> mRunOnDrawDelayed = new ArrayList<>();
@@ -175,8 +178,8 @@ public class SMDirector implements IDirector, GLSurfaceView.Renderer {
     private long mCurrentTime = 0;
 
     private static final int MAX_MARIX_BUFFER = 32;
-    private float[][] mMatrixBuffer;
-    private int mMaxtrixBufferPointer = 0;
+//    private float[][] mMatrixBuffer;
+//    private int mMaxtrixBufferPointer = 0;
 
     protected Scheduler _scheduler = null;
     protected ActionManager _actionManager = null;
@@ -226,14 +229,15 @@ public class SMDirector implements IDirector, GLSurfaceView.Renderer {
         _lastTouchDownTime = getGlobalTime();
         _invalid = false;
 
-        mMatrixBuffer = new float[MAX_MARIX_BUFFER][];
-        for (int i = 0; i < MAX_MARIX_BUFFER; i++) {
-            mMatrixBuffer[i] = new float[16];
-        }
+//        mMatrixBuffer = new float[MAX_MARIX_BUFFER][];
+//        for (int i = 0; i < MAX_MARIX_BUFFER; i++) {
+//            mMatrixBuffer[i] = new float[16];
+//        }
 
         _openGLView = openGLView;
         _winSizeInPoints.set(_openGLView.getWidth(), _openGLView.getHeight());
         // renderer init
+//        initMatrixStack();
 
         // Texture Packer에서 얻어옴..
 //        mSpriteSet = new SpriteSetCommon(this);
@@ -252,15 +256,56 @@ public class SMDirector implements IDirector, GLSurfaceView.Renderer {
 
     }
 
-    private float[] getObtainMatrix() {
-        float[] matrix = mMatrixBuffer[mMaxtrixBufferPointer++];
-        mMaxtrixBufferPointer %= MAX_MARIX_BUFFER;
-        return matrix;
+    private void initMatrixStack() {
+        while (!_modelViewMatrixStack.empty())
+        {
+            _modelViewMatrixStack.pop();
+        }
+
+        _projectionMatrixStackList.clear();
+
+        while (!_textureMatrixStack.empty())
+        {
+            _textureMatrixStack.pop();
+        }
+
+        _modelViewMatrixStack.push(new Mat4(Mat4.IDENTITY));
+        Stack<Mat4> projectionMatrixStack = new Stack<>();
+        projectionMatrixStack.push(new Mat4(Mat4.IDENTITY));
+        _projectionMatrixStackList.add(projectionMatrixStack);
+        _textureMatrixStack.push(new Mat4(Mat4.IDENTITY));
     }
 
-    private void releaseObtainMatrix() {
-        mMaxtrixBufferPointer = (mMaxtrixBufferPointer + MAX_MARIX_BUFFER - 1)%MAX_MARIX_BUFFER;
+    public void resetMatrixStack()
+    {
+        initMatrixStack();
     }
+
+    public void initProjectionMatrixStack(int stackCount)
+    {
+        _projectionMatrixStackList.clear();
+        for (int i = 0; i < stackCount; ++i) {
+            Stack<Mat4> projectionMatrixStack = new Stack<>();
+            projectionMatrixStack.push(new Mat4(Mat4.IDENTITY));
+            _projectionMatrixStackList.add(projectionMatrixStack);
+        }
+    }
+
+    public int getProjectionMatrixStackSize() {
+        return _projectionMatrixStackList.size();
+    }
+
+
+
+//    private float[] getObtainMatrix() {
+//        float[] matrix = mMatrixBuffer[mMaxtrixBufferPointer++];
+//        mMaxtrixBufferPointer %= MAX_MARIX_BUFFER;
+//        return matrix;
+//    }
+//
+//    private void releaseObtainMatrix() {
+//        mMaxtrixBufferPointer = (mMaxtrixBufferPointer + MAX_MARIX_BUFFER - 1)%MAX_MARIX_BUFFER;
+//    }
 
     public boolean onBackPressd() {
         // 터치가 가능하면
@@ -391,7 +436,7 @@ public class SMDirector implements IDirector, GLSurfaceView.Renderer {
     public void releaseResources() {
         mShaderManager.release(this);
         mTextureManager.onPause();
-        mMatrixStack.clear();
+//        _matrixStack.clear();
     }
 
     @Override
@@ -440,17 +485,21 @@ public class SMDirector implements IDirector, GLSurfaceView.Renderer {
             final float ratio = w / h;
             final float dist = (float)(h / 2 / Math.tan(Math.toRadians(fov) / 2));
 
-            mFrameBufferMatrix = getObtainMatrix();
+//        Mat4 framMat = new Mat4(Mat4.IDENTITY);
+//        mFrameBufferMatrix = Arrays.copyOf(framMat.m, 16);
+//        mFrameBufferMatrix = getObtainMatrix();
 
             OpenGlUtils.getPerspectiveMatrix(m1, fov, ratio, zNear, zFar);
             OpenGlUtils.getLookAtMatrix(m2, 0, 0, dist, 0, 0, 0, 0, 1, 0);
-            Matrix.multiplyMM(mFrameBufferMatrix, 0, m1, 0, m2, 0);
-            Matrix.translateM(mFrameBufferMatrix, 0, -getWidth()/2f, getHeight()/2f, 0);
-            Matrix.scaleM(mFrameBufferMatrix, 0, 1, -1, 1);
+        Matrix.multiplyMM(_frameBufferMat.m, 0, m1, 0, m2, 0);
+        Matrix.translateM(_frameBufferMat.m, 0, -getWidth()/2f, getHeight()/2f, 0);
+        Matrix.scaleM(_frameBufferMat.m, 0, 1, -1, 1);
 
-            mMaxtrixBufferPointer = 0;
-            mMatrixStack.removeAllElements();
-            setProjectionMatrix(mFrameBufferMatrix);
+        initMatrixStack();
+
+//        mMaxtrixBufferPointer = 0;
+//        _matrixStack.removeAllElements();
+        setProjectionMatrix(_frameBufferMat.m);
             pushProjectionMatrix();
 
     }
@@ -458,6 +507,62 @@ public class SMDirector implements IDirector, GLSurfaceView.Renderer {
     private void endProjectionMatrix() {
         popProjectionMatrix();
     };
+
+    @Override
+    public void popMatrix(MATRIX_STACK_TYPE type) {
+        if(MATRIX_STACK_TYPE.MATRIX_STACK_MODELVIEW == type) {
+
+
+            Mat4 mat = _modelViewMatrixStack.pop();
+            mShaderManager.setMatrix(mat.m);
+
+
+//            Mat4 mat = _modelViewMatrixStack.pop();
+//
+//            OpenGlUtils.copyMatrix(_activeMatrix, mat.m, 16);
+//
+//            // expand
+//
+////            OpenGlUtils.copyMatrix(_activeMatrix, _matrixStack.pop(), 16);
+//            // 포인트 인덱스만 이동.. 실제로 릴리즈 하지는 않는다.
+////            releaseObtainMatrix();
+//            mShaderManager.setMatrix(_activeMatrix);
+
+
+
+
+        } else if(MATRIX_STACK_TYPE.MATRIX_STACK_PROJECTION == type) {
+            _projectionMatrixStackList.get(0).pop();
+        } else if(MATRIX_STACK_TYPE.MATRIX_STACK_TEXTURE == type) {
+            _textureMatrixStack.pop();
+        }
+    }
+
+    @Override
+    public void pushMatrix(MATRIX_STACK_TYPE type) {
+        if(type == MATRIX_STACK_TYPE.MATRIX_STACK_MODELVIEW) {
+            Mat4 mat = _modelViewMatrixStack.peek();
+
+            // expand
+
+
+
+            _modelViewMatrixStack.push(mat);
+
+            // expand
+//            _matrixStack.push(mat.m);
+
+//            float[] m = getObtainMatrix();
+            // 현재 것과 같은 것을 하나 세팅하여 스택에 푸시
+//            OpenGlUtils.copyMatrix(m, _activeMatrix, 16);
+//            _matrixStack.push(m);
+
+        } else if(type == MATRIX_STACK_TYPE.MATRIX_STACK_PROJECTION) {
+            _projectionMatrixStackList.get(0).push(_projectionMatrixStackList.get(0).peek());
+        } else if(type == MATRIX_STACK_TYPE.MATRIX_STACK_TEXTURE) {
+            _textureMatrixStack.push(_textureMatrixStack.peek());
+        }
+    }
 
     @Override
     public void onSurfaceChanged(final GL10 unused, final int width, final int height) {
@@ -1292,18 +1397,20 @@ public class SMDirector implements IDirector, GLSurfaceView.Renderer {
 
         if (!_invalid) {
 
+//            Mat4 mat = new Mat4(_activeMatrix);
+
             for (int i=0; i<enumToIntForSharedLayer(SharedLayer.POPUP)+1; i++) {
                 SharedLayer layerId = intToEnumForSharedLayer(i);
 
                 SMView drawLayer = _sharedLayer[i];
                 if (drawLayer!=null) {
-                    drawLayer.visit(1);
+                    drawLayer.visit(new Mat4(Mat4.IDENTITY), 0);
                 }
 
                 if (layerId==SharedLayer.BETWEEN_MENU_AND_SCENE) {
                     // running scene을 그리자
                     if (_runningScene!=null) {
-                        _runningScene.visit(1);
+                        _runningScene.visit(new Mat4(Mat4.IDENTITY), 0);
                     }
 
                     if (!mRootSceneInitialized) {
@@ -1408,32 +1515,42 @@ public class SMDirector implements IDirector, GLSurfaceView.Renderer {
     }
 
 
-    @Override
-    public float[] getProjectionMatrix() {
-        return mActiveMatrix;
-    }
+//    @Override
+//    public float[] getProjectionMatrix() {
+//        return _activeMatrix;
+//    }
 
     @Override
     public void setProjectionMatrix(float[] matrix) {
-        if (mActiveMatrix == null) {
-            mActiveMatrix = matrix;
-        } else {
-            OpenGlUtils.copyMatrix(mActiveMatrix, matrix);
-        }
+//        if (_activeMatrix == null) {
+//            _activeMatrix = matrix;
+//        } else {
+//            OpenGlUtils.copyMatrix(_activeMatrix, matrix, 16);
+//        }
+        _modelViewMatrixStack.peek().set(matrix);
         mShaderManager.setMatrix(matrix);
     }
 
     @Override
     public void pushProjectionMatrix() {
-        float[] m = getObtainMatrix();
-        OpenGlUtils.copyMatrix(m, mActiveMatrix);
-        mMatrixStack.push(m);
+//        float[] m = getObtainMatrix();
+//        OpenGlUtils.copyMatrix(m, _activeMatrix, 16);
+//        _matrixStack.push(m);
+
+        Mat4 mat = new Mat4(_modelViewMatrixStack.peek());
+//        OpenGlUtils.copyMatrix(mat.m, _activeMatrix, 16);
+        _modelViewMatrixStack.push(mat);
+
+//        Mat4 mat = _modelViewMatrixStack.peek();
+//        OpenGlUtils.copyMatrix(mat.m, _activeMatrix, 16);
+//        _modelViewMatrixStack.push(mat);
     }
 
     public void pushProjectionMatrix(int index) {
         _projectionMatrixStackList.get(index).push(_projectionMatrixStackList.get(index).peek());
     }
 
+    @Override
     public Mat4 getProjectionMatrix(int index) {
         return _projectionMatrixStackList.get(index).peek();
     }
@@ -1455,9 +1572,18 @@ public class SMDirector implements IDirector, GLSurfaceView.Renderer {
         }
     }
 
+    @Override
     public void loadMatrix(MATRIX_STACK_TYPE type, final Mat4 mat) {
         if(MATRIX_STACK_TYPE.MATRIX_STACK_MODELVIEW == type) {
             _modelViewMatrixStack.set(_modelViewMatrixStack.size()-1, mat);
+
+//            if (matrix==null) {
+//                matrix = _activeMatrix;
+//            } else {
+//                _activeMatrix = matrix;
+//            }
+//            mShaderManager.setMatrix(matrix);
+
         } else if(MATRIX_STACK_TYPE.MATRIX_STACK_PROJECTION == type) {
             _projectionMatrixStackList.get(0).set(_projectionMatrixStackList.get(0).size()-1, mat);
         } else if(MATRIX_STACK_TYPE.MATRIX_STACK_TEXTURE == type) {
@@ -1468,6 +1594,10 @@ public class SMDirector implements IDirector, GLSurfaceView.Renderer {
     public void loadProjectionMatrix(final Mat4 mat, int index)
     {
         _projectionMatrixStackList.get(index).set(_projectionMatrixStackList.get(index).size()-1, mat);
+    }
+
+    public void multiplyProjectionMatrix(final Mat4 mat, int index) {
+        _projectionMatrixStackList.get(index).set(_projectionMatrixStackList.get(index).size()-1, _projectionMatrixStackList.get(index).peek().multiplyRet(mat));
     }
 
     public void multiplyMatrix(MATRIX_STACK_TYPE type, final Mat4 mat) {
@@ -1559,19 +1689,41 @@ public class SMDirector implements IDirector, GLSurfaceView.Renderer {
 //        _eventDispatcher.dispatchEvent(_eventProjectionChanged);
     }
 
+    public void popProjectionMatrix(int index) {
+        _projectionMatrixStackList.get(index).pop();
+    }
 
-    @Override
-    public void popProjectionMatrix() {
-        if (mMatrixStack.size() > 0) {
-            OpenGlUtils.copyMatrix(mActiveMatrix, mMatrixStack.pop());
-            releaseObtainMatrix();
-            mShaderManager.setMatrix(mActiveMatrix);
-        }
+    public void loadProjectionIdentityMatrix(int index) {
+        _projectionMatrixStackList.get(index).set(_projectionMatrixStackList.get(index).size()-1, new Mat4(Mat4.IDENTITY));
     }
 
     @Override
-    public void updateProjectionMatrix() {
-        mShaderManager.setMatrix(mActiveMatrix);
+    public void popProjectionMatrix() {
+//        if (_matrixStack.size() > 0) {
+//            OpenGlUtils.copyMatrix(_activeMatrix, _matrixStack.pop(), 16);
+//            releaseObtainMatrix();
+//            mShaderManager.setMatrix(_activeMatrix);
+//        }
+
+        Mat4 mat = _modelViewMatrixStack.pop();
+//        OpenGlUtils.copyMatrix(_activeMatrix, mat.m, 16);
+//        mShaderManager.setMatrix(_activeMatrix);
+        mShaderManager.setMatrix(mat.m);
+
+
+//        OpenGlUtils.copyMatrix(_activeMatrix, _modelViewMatrixStack.pop().m, 16);
+//        mShaderManager.setMatrix(_activeMatrix);
+    }
+
+    @Override
+    public void updateProjectionMatrix(float[] matrix) {
+//        if (matrix==null) {
+//            matrix = _activeMatrix;
+//        } else {
+//            _activeMatrix = matrix;
+//        }
+        _modelViewMatrixStack.peek().set(matrix);
+        mShaderManager.setMatrix(matrix);
     }
 
     @Override
@@ -1856,6 +2008,8 @@ public class SMDirector implements IDirector, GLSurfaceView.Renderer {
 //        return mPreviewSurface;
 //    }
 
+
+    // network request queue... remove it later...
     @Override
     public RequestQueue getRequestQueue() {
         return mRequestQueue;
@@ -1878,7 +2032,7 @@ public class SMDirector implements IDirector, GLSurfaceView.Renderer {
 
     @Override
     public float[] getFrameBufferMatrix() {
-        return mFrameBufferMatrix;
+        return _frameBufferMat.m;
     }
 
     public void onActivityResult(final int requestCode, final int resultCode, final Intent data) {
@@ -2158,15 +2312,10 @@ public class SMDirector implements IDirector, GLSurfaceView.Renderer {
 
     protected Stack<Mat4> _textureMatrixStack = new Stack<>();
 
-    public enum MATRIX_STACK_TYPE {
-        MATRIX_STACK_MODELVIEW,
-        MATRIX_STACK_PROJECTION,
-        MATRIX_STACK_TEXTURE
-    }
-
     public Mat4 getMatrix(MATRIX_STACK_TYPE type) {
         if(type == MATRIX_STACK_TYPE.MATRIX_STACK_MODELVIEW)
         {
+//            return new Mat4(_activeMatrix);
             return _modelViewMatrixStack.peek();
         }
         else if(type == MATRIX_STACK_TYPE.MATRIX_STACK_PROJECTION)
@@ -2188,10 +2337,9 @@ public class SMDirector implements IDirector, GLSurfaceView.Renderer {
         IDirector director = SMDirector.getDirector();
 
 
-//        float[] projection = director.getProjectionMatrix();
-//        auto projection = director->getMatrix(MATRIX_STACK_TYPE.MATRIX_STACK_PROJECTION);
-//        auto modelview = director->getMatrix(MATRIX_STACK_TYPE.MATRIX_STACK_MODELVIEW);
-//        transformOut = projection * modelview;
+        Mat4 projection = director.getMatrix(MATRIX_STACK_TYPE.MATRIX_STACK_PROJECTION);
+        Mat4 modelview = director.getMatrix(MATRIX_STACK_TYPE.MATRIX_STACK_MODELVIEW);
+        transformOut.set(projection.multiplyRet(modelview));
     }
 
     @Override

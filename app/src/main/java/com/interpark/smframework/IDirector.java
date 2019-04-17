@@ -9,6 +9,7 @@ import com.interpark.smframework.base.SMScene;
 import com.interpark.smframework.base.SMView;
 import com.interpark.smframework.base.SceneParams;
 import com.interpark.smframework.base.types.ActionManager;
+import com.interpark.smframework.base.types.Mat4;
 import com.interpark.smframework.base.types.Scheduler;
 import com.interpark.smframework.shader.ShaderManager;
 import com.interpark.smframework.shader.ShaderManager.ProgramType;
@@ -39,6 +40,12 @@ public interface IDirector {
         BETWEEN_UI_AND_POPUP,
         DIM,
         POPUP,
+    }
+
+    public enum MATRIX_STACK_TYPE {
+        MATRIX_STACK_MODELVIEW,
+        MATRIX_STACK_PROJECTION,
+        MATRIX_STACK_TEXTURE
     }
 
 
@@ -97,12 +104,21 @@ public interface IDirector {
     public boolean bindTexture(Texture texture);
     public ShaderProgram useProgram(ProgramType type);
 
-    public float[] getProjectionMatrix();
+//    public float[] getProjectionMatrix();
     public float[] getFrameBufferMatrix();
     public void setProjectionMatrix(float[] matrix);
     public void pushProjectionMatrix();
     public void popProjectionMatrix();
-    public void updateProjectionMatrix();
+    public void updateProjectionMatrix(float[] matrix);
+
+
+    // new matrix system
+    public void pushMatrix(MATRIX_STACK_TYPE type);
+    public void popMatrix(MATRIX_STACK_TYPE type);
+    public void loadMatrix(MATRIX_STACK_TYPE type, final Mat4 mat);
+    public Mat4 getProjectionMatrix(int index);
+    public Mat4 getMatrix(MATRIX_STACK_TYPE type);
+
 
     public long getTickCount();
 

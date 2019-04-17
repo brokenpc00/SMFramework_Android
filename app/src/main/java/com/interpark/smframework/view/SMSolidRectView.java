@@ -4,6 +4,7 @@ import android.opengl.GLES20;
 import android.util.Log;
 
 import com.interpark.smframework.IDirector;
+import com.interpark.smframework.base.types.Mat4;
 import com.interpark.smframework.view.SMShapeView;
 import com.interpark.smframework.base.shape.PrimitiveRect;
 import com.interpark.smframework.base.types.Color4F;
@@ -43,8 +44,8 @@ public class SMSolidRectView extends SMShapeView {
     }
 
     @Override
-    protected void draw(float a) {
-        super.draw(a);
+    protected void draw(final Mat4 m, int flags) {
+        super.draw(m, flags);
         bgShape.drawScaleXY(0, 0, _contentSize.width, _contentSize.height);
     }
 }

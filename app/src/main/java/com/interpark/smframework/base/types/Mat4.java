@@ -2,6 +2,7 @@ package com.interpark.smframework.base.types;
 
 import com.interpark.smframework.NativeImageProcess.ImageProcessing;
 import com.interpark.smframework.util.MathUtilC;
+import com.interpark.smframework.util.OpenGlUtils;
 import com.interpark.smframework.util.Vec2;
 import com.interpark.smframework.util.Vec3;
 import com.interpark.smframework.util.Vec4;
@@ -764,15 +765,18 @@ public class Mat4 {
     }
 
     public void set(float[] mat) {
-        m = Arrays.copyOf(mat, 16);
+        OpenGlUtils.copyMatrix(m, mat, 16);
+//        m = Arrays.copyOf(mat, 16);
     }
 
     public void set(final Mat4 mat) {
-        m = Arrays.copyOf(mat.m, 16);
+//        m = Arrays.copyOf(mat.m, 16);
+        OpenGlUtils.copyMatrix(m, mat.m, 16);
     }
 
     public void setIdentity() {
-        m = Arrays.copyOf(IDENTITY.m, 16);
+//        m = Arrays.copyOf(IDENTITY.m, 16);
+        OpenGlUtils.copyMatrix(m, IDENTITY.m, 16);
     }
 
     public void setZero() {

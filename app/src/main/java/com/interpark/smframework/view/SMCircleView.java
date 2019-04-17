@@ -3,6 +3,7 @@ package com.interpark.smframework.view;
 import android.graphics.Color;
 
 import com.interpark.smframework.IDirector;
+import com.interpark.smframework.base.types.Mat4;
 import com.interpark.smframework.view.SMShapeView;
 import com.interpark.smframework.base.shape.PrimitiveCircle;
 import com.interpark.smframework.base.types.Color4F;
@@ -41,8 +42,8 @@ public class SMCircleView extends SMShapeView {
     protected PrimitiveCircle bgShape = null;
 
     @Override
-    protected void draw(float a) {
-        super.draw(a);
+    protected void draw(final Mat4 m, int flags) {
+        super.draw(m, flags);
         float x = _contentSize.width/2;
         float y = _contentSize.height/2;
         float radius = _contentSize.width/2;
