@@ -71,13 +71,6 @@ public interface IDirector {
     public int getDeviceWidth();
     public int getDeviceHeight();
     public float getDisplayAdjust();
-//    public void runOnUiThread(final Runnable action);
-//    public void runOnDraw(final Runnable action);
-//    public void runOnDrawDelayed(final Runnable targetAction, final long delayTimeMillis);
-//    public void removeOnDraw(final Runnable targetAction);
-//    public void removeOnDraw(final Class<?> targetClass);
-//    public boolean hasOnDraw(final Runnable targetAction);
-//    public boolean hasOnDraw(final Class<?> targetClass);
     public boolean isGLThread();
     public RequestQueue getRequestQueue();
 
@@ -104,13 +97,6 @@ public interface IDirector {
     public boolean bindTexture(Texture texture);
     public ShaderProgram useProgram(ProgramType type);
 
-//    public float[] getProjectionMatrix();
-    public float[] getFrameBufferMatrix();
-    public void setProjectionMatrix(float[] matrix);
-    public void pushProjectionMatrix();
-    public void popProjectionMatrix();
-    public void updateProjectionMatrix(float[] matrix);
-
 
     // new matrix system
     public void pushMatrix(MATRIX_STACK_TYPE type);
@@ -118,6 +104,7 @@ public interface IDirector {
     public void loadMatrix(MATRIX_STACK_TYPE type, final Mat4 mat);
     public Mat4 getProjectionMatrix(int index);
     public Mat4 getMatrix(MATRIX_STACK_TYPE type);
+    public Mat4 getFrameBufferMatrix();
 
 
     public long getTickCount();

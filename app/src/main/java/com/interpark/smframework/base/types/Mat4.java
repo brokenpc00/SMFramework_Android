@@ -639,9 +639,9 @@ public class Mat4 {
     }
 
     public Mat4 multiplyRet(Mat4 mat) {
-        Mat4 ret = new Mat4(this);
-        ret.multiply(mat);
-        return ret;
+        Mat4 result = new Mat4(this);
+        result.multiply(mat);
+        return result;
     }
 
     public void multiply(Mat4 mat) {

@@ -1724,6 +1724,26 @@ public class SMView extends Ref {
         return new Vec2(getScreenX(), getScreenY());
     }
 
+    public Vec2 convertCurPosToWorld(final Vec2 curPos) {
+        return new Vec2(getScreenX()+curPos.x, getScreenY()+curPos.y);
+    }
+
+    public Vec2 convertToWorldPos(final Vec2 addPos) {
+        if (addPos!=null) {
+            return new Vec2(getScreenX()+_anchorPointInPoints.x + addPos.x, getScreenY()+_anchorPointInPoints.y + addPos.y);
+        } else {
+            return new Vec2(getScreenX()+_anchorPointInPoints.x, getScreenY()+_anchorPointInPoints.y);
+        }
+    }
+
+    public Vec2 convertToLocalPos(final Vec2 woirdPos) {
+        if (_parent!=null) {
+            return new Vec2(woirdPos.x-_parent.getScreenX(), woirdPos.y-_parent.getScreenY());
+        }
+
+        return woirdPos;
+    }
+
     public float getScreenX() {
 
         float x = 0;
@@ -1733,6 +1753,22 @@ public class SMView extends Ref {
         }
 
         return x + getOriginX();
+    }
+
+    public float toScreenX(float screenPosX) {
+        if (_parent!=null) {
+            return screenPosX - _parent.getScreenX();
+        }
+
+        return screenPosX;
+    }
+
+    public float toScreenY(float screenPosY) {
+        if (_parent!=null) {
+            return screenPosY - _parent.getScreenY();
+        }
+
+        return screenPosY;
     }
 
 
@@ -2915,26 +2951,23 @@ public class SMView extends Ref {
             return;
         }
 
+
 //        int flags = processParentFlags(parentTransform, parentFlags);
 
 
 
-        _director.pushProjectionMatrix();
-
+        _director.pushMatrix(IDirector.MATRIX_STACK_TYPE.MATRIX_STACK_MODELVIEW);
 
         float[] currentMatrix = _director.getMatrix(IDirector.MATRIX_STACK_TYPE.MATRIX_STACK_MODELVIEW).m;
-//        Mat4 mat = new Mat4(currentMatrix);
-//
-//        Mat4 cur = getViewToParentTransform();
-//        cur.multiply(mat);
-//        int flags = parentFlags;
-//        _director.updateProjectionMatrix(cur.m);
+        int flags = transformMatrix(currentMatrix, parentFlags);
+        _director.loadMatrix(IDirector.MATRIX_STACK_TYPE.MATRIX_STACK_MODELVIEW, new Mat4(currentMatrix));
+
+//        flags = processParentFlags(parentTransform, parentFlags);
+
 
 //        int flags = processParentFlags(parentTransform, parentFlags);
+//        _director.loadMatrix(IDirector.MATRIX_STACK_TYPE.MATRIX_STACK_MODELVIEW, _modelViewTransform);
 
-//        float[] currentMatrix = _director.getProjectionMatrix();
-        int flags = transformMatrix(currentMatrix, parentFlags);
-        _director.updateProjectionMatrix(currentMatrix);
 
         if (_scissorEnable) {
             enableScissorTest(true);
@@ -2972,9 +3005,7 @@ public class SMView extends Ref {
             enableScissorTest(false);
         }
 
-        _director.popProjectionMatrix();
-
-//        _director.popMatrix(SMDirector.MATRIX_STACK_TYPE.MATRIX_STACK_MODELVIEW);
+        _director.popMatrix(IDirector.MATRIX_STACK_TYPE.MATRIX_STACK_MODELVIEW);
         }
 
     private boolean renderOwn(final Mat4 parentTransform, int parentFlags) {
@@ -3094,13 +3125,6 @@ public class SMView extends Ref {
         return true;
     }
 
-
-
-    // old backgroundcolor
-//    protected void drawBackground(float r, float g, float b, float a) {
-//        _director.setColor(r, g, b, a);
-//        _director.drawFillRect(0, 0, _contentSize.width, _contentSize.height);
-//    }
 
     protected long _updateFlags = 0;
 
@@ -3666,15 +3690,14 @@ public class SMView extends Ref {
             setScaleX(scaleX);
             setScaleY(scaleY);
 
-            getDirector().pushProjectionMatrix();
+            _director.pushMatrix(IDirector.MATRIX_STACK_TYPE.MATRIX_STACK_MODELVIEW);
             {
-//                float[] currentMatrix = _director.getProjectionMatrix();
                 float[] currentMatrix = _director.getMatrix(IDirector.MATRIX_STACK_TYPE.MATRIX_STACK_MODELVIEW).m;
                 transformMatrix(currentMatrix, 1);
-                getDirector().updateProjectionMatrix(currentMatrix);
+                _director.loadMatrix(IDirector.MATRIX_STACK_TYPE.MATRIX_STACK_MODELVIEW, new Mat4(currentMatrix));
                 visit(new Mat4(Mat4.IDENTITY), 1);
             }
-            getDirector().popProjectionMatrix();
+            _director.popMatrix(IDirector.MATRIX_STACK_TYPE.MATRIX_STACK_MODELVIEW);
 
             bitmap = Bitmap.createBitmap((int) canvas.getWidth(), (int) canvas.getHeight(), Config.ARGB_8888);
             ImageProcessing.glGrabPixels(0, 0, bitmap, true);

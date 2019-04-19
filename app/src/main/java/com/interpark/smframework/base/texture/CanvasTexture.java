@@ -6,6 +6,7 @@ import android.opengl.GLES20;
 import android.opengl.Matrix;
 
 import com.interpark.smframework.IDirector;
+import com.interpark.smframework.base.types.Mat4;
 
 public class CanvasTexture extends Texture {
     private boolean mRenderTargetEnabled;
@@ -37,8 +38,8 @@ public class CanvasTexture extends Texture {
 
                 float[] matrix = setProjectionMatrix();
 
-                director.pushProjectionMatrix();
-                director.setProjectionMatrix(matrix);
+                director.pushMatrix(IDirector.MATRIX_STACK_TYPE.MATRIX_STACK_MODELVIEW);
+                director.loadMatrix(IDirector.MATRIX_STACK_TYPE.MATRIX_STACK_MODELVIEW, new Mat4(matrix));
 
                 mRenderTargetEnabled = true;
             }
@@ -52,7 +53,7 @@ public class CanvasTexture extends Texture {
                 director.getTextureManager().bindTexture(null);
                 // Viewport, Projection matrix 원상복구
                 GLES20.glViewport(0, 0, director.getWidth(), director.getHeight());
-                director.popProjectionMatrix();
+                director.popMatrix(IDirector.MATRIX_STACK_TYPE.MATRIX_STACK_MODELVIEW);
             }
         }
 
@@ -114,7 +115,7 @@ public class CanvasTexture extends Texture {
                 GLES20.glFramebufferTexture2D(GLES20.GL_FRAMEBUFFER, GLES20.GL_COLOR_ATTACHMENT0, GLES20.GL_TEXTURE_2D, mTextureId[0], 0);
 
                 GLES20.glViewport(0, 0, mWidth, mHeight);
-                director.setProjectionMatrix(director.getFrameBufferMatrix());
+                director.loadMatrix(IDirector.MATRIX_STACK_TYPE.MATRIX_STACK_MODELVIEW, director.getFrameBufferMatrix());
 
                 mRenderTargetEnabled = true;
             }

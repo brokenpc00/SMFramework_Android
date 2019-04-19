@@ -7,6 +7,7 @@ import android.opengl.Matrix;
 
 import com.interpark.smframework.IDirector;
 import com.interpark.smframework.base.texture.Texture;
+import com.interpark.smframework.base.types.Mat4;
 
 import java.nio.ByteBuffer;
 
@@ -82,8 +83,8 @@ public class CameraPreviewTexture extends Texture {
                 Matrix.translateM(mUtilMatrix, 0, 0, mHeight, 0);
                 Matrix.scaleM(mUtilMatrix, 0, 1, -1, 1);
 
-                director.pushProjectionMatrix();
-                director.setProjectionMatrix(mUtilMatrix);
+                director.pushMatrix(IDirector.MATRIX_STACK_TYPE.MATRIX_STACK_MODELVIEW);
+                director.loadMatrix(IDirector.MATRIX_STACK_TYPE.MATRIX_STACK_MODELVIEW, new Mat4(mUtilMatrix));
 
                 mRenderTargetEnabled = true;
             }
@@ -95,7 +96,7 @@ public class CameraPreviewTexture extends Texture {
 
                 // Viewport, Projection matrix 원상복구
                 GLES20.glViewport(0, 0, director.getWidth(), director.getHeight());
-                director.popProjectionMatrix();
+                director.popMatrix(IDirector.MATRIX_STACK_TYPE.MATRIX_STACK_MODELVIEW);
             }
         }
 
