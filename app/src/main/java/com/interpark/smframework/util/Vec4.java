@@ -330,12 +330,12 @@ public class Vec4 implements Cloneable {
     public boolean greaterthan(final Vec4 v) {
         if (this.x==v.x) {
             if (this.y==v.y) {
-                if (this.z>v.z) {
+                if (this.z==v.z) {
                     if (this.w>v.w) {
                         return this.w>v.w;
                     }
                 }
-                return this.y>v.y;
+                return this.z>v.z;
             }
             return this.y>v.y;
         }
@@ -345,12 +345,12 @@ public class Vec4 implements Cloneable {
     public boolean lessthan(final Vec4 v) {
         if (this.x==v.x) {
             if (this.y==v.y) {
-                if (this.z<v.z) {
+                if (this.z==v.z) {
                     if (this.w<v.w) {
                         return this.w<v.w;
                     }
                 }
-                return this.y<v.y;
+                return this.y<v.z;
             }
             return this.y<v.y;
         }

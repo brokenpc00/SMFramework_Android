@@ -254,7 +254,7 @@ public final class Vec3 implements Cloneable  {
     public void scaleLocal(float v) {
         this.x *= v;
         this.y *= v;
-        this.z *= z;
+        this.z *= v;
     }
 
     public Vec3 minus(Vec3 r) {

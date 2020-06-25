@@ -492,8 +492,8 @@ public class SMDirector implements IDirector, GLSurfaceView.Renderer {
 
         initMatrixStack();
 
-        pushMatrix(MATRIX_STACK_TYPE.MATRIX_STACK_MODELVIEW);
-        loadMatrix(MATRIX_STACK_TYPE.MATRIX_STACK_MODELVIEW, _frameBufferMat);
+//        pushMatrix(MATRIX_STACK_TYPE.MATRIX_STACK_MODELVIEW);
+//        loadMatrix(MATRIX_STACK_TYPE.MATRIX_STACK_MODELVIEW, _frameBufferMat);
 
     }
 
@@ -503,7 +503,7 @@ public class SMDirector implements IDirector, GLSurfaceView.Renderer {
 
 
             Mat4 mat = _modelViewMatrixStack.pop();
-            _shaderManager.setMatrix(mat.m);
+            _shaderManager.setMatrix(new Mat4(mat.m).m);
 
 
 //            Mat4 mat = _modelViewMatrixStack.pop();
@@ -1325,22 +1325,6 @@ public class SMDirector implements IDirector, GLSurfaceView.Renderer {
             _scheduler.update(_deltaTime);
         }
 
-
-//        synchronized (mRunOnDraw) {
-//            if (mRunOnDrawDelayed.size() > 0) {
-//                int count = mRunOnDrawDelayed.size();
-//                for (int i = count-1; i >= 0; i--) {
-//                    if (mCurrentTime >= mRunOnDrawDelayed.get(i).startTickCount) {
-//                        runOnDraw(mRunOnDrawDelayed.get(i).action);
-//                        mRunOnDrawDelayed.remove(i);
-//                    }
-//                }
-//            }
-//            while (!mRunOnDraw.isEmpty()) {
-//                mRunOnDraw.poll().run();
-//            }
-//        }
-
         if (_nextScene!=null) {
             setNextScene();
         }
@@ -1379,23 +1363,34 @@ public class SMDirector implements IDirector, GLSurfaceView.Renderer {
 
         // shared layer 와 scene을 그리자
 
+        pushMatrix(MATRIX_STACK_TYPE.MATRIX_STACK_MODELVIEW);
+        loadMatrix(MATRIX_STACK_TYPE.MATRIX_STACK_MODELVIEW, _frameBufferMat);
+
+//        pushMatrix(MATRIX_STACK_TYPE.MATRIX_STACK_MODELVIEW);
+//        loadMatrix(MATRIX_STACK_TYPE.MATRIX_STACK_MODELVIEW, _frameBufferMat);
+//        loadMatrix(MATRIX_STACK_TYPE.MATRIX_STACK_PROJECTION, );
+
         if (!_invalid) {
 
             for (int i=0; i<enumToIntForSharedLayer(SharedLayer.POPUP)+1; i++) {
                 SharedLayer layerId = intToEnumForSharedLayer(i);
 
                 SMView drawLayer = _sharedLayer[i];
-                if (drawLayer!=null) {
-                    drawLayer.visit(new Mat4(Mat4.IDENTITY), 0);
+                if (drawLayer!=null && drawLayer.isVisible()) {
+//                    drawLayer.visit(new Mat4(Mat4.IDENTITY), 0);
+//                    drawLayer.visit(_frameBufferMat, 0);
+                    drawLayer.visit(getMatrix(MATRIX_STACK_TYPE.MATRIX_STACK_MODELVIEW), 0);
                 }
 
                 if (layerId==SharedLayer.BETWEEN_MENU_AND_SCENE) {
                     // running scene을 그리자
                     if (_runningScene!=null) {
-                        _runningScene.visit(new Mat4(Mat4.IDENTITY), 0);
+//                        _runningScene.visit(new Mat4(Mat4.IDENTITY), 0);
+//                        _runningScene.visit(_frameBufferMat, 0);
+                        _runningScene.visit(getMatrix(MATRIX_STACK_TYPE.MATRIX_STACK_MODELVIEW), 0);
                     }
 
-                    if (!mRootSceneInitialized) {
+                    if (!mRootSceneInitialized && _runningScene!=null) {
                         mRootSceneInitialized = true;
                         _runningScene.onEnter();
                         _runningScene.onEnterTransitionDidFinish();
@@ -1404,6 +1399,8 @@ public class SMDirector implements IDirector, GLSurfaceView.Renderer {
 
             }
         }
+
+        popMatrix(MATRIX_STACK_TYPE.MATRIX_STACK_MODELVIEW);
 
         frameBuffer.setFrameBuffer(this, false);
         setColor(1,1,1,1);
@@ -1416,6 +1413,7 @@ public class SMDirector implements IDirector, GLSurfaceView.Renderer {
 //        GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT);
 
         mFrameBuffer.drawScaleXY(0, getHeight(), 1, -1);
+
 
         try {
             Thread.sleep(1);
@@ -1529,8 +1527,8 @@ public class SMDirector implements IDirector, GLSurfaceView.Renderer {
     public void loadMatrix(MATRIX_STACK_TYPE type, final Mat4 mat) {
         if(MATRIX_STACK_TYPE.MATRIX_STACK_MODELVIEW == type) {
 
-            _modelViewMatrixStack.peek().set(mat);
-            _shaderManager.setMatrix(mat.m);
+            _modelViewMatrixStack.peek().set(new Mat4(mat.m));
+            _shaderManager.setMatrix(new Mat4(mat.m).m);
 
         } else if(MATRIX_STACK_TYPE.MATRIX_STACK_PROJECTION == type) {
             _projectionMatrixStackList.get(0).set(_projectionMatrixStackList.get(0).size()-1, mat);

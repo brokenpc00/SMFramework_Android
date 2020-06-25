@@ -58,8 +58,8 @@ public final class Vec2 implements Cloneable {
 
     public Vec2 getVectorTo(Vec2 pt) {
         Vec2 aux = new Vec2();
-        aux.setX(x - this.x);
-        aux.setY(y - this.y);
+        aux.setX(pt.x - this.x);
+        aux.setY(pt.y - this.y);
         return aux;
     }
 
