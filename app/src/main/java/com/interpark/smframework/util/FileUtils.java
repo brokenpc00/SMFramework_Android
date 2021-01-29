@@ -203,7 +203,7 @@ public class FileUtils {
         }
 
         int pos = newFileName.indexOf("../");
-        if (pos>=0) {
+        if (pos<=0) {
             // first or not found
         return newFileName;
     }

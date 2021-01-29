@@ -431,6 +431,7 @@ public class AndroidDownloader {
             Runnable taskRunnable = AndroidDownloader.this._taskQueue.poll();
             if (taskRunnable != null) {
                 ClassHelper.getActivity().runOnUiThread(taskRunnable);
+
             } else {
                 _runningTaskCount--;
             }

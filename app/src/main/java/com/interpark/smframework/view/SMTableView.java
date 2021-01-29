@@ -1897,7 +1897,7 @@ public class SMTableView extends BaseTableView {
         FindCursorRet ret = findChildForIndexPath(indexPath);
 
         SMView retView = ret.retView;
-        if (ret.retView!=null || retView.getClass()==_DeleteNode.class) {
+        if (ret.retView==null || retView.getClass()==_DeleteNode.class) {
             // 해당 cell 찾지 못함 or 이미 지워짐
             return null;
         }

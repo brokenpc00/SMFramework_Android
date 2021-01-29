@@ -155,7 +155,7 @@ public class Value {
     }
 
     public Value set(Value other) {
-        if (!this.equals(other)) {
+        if (!this.equal(other)) {
             reset(other._type);
 
             switch (other._type) {
@@ -247,7 +247,7 @@ public class Value {
             case MAP:
             {
                 ValueMap m1 = this._field.mapVal;
-                ValueMap m2 = this._field.mapVal;
+                ValueMap m2 = v._field.mapVal;
                 Set<String> keys = m1.keySet();
                 for (String key : keys) {
                     Value value = m2.get(key);
@@ -258,7 +258,7 @@ public class Value {
             case INT_KEY_MAP:
             {
                 ValueMapIntKey m1 = this._field.intKeyVal;
-                ValueMapIntKey m2 = this._field.intKeyVal;
+                ValueMapIntKey m2 = v._field.intKeyVal;
                 Set<Integer> keys = m1.keySet();
                 for (Integer key : keys) {
                     Value value = m2.get(key);

@@ -27,7 +27,7 @@ public class ExtraAction extends FiniteTimeAction {
 
     @Override
     public void update(float t) {
-        // nothign to do
+        // nothing to do
     }
 
     @Override

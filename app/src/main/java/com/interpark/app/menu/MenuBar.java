@@ -1140,10 +1140,10 @@ public class MenuBar extends SMView implements SMView.OnClickListener {
         }
 
         public static final ColorSet WHITE = new ColorSet();
-        public static final ColorSet WHITE_TRANSULANT = new ColorSet(new Color4F(1, 1, 1, 0.7f), SMView.MakeColor4F(0x222222, 1.0f), SMView.MakeColor4F(0x222222, 1.0f), SMView.MakeColor4F(0xadafb3, 1.0f));
+        public static final ColorSet WHITE_TRANSLUCENT = new ColorSet(new Color4F(1, 1, 1, 0.7f), SMView.MakeColor4F(0x222222, 1.0f), SMView.MakeColor4F(0x222222, 1.0f), SMView.MakeColor4F(0xadafb3, 1.0f));
         public static final ColorSet BLACK = new ColorSet(SMView.MakeColor4F(0x222222, 1.0f), Color4F.WHITE, Color4F.WHITE, SMView.MakeColor4F(0xadafb3, 1.0f));
         public static final ColorSet NONE = new ColorSet(Color4F.WHITE, Color4F.WHITE, Color4F.WHITE, Color4F.WHITE);
-        public static final ColorSet TRANSULANT = new ColorSet(new Color4F(1, 1, 1, 0), SMView.MakeColor4F(0x222222, 1.0f), SMView.MakeColor4F(0x222222, 1.0f), SMView.MakeColor4F(0xadafb3, 1.0f));
+        public static final ColorSet TRANSLUCENT = new ColorSet(new Color4F(1, 1, 1, 0), SMView.MakeColor4F(0x222222, 1.0f), SMView.MakeColor4F(0x222222, 1.0f), SMView.MakeColor4F(0xadafb3, 1.0f));
     }
 
     public class DotPosition {

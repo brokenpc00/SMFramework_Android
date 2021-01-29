@@ -239,16 +239,10 @@ public class PhotoDownloadRunnable implements Runnable, Response.Listener<ByteAr
 
                 // Downloads the image and catches IO errors
                 try {
-                    /*
-                     * Gets the size of the file being downloaded. This
-                     * may or may not be returned.
-                     */
-                    int contentSize = -1;//httpConn.getContentLength();
 
                     /*
                      * If the size of the image isn't available
                      */
-                    if (-1 == contentSize) {
 
                         // Allocates a temporary buffer
                         byte[] tempBuffer = new byte[READ_SIZE];
@@ -355,57 +349,15 @@ public class PhotoDownloadRunnable implements Runnable, Response.Listener<ByteAr
                          * The download size is available, so this creates a
                          * permanent buffer of that length.
                          */
-                    } else {
-                        byteBuffer = new byte[contentSize];
-
-                        // How much of the buffer still remains empty
-                        int remainingLength = contentSize;
-
-                        // The next open space in the buffer
-                        int bufferOffset = 0;
-
-                        /*
-                         * Reads into the buffer until the number of bytes
-                         * equal to the length of the buffer (the size of
-                         * the image) have been read.
-                         */
-                        while (remainingLength > 0) {
-                            int readResult = byteStream.read(
-                                    byteBuffer,
-                                    bufferOffset,
-                                    remainingLength);
-                            /*
-                             * EOF should not occur, because the loop should
-                             * read the exact # of bytes in the image
-                             */
-                            if (readResult < 0) {
-
-                                // Throws an EOF Exception
-                                throw new EOFException();
-                            }
-
-                            // Moves the buffer offset to the next open byte
-                            bufferOffset += readResult;
-
-                            // Subtracts the # of bytes read from the
-                            // remaining length
-                            remainingLength -= readResult;
-
-                            if (Thread.interrupted()) {
-
-                                throw new InterruptedException();
-                            }
-                        }
-                    }
 
                     // 파일 캐시로 저장
                     if (byteBuffer != null && mPhotoTask.getDiskCachePath() != null) {
-                        final byte[] tempBuffer = byteBuffer;
+                        final byte[] tempBuffer1 = byteBuffer;
                         new Thread(new Runnable() {
                             @Override
                             public void run() {
                                 try {
-                                    IOUtils.writeFile(tempBuffer, mPhotoTask.getDiskCachePath());
+                                    IOUtils.writeFile(tempBuffer1, mPhotoTask.getDiskCachePath());
                                 } catch (IOException e) {
                                     e.printStackTrace();
                                 }

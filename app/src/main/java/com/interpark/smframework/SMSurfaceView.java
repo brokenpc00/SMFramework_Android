@@ -20,16 +20,16 @@ public class SMSurfaceView extends GLSurfaceView {
         this(activity, false);
     }
 
-    public SMSurfaceView(FragmentActivity activity, boolean transulant) {
+    public SMSurfaceView(FragmentActivity activity, boolean translucent) {
         super(activity, null);
         mActivity = activity;
-        init(activity, transulant);
+        init(activity, translucent);
     }
-    private void init(FragmentActivity activity, boolean transulant) {
+    private void init(FragmentActivity activity, boolean translucent) {
         setEGLContextClientVersion(2);
         setEGLConfigChooser(8, 8, 8, 8, 0, 0);
 
-        if (transulant) {
+        if (translucent) {
             getHolder().setFormat(PixelFormat.TRANSLUCENT);
         }
 

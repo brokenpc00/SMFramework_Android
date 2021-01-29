@@ -54,15 +54,15 @@ public class PrimitiveRoundRectLine extends DrawNode {
         this.uv.position(0);
     }
 
-    public void setSize(float width, float height, float conerRadius) {
+    public void setSize(float width, float height, float cornerRadius) {
 
-        float inR = conerRadius - thickness/2f;
-        float outR = conerRadius + thickness/2f;
-        float w = width/2-conerRadius;
-        float h = height/2-conerRadius;
-        float textureRoundLength = (float)(0.25*2*conerRadius*Math.PI)/thickness;
-        float textureWidthLength = (float)(width-2*conerRadius)/thickness;
-        float textureHeightLength = (float)(height-2*conerRadius)/thickness;
+        float inR = cornerRadius - thickness/2f;
+        float outR = cornerRadius + thickness/2f;
+        float w = width/2-cornerRadius;
+        float h = height/2-cornerRadius;
+        float textureRoundLength = (float)(0.25*2*cornerRadius*Math.PI)/thickness;
+        float textureWidthLength = (float)(width-2*cornerRadius)/thickness;
+        float textureHeightLength = (float)(height-2*cornerRadius)/thickness;
         float stepRoundLength = textureRoundLength / CONER_SEGMENT;
 
         int index = 0;

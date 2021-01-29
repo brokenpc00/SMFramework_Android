@@ -169,7 +169,8 @@ public class EdgeSwipeForDismiss extends EdgeSwipeLayer {
 
                 _scrollEventTargeted = false;
                 _inScrollEvent = false;
-                _velocityTracker.clear();;
+                _velocityTracker.clear();
+//                _velocityTracker.recycle();
             }
             break;
             case MotionEvent.ACTION_MOVE:

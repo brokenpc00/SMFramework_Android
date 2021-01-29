@@ -1871,6 +1871,22 @@ public class SMView extends Ref {
             float x = _position.x;
             float y = _position.y;
             float z = _positionZ;
+            /*
+			android.opengl.Matrix.translateM(matrix, 0, mX+mPivotX, mY+mPivotY, mZ);
+			if (mScale != 1) {
+				android.opengl.Matrix.scaleM(matrix, 0, mScale, mScale, 1);
+			}
+			if (mAngleX != 0) {
+				android.opengl.Matrix.rotateM(matrix, 0, mAngleX, 1, 0, 0);
+			}
+			if (mAngleY != 0) {
+				android.opengl.Matrix.rotateM(matrix, 0, mAngleY, 0, 1, 0);
+			}
+			if (mAngleZ != 0) {
+				android.opengl.Matrix.rotateM(matrix, 0, mAngleZ, 0, 0, 1);
+			}
+			android.opengl.Matrix.translateM(matrix, 0, -mPivotX, -mPivotY, 0);
+             */
 
             // 현재 x, y, z를 입력하고
             android.opengl.Matrix.translateM(matrix, 0, x, y, z);
@@ -2128,13 +2144,13 @@ public class SMView extends Ref {
 
     public void addChild(SMView child, int localZOrder, int tag) {
         assert (child!=null);
-        assert (child.getParent()!=null);
+        assert (child.getParent()==null);
         addChildHelper(child, localZOrder, tag, "", true);
     }
 
     public void addChild(SMView child, int localZOrder, final String name) {
         assert (child!=null);
-        assert (child.getParent()!=null);
+        assert (child.getParent()==null);
         addChildHelper(child, localZOrder, -1, name, false);
     }
 
@@ -2852,7 +2868,7 @@ public class SMView extends Ref {
             animScale = true;
 
             boolean needUpdate = false;
-            InterpolateRet ret1 = smoothInterpolate(_animScale, _newAnimScale, AppConst.Config.TOLERANCE_ALPHA, AppConst.Config.SMOOTH_DIVIDER);
+            InterpolateRet ret1 = smoothInterpolate(_animScale, _newAnimScale, AppConst.Config.TOLERANCE_SCALE, AppConst.Config.SMOOTH_DIVIDER);
             needUpdate |= ret1.retB;
             _animScale = ret1.retF;
 
@@ -2864,7 +2880,7 @@ public class SMView extends Ref {
         if (isSmoothUpdate(VIEWFLAG_SCALE) || animScale) {
             flags |= VIEWFLAG_SCALE;
             boolean needUpdate = false;
-            InterpolateRet ret1 = smoothInterpolate(_realScale, _newScale, AppConst.Config.TOLERANCE_ALPHA, AppConst.Config.SMOOTH_DIVIDER);
+            InterpolateRet ret1 = smoothInterpolate(_realScale, _newScale, AppConst.Config.TOLERANCE_SCALE, AppConst.Config.SMOOTH_DIVIDER);
             needUpdate |= ret1.retB;
             _realScale = ret1.retF;
 
@@ -3322,7 +3338,7 @@ public class SMView extends Ref {
 
     public void updateCascadeAlpha() {
         float parentAlpha = 1.0f;
-        if (_parent!=null && _parent.isCascadeColorEnabled()) {
+        if (_parent!=null && _parent.isCascadeAlphaEnabled()) {
             parentAlpha = _parent.getDisplayedAlpha();
         }
         updateDisplayedAlpha(parentAlpha);

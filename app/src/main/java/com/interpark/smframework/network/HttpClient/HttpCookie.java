@@ -37,7 +37,7 @@ public class HttpCookie {
             cookiesList.clear();
 
             Scanner cookieRead = new Scanner(inString);
-            cookieRead.useDelimiter("/n");
+            cookieRead.useDelimiter("\n");
 
             while (cookieRead.hasNext()) {
                 cookiesList.add(cookieRead.next());
@@ -61,7 +61,7 @@ public class HttpCookie {
                 ArrayList<String> elems = new ArrayList<>();
 
                 Scanner infoRead = new Scanner(cookie);
-                infoRead.useDelimiter("/t");
+                infoRead.useDelimiter("\t");
 
                 while (infoRead.hasNext()) {
                     elems.add(infoRead.next());

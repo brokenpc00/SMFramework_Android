@@ -32,8 +32,9 @@ public class SMShapeView extends SMView {
             case 3: return Quadrant.TOP_HALF;
             case 4: return Quadrant.BOTTOM_HALF;
             case 5: return Quadrant.LEFT_TOP;
-            case 6: return Quadrant.RIGHT_TOP;
-            case 7: return Quadrant.RIGHT_BOTTOM;
+            case 6: return Quadrant.LEFT_BOTTOM;
+            case 7: return Quadrant.RIGHT_TOP;
+            case 8: return Quadrant.RIGHT_BOTTOM;
             default: return Quadrant.ALL;
         }
     }

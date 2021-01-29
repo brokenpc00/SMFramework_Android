@@ -679,7 +679,7 @@ public class SMDirector implements IDirector, GLSurfaceView.Renderer {
         _sideMenu._sideMenuUpdateCallback = new SideMenu.SIDE_MENU_UPDATE_CALLBACK() {
             @Override
             public void onSideMenuUpdateCallback(SIDE_MENU_STATE state, float position) {
-                sideMenuCallbak(state, position);
+                sideMenuCallback(state, position);
             }
         };
     }
@@ -687,7 +687,7 @@ public class SMDirector implements IDirector, GLSurfaceView.Renderer {
     private SMView _touchMotionTarget = null;
     private float _lastTouchDownTime;
 
-    public void sideMenuCallbak(SIDE_MENU_STATE state, float position) {
+    public void sideMenuCallback(SIDE_MENU_STATE state, float position) {
         float f = position / _sideMenu.getContentSize().width;
         if (f <= 0) {
             f = 0;
@@ -724,10 +724,6 @@ public class SMDirector implements IDirector, GLSurfaceView.Renderer {
         }
 
         if (runningScene!=null) {
-            runningScene.setPositionX(position+getDirector().getWinSize().width/2);
-        }
-
-        if (inScene!=null) {
             runningScene.setPositionX(position+getDirector().getWinSize().width/2);
         }
     }

@@ -256,7 +256,7 @@ public class Quaternion {
 
     public Quaternion multiply(final Quaternion q) {
         Quaternion result = new Quaternion(this);
-        multiply(this, q, this);
+        multiply(this, q, result);
         return result;
     }
 

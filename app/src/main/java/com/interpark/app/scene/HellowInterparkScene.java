@@ -82,7 +82,7 @@ public class HellowInterparkScene extends SMScene implements SMTableView.CellFor
         _menuBar = MenuBar.create(getDirector());
         _menuBar.setMenuButtonType(MenuBar.MenuType.MENU, true);
         _menuBar.setText(_sceneTitle, true);
-        _menuBar.setColorSet(MenuBar.ColorSet.WHITE_TRANSULANT, true);
+        _menuBar.setColorSet(MenuBar.ColorSet.WHITE_TRANSLUCENT, true);
         _menuBar.setLocalZOrder(10);
         _menuBar.setMenuBarListener(_menuBarListener);
         addChild(_menuBar);
@@ -496,7 +496,7 @@ public class HellowInterparkScene extends SMScene implements SMTableView.CellFor
             } else {
                 _menuBar.setMenuButtonType(MenuBar.MenuType.BACK, false);
             }
-            _menuBar.setColorSet(MenuBar.ColorSet.WHITE_TRANSULANT, false);
+            _menuBar.setColorSet(MenuBar.ColorSet.WHITE_TRANSLUCENT, false);
             _menuBar.setText(_sceneTitle, false);
         }
     }

@@ -1,6 +1,6 @@
 package com.interpark.smframework.util;
 
-import android.os.AsyncTask;
+//import android.os.AsyncTask;
 import android.util.Log;
 
 import com.interpark.smframework.IDirector;
@@ -83,17 +83,8 @@ public abstract class SMAsyncTask<Params, Progress, Result> {
     }
 
     public enum Status {
-        /**
-         * Indicates that the task has not been executed yet.
-         */
         PENDING,
-        /**
-         * Indicates that the task is running.
-         */
         RUNNING,
-        /**
-         * Indicates that {@link AsyncTask#onPostExecute} has finished.
-         */
         FINISHED,
     }
 
@@ -149,14 +140,6 @@ public abstract class SMAsyncTask<Params, Progress, Result> {
             }
         });
 
-
-//        Log.i("SMAsync", "[[[[[ postResult runOnDraw~~~");
-//        _director.runOnDraw(new Runnable() {
-//            @Override
-//            public void run() {
-//                SMAsyncTask.this.finish(result);
-//            }
-//        });
 
         return result;
     }

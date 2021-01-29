@@ -44,16 +44,10 @@ public class SMLabel extends UIContainerView {
         return create(director, text, fontSize, fontColor, align, false);
     }
     public static SMLabel create(IDirector director, String text, float fontSize, Color4F fontColor, Align align, boolean bold) {
-        return create(director, text, fontSize, fontColor, align, false, false);
-    }
-    public static SMLabel create(IDirector director, String text, float fontSize, Color4F fontColor, Align align, boolean bold, boolean italic) {
-        return create(director, text, fontSize, fontColor, align, false, false, false);
+        return create(director, text, fontSize, fontColor, align, bold, false, false);
     }
     public static SMLabel create(IDirector director, String text, float fontSize, Color4F fontColor, Align align, boolean bold, boolean italic, boolean strike) {
-        return create(director, text, fontSize, fontColor, align, false, false, false, -1);
-    }
-    public static SMLabel create(IDirector director, String text, float fontSize, Color4F fontColor, Align align, boolean bold, boolean italic, boolean strike, int maxWidth) {
-        return create(director, text, fontSize, fontColor, align, false, false, false, -1, 1);
+        return create(director, text, fontSize, fontColor, align, bold, italic, strike, -1, 1);
     }
     public static SMLabel create(IDirector director, String text, float fontSize, Color4F fontColor, Align align, boolean bold, boolean italic, boolean strike, int maxWidth, int maxLines) {
         SMLabel label = new SMLabel(director);

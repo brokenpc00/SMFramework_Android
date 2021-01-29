@@ -205,9 +205,12 @@ public class Mat4 {
         float xx2 = q.x * x2;
         float yy2 = q.y * y2;
         float zz2 = q.z * z2;
+
         float xy2 = q.x * y2;
+
         float xz2 = q.x * z2;
         float yz2 = q.y * z2;
+
         float wx2 = q.w * x2;
         float wy2 = q.w * y2;
         float wz2 = q.w * z2;
@@ -340,7 +343,6 @@ public class Mat4 {
         dst.m[12] = translation.x;
         dst.m[13] = translation.y;
         dst.m[14] = translation.z;
-
     }
 
     public static void createTranslation(float xTranslation, float yTranslation, float zTranslation, Mat4 dst) {
@@ -364,34 +366,23 @@ public class Mat4 {
     }
 
     public void add(float scalar, Mat4 dst) {
-        dst.m[0]  = this.m[0]  + scalar;
-        dst.m[1]  = this.m[1]  + scalar;
-        dst.m[2]  = this.m[2]  + scalar;
-        dst.m[3]  = this.m[3]  + scalar;
-        dst.m[4]  = this.m[4]  + scalar;
-        dst.m[5]  = this.m[5]  + scalar;
-        dst.m[6]  = this.m[6]  + scalar;
-        dst.m[7]  = this.m[7]  + scalar;
-        dst.m[8]  = this.m[8]  + scalar;
-        dst.m[9]  = this.m[9]  + scalar;
-        dst.m[10] = this.m[10] + scalar;
-        dst.m[11] = this.m[11] + scalar;
-        dst.m[12] = this.m[12] + scalar;
-        dst.m[13] = this.m[13] + scalar;
-        dst.m[14] = this.m[14] + scalar;
-        dst.m[15] = this.m[15] + scalar;
+        MathUtilC.addMatrix(this.m, scalar, this.m);
     }
 
     public Mat4 add(final Mat4 mat) {
-        return ZERO;
+        Mat4 ret = new Mat4(ZERO);
+        add(this, mat, ret);
+        return ret;
     }
 
     public Mat4 addLocal(final Mat4 mat) {
-        return ZERO;
+        add(this, mat, this);
+        return this;
     }
 
-    public static Mat4 add(final Mat4 m1, final Mat4 m2, Mat4 dst) {
-        return ZERO;
+    public static void add(final Mat4 m1, final Mat4 m2, Mat4 dst) {
+
+        MathUtilC.addMatrix(m1.m, m2.m, dst.m);
     }
 
     public boolean decompose(Vec3 scale, Quaternion rotation, Vec3 translation) {
@@ -737,10 +728,6 @@ public class Mat4 {
 
     public void scale(Vec3 s, Mat4 dst) {
         scale(s.x, s.y, s.z, dst);
-    }
-
-    public void normalize() {
-
     }
 
     public void set(float m11, float m12, float m13, float m14, float m21, float m22, float m23, float m24,
