@@ -237,7 +237,7 @@ public class SMCircularListView extends SMView implements SMScroller.ALIGN_CALLB
 
             if (iCell.isDeleted()) {
                 iCell.setAniSrc(iCell.getCellPosition());
-                iCell.setAndDst(position);
+                iCell.setAniDst(position);
                 iCell.setAniIndex(iCell.getCellIndex());
                 position += _config.cellSize;
 

@@ -110,7 +110,6 @@ public class SMImageView extends UIContainerView implements IDownloadProtocol {
     private float _imageScale = 1f;
     private float _spriteScaleX = 1f, _spriteScaleY = 1f;
     private Vec2 _spritePosition = new Vec2(Vec2.ZERO);
-    private Size _spriteSize = new Size(Size.ZERO);
     private Rect _imageRect = new Rect();
 
     public static SMImageView create(IDirector director) {
@@ -290,7 +289,7 @@ public class SMImageView extends UIContainerView implements IDownloadProtocol {
 //        float x = mContentsBounds.left + _sprite.getCX()*mScaleX;
 //        float y = mContentsBounds.top + _sprite.getCY()*mScaleY;
 
-        drawImage(_spritePosition.x, _spritePosition.y, _spriteSize.width*_imageScale, _spriteSize.height*_imageScale);
+        drawImage(_spritePosition.x, _spritePosition.y, _spriteScaleX*_imageScale, _spriteScaleY*_imageScale);
     }
 
     protected void drawImage(float x, float y, float scaleX, float scaleY) {
@@ -392,8 +391,10 @@ public class SMImageView extends UIContainerView implements IDownloadProtocol {
             }
     }
 
+
         _spritePosition.set(x, y);
-        _spriteSize.set(scaleX, scaleY);
+        _spriteScaleX = scaleX;
+        _spriteScaleY = scaleY;
         }
 
     private Vec2 _realSpritePosition = new Vec2(0, 0);
@@ -430,9 +431,7 @@ public class SMImageView extends UIContainerView implements IDownloadProtocol {
         return scaleY*_spriteScaleY;
     }
 
-    public float convertViewXtoContentsX(float x) {
-        return (x - _spritePosition.x)/_spriteScaleY;
-    }
+    public float convertViewXtoContentsX(float x) { return (x - _spritePosition.x)/_spriteScaleX; }
 
     public float convertViewYtoContentsY(float y) {
         return (y - _spritePosition.y)/_spriteScaleY;

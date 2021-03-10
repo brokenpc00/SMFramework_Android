@@ -75,6 +75,7 @@ public class ScaleTo extends ActionInterval {
     }
 
     protected boolean initWithDuration(float duration, float sx, float sy, float sz) {
+        super.initWithDuration(duration);
         _endScaleX = sx;
         _endScaleY = sy;
         _endScaleZ = sz;

@@ -12,7 +12,7 @@ public interface ICircularCell {
 
 
     public void setAniSrc(float src);
-    public void setAndDst(float dst);
+    public void setAniDst(float dst);
     public void setAniIndex(int index);
 
     public boolean isDeleted();

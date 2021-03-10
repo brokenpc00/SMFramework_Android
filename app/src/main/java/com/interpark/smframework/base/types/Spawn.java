@@ -101,7 +101,7 @@ public class Spawn extends ActionInterval {
             _one = action1;
             _two = action2;
 
-            if (d1 < d2) {
+            if (d1 > d2) {
                 _two = Sequence.createWithTwoActions(getDirector(), action2, DelayTime.create(getDirector(), d1-d2));
             } else if (d1 < d2) {
                 _one = Sequence.createWithTwoActions(getDirector(), action1, DelayTime.create(getDirector(), d2-d1));

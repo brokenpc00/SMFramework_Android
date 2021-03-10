@@ -776,7 +776,7 @@ public class ViewDisplayScene extends SMMenuTransitionScene implements SMView.On
             _aniSrc = src;
         }
         @Override
-        public void setAndDst(float dst) {
+        public void setAniDst(float dst) {
             _aniDst = dst;
         }
         @Override
