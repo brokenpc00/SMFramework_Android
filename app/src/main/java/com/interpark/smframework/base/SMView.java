@@ -2003,7 +2003,7 @@ public class SMView extends Ref {
     }
 
     public void setOnLongClickListener(OnLongClickListener listener) {
-
+        setOnLongClickListener(listener, null);
     }
     public void setOnLongClickListener(OnLongClickListener listener, SMView eventTarget) {
         if (!isLongClickable()) {

@@ -711,7 +711,7 @@ public class SMDirector implements IDirector, GLSurfaceView.Renderer {
 
         SMScene runningScene = null;
         SMScene inScene = null;
-        if (getRunningScene() instanceof  SMScene) {
+        if (getRunningScene() != null) {
             runningScene = getRunningScene();
             if (getRunningScene() instanceof TransitionScene) {
                 TransitionScene transitionScene = (TransitionScene)getRunningScene();
@@ -1324,12 +1324,6 @@ public class SMDirector implements IDirector, GLSurfaceView.Renderer {
         if (_nextScene!=null) {
             setNextScene();
         }
-
-
-
-
-
-
 
         final CanvasTexture frameBuffer = (CanvasTexture)mFrameBuffer.getTexture();
 

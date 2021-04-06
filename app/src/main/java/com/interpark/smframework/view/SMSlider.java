@@ -315,13 +315,13 @@ public class SMSlider extends UIContainerView implements SMView.OnTouchListener 
                 {
                     float x = _knobButton.getPositionX() - _contentSize.width/2;
                     if (x>0) {
-                        float len = x - (CENTER_RADIUS-ShaderNode.DEFAULT_ANTI_ALIAS_WIDTH*1.5f);
+                        float len = x - (CENTER_RADIUS-1.5f);
                         if (len<0) {
                             len = 0;
                         }
 
                         _bgLine.setAnchorPoint(new Vec2(Vec2.MIDDLE_LEFT));
-                        _bgLine.setContentSize(new Size(len, ShaderNode.DEFAULT_ANTI_ALIAS_WIDTH*2));
+                        _bgLine.setContentSize(new Size(len, 2));
                         _bgLine.setPosition(_contentSize.width/2 + (CENTER_RADIUS-1.5f), _contentSize.height/2);
                     } else {
                         float len = -x - (CENTER_RADIUS-1.5f);
@@ -330,8 +330,8 @@ public class SMSlider extends UIContainerView implements SMView.OnTouchListener 
                         }
 
                         _bgLine.setAnchorPoint(new Vec2(Vec2.MIDDLE_RIGHT));
-                        _bgLine.setContentSize(new Size(len, ShaderNode.DEFAULT_ANTI_ALIAS_WIDTH*2));
-                        _bgLine.setPosition(_contentSize.width/2 - (CENTER_RADIUS-ShaderNode.DEFAULT_ANTI_ALIAS_WIDTH*1.5f), _contentSize.height/2);
+                        _bgLine.setContentSize(new Size(len, 2));
+                        _bgLine.setPosition(_contentSize.width/2 - (CENTER_RADIUS-1.5f), _contentSize.height/2);
                     }
                 }
                 break;
@@ -339,27 +339,27 @@ public class SMSlider extends UIContainerView implements SMView.OnTouchListener 
                 {
                     float x = _knobButton.getPositionX() - 50;
 
-                    float len = x - (CENTER_RADIUS-ShaderNode.DEFAULT_ANTI_ALIAS_WIDTH*1.5f);
+                    float len = x - (CENTER_RADIUS-1.5f);
                     if (len<0) {
                         len = 0;
                     }
 
                     _bgLine.setAnchorPoint(new Vec2(Vec2.MIDDLE_LEFT));
-                    _bgLine.setContentSize(new Size(len, ShaderNode.DEFAULT_ANTI_ALIAS_WIDTH*2));
-                    _bgLine.setPosition(50 + (CENTER_RADIUS-ShaderNode.DEFAULT_ANTI_ALIAS_WIDTH*1.5f), _contentSize.height/2);
+                    _bgLine.setContentSize(new Size(len, 2));
+                    _bgLine.setPosition(50 + (CENTER_RADIUS-1.5f), _contentSize.height/2);
                 }
                 break;
                 case MIN_TO_MAX:
                 {
                     float x = _minButton.getPositionX() - 50;
-                    float len = _maxButton.getPositionX() - x - 50 - (CENTER_RADIUS-1.5f)*ShaderNode.DEFAULT_ANTI_ALIAS_WIDTH*2;
+                    float len = _maxButton.getPositionX() - x - 50 - (CENTER_RADIUS-1.5f)*2;
 
                     if (len<0) {
                         len = 0;
                     }
 
                     _bgLine.setAnchorPoint(new Vec2(Vec2.MIDDLE_LEFT));
-                    _bgLine.setContentSize(new Size(len, ShaderNode.DEFAULT_ANTI_ALIAS_WIDTH*2));
+                    _bgLine.setContentSize(new Size(len, 2));
                     _bgLine.setPosition(_minButton.getPositionX(), _contentSize.height/2);
                 }
                 break;
@@ -373,10 +373,10 @@ public class SMSlider extends UIContainerView implements SMView.OnTouchListener 
         switch (_type) {
             case MINUS_ONE_TO_ONE:
             {
-                _leftLine.setContentSize(new Size(_sliderWidth/2 - (CENTER_RADIUS-ShaderNode.DEFAULT_ANTI_ALIAS_WIDTH*1.5f), ShaderNode.DEFAULT_ANTI_ALIAS_WIDTH*2));
+                _leftLine.setContentSize(new Size(_sliderWidth/2 - (CENTER_RADIUS-1.5f), 2));
                 _leftLine.setPosition(new Vec2(50, _contentSize.height/2));
 
-                Size newSize = new Size(_sliderWidth/2 - (CENTER_RADIUS-ShaderNode.DEFAULT_ANTI_ALIAS_WIDTH*.15f), ShaderNode.DEFAULT_ANTI_ALIAS_WIDTH*2);
+                Size newSize = new Size(_sliderWidth/2 - (CENTER_RADIUS-1.5f), 2);
                 _rightLine.setContentSize(newSize);
                 _rightLine.setPosition(_contentSize.width-50, _contentSize.height/2);
 
@@ -385,7 +385,7 @@ public class SMSlider extends UIContainerView implements SMView.OnTouchListener 
             break;
             case ZERO_TO_ONE:
             {
-                Size newSize = new Size(_sliderWidth-(CENTER_RADIUS-1.5f), ShaderNode.DEFAULT_ANTI_ALIAS_WIDTH*2);
+                Size newSize = new Size(_sliderWidth-(CENTER_RADIUS-1.5f), 2);
                 _rightLine.setContentSize(newSize);
                 _rightLine.setPosition(_contentSize.width-50, _contentSize.height/2);
 
@@ -394,7 +394,7 @@ public class SMSlider extends UIContainerView implements SMView.OnTouchListener 
             break;
             case MIN_TO_MAX:
             {
-                Size newSize = new Size(_sliderWidth, ShaderNode.DEFAULT_ANTI_ALIAS_WIDTH*2);
+                Size newSize = new Size(_sliderWidth, 2);
                 _rightLine.setContentSize(newSize);
                 _rightLine.setPosition(_contentSize.width-50, _contentSize.height/2);
             }

@@ -612,9 +612,10 @@ public class SMButton extends UIContainerView {
             }
 
         } else {
-//            setB
+            setButton(STATE.PRESSED, (SMView) null);
         }
         _shapeOutlineWidth = lineWidth;
+        registerUpdate(FLAG_SHAPE_STYLE);
     }
 
     public void setIconAlign(ICONALIGN align) {

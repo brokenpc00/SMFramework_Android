@@ -418,7 +418,7 @@ public class MenuBar extends SMView implements SMView.OnClickListener {
 
             applyColorSet(colorSet);
         } else {
-            if (_colorTransform!=null) {
+            if (_colorTransform==null) {
                 _colorTransform = ColorTransformCreate(getDirector());
                 _colorTransform.setTag(AppConst.TAG.ACTION_MENUBAR_COLOR);
             }
@@ -1101,10 +1101,6 @@ public class MenuBar extends SMView implements SMView.OnClickListener {
         }
     }
 
-
-
-
-
     // for inner class
 
     public static class ColorSet implements Cloneable {
@@ -1347,12 +1343,12 @@ public class MenuBar extends SMView implements SMView.OnClickListener {
                 if (_menuButtonType==MenuType.MENU) {
                     _menuBar._menuLine[i].setVisible(false);
                     _menuBar._menuCircle[i].setVisible(true);
-                    _menuBar.showAlarmBadge();
                 } else {
                     _menuBar._menuLine[i].setVisible(true);
                     _menuBar._menuCircle[i].setVisible(false);
                 }
             }
+            _menuBar.showAlarmBadge();
 
             switch (_menuButtonType) {
                 case CLOSE:
@@ -1384,12 +1380,12 @@ public class MenuBar extends SMView implements SMView.OnClickListener {
                 if (_fromType==MenuType.MENU) {
                     _menuBar._menuLine[i].setVisible(false);
                     _menuBar._menuCircle[i].setVisible(true);
-                    _menuBar.showAlarmBadge();
                 } else {
                     _menuBar._menuLine[i].setVisible(true);
                     _menuBar._menuCircle[i].setVisible(false);
                 }
             }
+            _menuBar.showAlarmBadge();
 
             switch (_fromType) {
                 case CLOSE:

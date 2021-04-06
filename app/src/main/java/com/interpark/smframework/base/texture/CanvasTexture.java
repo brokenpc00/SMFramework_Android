@@ -44,7 +44,6 @@ public class CanvasTexture extends Texture {
                 mRenderTargetEnabled = true;
             }
         } else {
-            if (mRenderTargetEnabled) {
                 mRenderTargetEnabled = false;
                 director.setFrameBufferId(mStoredFrameBufferId);
                 GLES20.glBindFramebuffer(GLES20.GL_FRAMEBUFFER, mStoredFrameBufferId);
@@ -55,7 +54,6 @@ public class CanvasTexture extends Texture {
                 GLES20.glViewport(0, 0, director.getWidth(), director.getHeight());
                 director.popMatrix(IDirector.MATRIX_STACK_TYPE.MATRIX_STACK_MODELVIEW);
             }
-        }
 
         return mRenderTargetEnabled;
     }
@@ -77,7 +75,7 @@ public class CanvasTexture extends Texture {
         GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_WRAP_S, GLES20.GL_CLAMP_TO_EDGE);
         GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_WRAP_T, GLES20.GL_CLAMP_TO_EDGE);
 
-        GLES20.glTexImage2D(GLES20.GL_TEXTURE_2D, 0 , GLES20.GL_RGBA, mWidth, mHeight, 0 , GLES20.GL_RGBA, GLES20.GL_UNSIGNED_BYTE, null);
+        GLES20.glTexImage2D(GLES20.GL_TEXTURE_2D, 0, GLES20.GL_RGBA, mWidth, mHeight, 0, GLES20.GL_RGBA, GLES20.GL_UNSIGNED_BYTE, null);
 
         return true;
     }
