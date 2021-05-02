@@ -73,7 +73,7 @@ public class StickerControlView extends SMView implements SMView.OnClickListener
         _borderRect = SMRoundRectView.create(getDirector(), 4.0f, ShapeConstant.LineType.Dash, 2.0f);
         _borderRect.setAnchorPoint(Vec2.MIDDLE);
         _borderRect.setCornerRadius(20.0f);
-        _borderRect.setLineColor(MakeColor4F(0xe6e6e6, 1.0f));
+        _borderRect.setLineColor(MakeColor4F(0xe6e6e9, 1.0f));
         _uiView.addChild(_borderRect);
 
         // size button
@@ -802,7 +802,7 @@ public class StickerControlView extends SMView implements SMView.OnClickListener
 
         if (_reset || size.width != _targetSize.width || size.height != _targetSize.height) {
             _reset = false;
-            _targetSize = size;
+            _targetSize.set(size);
 
             Size viewSize = size.add(new Size(BORDER_MARGIN, BORDER_MARGIN));
             _uiView.setContentSize(viewSize);

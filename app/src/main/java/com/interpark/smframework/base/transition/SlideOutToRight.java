@@ -30,7 +30,7 @@ public class SlideOutToRight extends BaseSceneTransition {
 
     @Override
     public FiniteTimeAction getInAction() {
-        _inScene.setPosition(-getDirector().getWinSize().width * 0.3f+getDirector().getWinSize().width/2, getDirector().getWinSize().height/2);
+        _inScene.setPosition(-getDirector().getWinSize().width * 0.3f+getDirector().getWinSize().width/2f, getDirector().getWinSize().height/2f);
         TransformAction action = TransformAction.create(getDirector());
         action.toPositionX(getDirector().getWinSize().width/2).setTimeValue(_duration, 0);
         return action;

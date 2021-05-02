@@ -470,7 +470,7 @@ public class MultiTouchController<T> {
                         mMode = MODE_NOTHING;
                         objectCanvas.touchModeChanged(mMode, mCurrPt);
                         prevSelectedObject = selectedObject;
-                        objectCanvas.selectObject(selectedObject=null, mCurrPt);
+                        objectCanvas.selectObject((selectedObject=null), mCurrPt);
                     } else {
                         mMode = MODE_DRAG;
                         objectCanvas.touchModeChanged(mMode, mCurrPt);

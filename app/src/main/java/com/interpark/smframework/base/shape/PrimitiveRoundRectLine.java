@@ -15,8 +15,8 @@ import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
 
 public class PrimitiveRoundRectLine extends DrawNode {
-    private static final int CONER_SEGMENT = 10;
-    private static final int NUM_VERTICES = (CONER_SEGMENT+1)*2*4+2;
+    private static final int CORNER_SEGMENT = 10;
+    private static final int NUM_VERTICES = (CORNER_SEGMENT+1)*2*4+2;
     protected FloatBuffer uv;
 
     private float[] vertices;
@@ -63,12 +63,12 @@ public class PrimitiveRoundRectLine extends DrawNode {
         float textureRoundLength = (float)(0.25*2*cornerRadius*Math.PI)/thickness;
         float textureWidthLength = (float)(width-2*cornerRadius)/thickness;
         float textureHeightLength = (float)(height-2*cornerRadius)/thickness;
-        float stepRoundLength = textureRoundLength / CONER_SEGMENT;
+        float stepRoundLength = textureRoundLength / CORNER_SEGMENT;
 
         int index = 0;
         float tu = 0;
-        for (int i = 0; i <= CONER_SEGMENT; i++) {
-            double rad = i*Math.PI*0.5/CONER_SEGMENT;
+        for (int i = 0; i <= CORNER_SEGMENT; i++) {
+            double rad = i*Math.PI*0.5/CORNER_SEGMENT;
             float ca = (float)Math.cos(rad);
             float sa = (float)Math.sin(rad);
 
@@ -89,7 +89,7 @@ public class PrimitiveRoundRectLine extends DrawNode {
             }
 
             // right-top
-            index += (CONER_SEGMENT+1)*4;
+            index += (CORNER_SEGMENT+1)*4;
             vertices[index+0] = +w+inB;
             vertices[index+1] = -h-inA;
             vertices[index+2] = +w+outB;
@@ -100,7 +100,7 @@ public class PrimitiveRoundRectLine extends DrawNode {
             }
 
             // right-bottom
-            index += (CONER_SEGMENT+1)*4;
+            index += (CORNER_SEGMENT+1)*4;
             vertices[index+0] = +w+inA;
             vertices[index+1] = +h+inB;
             vertices[index+2] = +w+outA;
@@ -111,7 +111,7 @@ public class PrimitiveRoundRectLine extends DrawNode {
             }
 
             // left_bottom
-            index += (CONER_SEGMENT+1)*4;
+            index += (CORNER_SEGMENT+1)*4;
             vertices[index+0] = -w-inB;
             vertices[index+1] = +h+inA;
             vertices[index+2] = -w-outB;

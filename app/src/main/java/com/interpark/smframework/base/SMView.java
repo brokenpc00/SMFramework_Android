@@ -1736,12 +1736,12 @@ public class SMView extends Ref {
         }
     }
 
-    public Vec2 convertToLocalPos(final Vec2 woirdPos) {
+    public Vec2 convertToLocalPos(final Vec2 worldPos) {
         if (_parent!=null) {
-            return new Vec2(woirdPos.x-_parent.getScreenX(), woirdPos.y-_parent.getScreenY());
+            return new Vec2(worldPos.x-_parent.getScreenX(), worldPos.y-_parent.getScreenY());
         }
 
-        return woirdPos;
+        return worldPos;
     }
 
     public float getScreenX() {

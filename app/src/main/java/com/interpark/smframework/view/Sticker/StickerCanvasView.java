@@ -523,7 +523,7 @@ public class StickerCanvasView extends SMView implements MultiTouchController.Mu
         }
 
         FiniteTimeAction genie = EaseBackIn.create(getDirector(), GenieAction.create(getDirector(), duration, sprite, removeAnchor));
-        FiniteTimeAction seq = Sequence.create(getDirector(), DelayTime.create(getDirector(), delay), CallFuncN.create(getDirector(), new PERFORM_SEL_N() {
+        FiniteTimeAction seq = Sequence.create(getDirector(), DelayTime.create(getDirector(), delay), genie, CallFuncN.create(getDirector(), new PERFORM_SEL_N() {
             @Override
             public void performSelectorN(SMView target) {
                 if (_listener!=null) {

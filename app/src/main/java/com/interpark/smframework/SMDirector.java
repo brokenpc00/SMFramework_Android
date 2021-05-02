@@ -75,7 +75,7 @@ public class SMDirector implements IDirector, GLSurfaceView.Renderer {
     public static SMDirector getDirector() {return _instance;}
 
     // 가로 기준 720px
-    public static final int BASE_SCREEN_WIDTH = 720;
+    public static final int BASE_SCREEN_WIDTH = 1080;
 
     private FragmentActivity mActivity;
     private boolean mInitialized = false;

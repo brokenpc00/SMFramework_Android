@@ -85,7 +85,7 @@ public class ListScene extends SMMenuTransitionScene implements  SMTableView.Cel
             } else if (_sceneType==2) {
                 _menuNames.add("LABEL");
                 _menuNames.add("BUTTON");
-                _menuNames.add("SLID BUTTON");
+                _menuNames.add("SOLID BUTTON");
                 _menuNames.add("SLIDER");
                 _menuNames.add("PROGRESS");
                 _menuNames.add("LOADING");

@@ -1312,7 +1312,8 @@ public class ViewDisplayScene extends SMMenuTransitionScene implements SMView.On
                             _mainImageView.setScaleType(SMImageView.ScaleType.FIT_CENTER);
                         }
                         break;
-                    }                }
+                    }
+                }
 
             }
             break;

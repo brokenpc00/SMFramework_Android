@@ -341,10 +341,6 @@ public class SMZoomView extends UIContainerView {
             }
         }
 
-//        if (_contentView!=null) {
-//
-//        }
-
         Vec2 gv = new Vec2(ev.getX(), ev.getY());
         Vec2 mm = new Vec2(_paddingLeft, _paddingBottom);
 

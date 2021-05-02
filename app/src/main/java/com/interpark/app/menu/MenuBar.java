@@ -1672,8 +1672,8 @@ public class MenuBar extends SMView implements SMView.OnClickListener {
                     for (int i=0; i<len; i++) {
                         SMLabel letter = label.getLetter(i);
                         if (letter!=null) {
-                            letter.setScale(0);
-                            letter.setAlpha(0);
+                            letter.setScale(1);
+                            letter.setAlpha(1);
                         }
                     }
                 } else {
@@ -1683,9 +1683,11 @@ public class MenuBar extends SMView implements SMView.OnClickListener {
 
             if (_menuBar._textLabel[1-_toIndex]!=null) {
                 _menuBar._textLabel[1-_toIndex].clearSeparate();
+                _menuBar._textLabel[1-_toIndex].setAlpha(0);
             }
             if (_menuBar._textLabel[_toIndex]!=null) {
                 _menuBar._textLabel[_toIndex].clearSeparate();
+                _menuBar._textLabel[_toIndex].setAlpha(1);
             }
         }
 
@@ -1693,7 +1695,6 @@ public class MenuBar extends SMView implements SMView.OnClickListener {
             // in text hidden
             SMLabel label = _menuBar._textLabel[_toIndex];
             if (label!=null) {
-//                label.setVisible(true);
                 if (label.getSeparateCount()>0) {
                     label.setVisible(false);
                     int len = label.getSeparateCount();

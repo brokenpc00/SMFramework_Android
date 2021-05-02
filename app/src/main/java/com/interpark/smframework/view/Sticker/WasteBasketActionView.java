@@ -69,7 +69,7 @@ public class WasteBasketActionView extends SMView {
     }
 
     protected boolean initWithParam(SMView parent, final Vec2 from, final Vec2 to) {
-        setContentSize(TRASH_SIZE, TRASH_SHADOW_SIZE);
+        setContentSize(TRASH_SIZE, TRASH_SIZE);
         setAnchorPoint(Vec2.MIDDLE);
 
         // shadow
