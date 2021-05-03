@@ -560,7 +560,7 @@ public class ViewDisplayScene extends SMMenuTransitionScene implements SMView.On
                                 float b = SMView.getRandomColorF();
                                 cell.setBackgroundColor(new Color4F(r, g, b, 1));
 
-                                Color4F text = new Color4F(Math.abs(1-r), Math.abs(1-r), Math.abs(1-b), 1);
+                                Color4F text = new Color4F(Math.abs(1-r), Math.abs(1-g), Math.abs(1-b), 1);
                                 SMLabel label = SMLabel.create(getDirector(), cellID, 35, text);
                                 label.setAnchorPoint(Vec2.MIDDLE);
                                 label.setPosition(cell.getContentSize().width/2, cell.getContentSize().height/2);

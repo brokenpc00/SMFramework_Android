@@ -8,6 +8,8 @@ import com.interpark.smframework.base.SMView;
 
 import java.sql.Time;
 import java.util.ArrayList;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 public class Scheduler {
 
@@ -403,15 +405,15 @@ public class Scheduler {
         _currentTarget = null;
 
         if (!_functionsToPerform.isEmpty()) {
+            _mutex.lock();
+            ArrayList<PERFORM_SEL> tmp = (ArrayList<PERFORM_SEL>) _functionsToPerform.clone();
+            _functionsToPerform.clear();
+            _mutex.unlock();
 
-            synchronized (_functionsToPerform) {
-                for (int i=0; i<_functionsToPerform.size(); i++) {
-                    PERFORM_SEL func = _functionsToPerform.get(i);
+            for (int i=0; i<tmp.size(); i++) {
+                PERFORM_SEL func = tmp.get(i);
                     func.performSelector();
                 }
-
-                _functionsToPerform.clear();
-            }
         }
     }
 
@@ -422,15 +424,15 @@ public class Scheduler {
     }
 
     public void performFunctionInMainThread(PERFORM_SEL func) {
-        synchronized (_functionsToPerform) {
+        _mutex.lock();
             _functionsToPerform.add(func);
-        }
+        _mutex.unlock();
     }
 
     public void removeAllFunctionsToBePerformedInMainThread() {
-        synchronized (_functionsToPerform) {
+        _mutex.lock();
             _functionsToPerform.clear();
-        }
+        _mutex.unlock();
     }
 
     public void pauseTarget(Ref target) {
@@ -506,4 +508,6 @@ public class Scheduler {
     protected boolean _updateHashLocked = false;
 
     protected ArrayList<PERFORM_SEL> _functionsToPerform = new ArrayList<>(30);
+
+    private final Lock _mutex = new ReentrantLock(true);
 }

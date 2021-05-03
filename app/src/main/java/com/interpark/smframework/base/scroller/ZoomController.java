@@ -190,8 +190,7 @@ public class ZoomController {
             _panDynamicsY.update(nowTime);
             _zoomDynamics.update(nowTime);
 
-            boolean isAtRest =
-                    _panDynamicsX.isAtRest(REST_VELOCITY_TOLERANCE, REST_POSITION_TOLERANCE, _viewSize.width) &&
+            boolean isAtRest = _panDynamicsX.isAtRest(REST_VELOCITY_TOLERANCE, REST_POSITION_TOLERANCE, _viewSize.width) &&
                             _panDynamicsY.isAtRest(REST_VELOCITY_TOLERANCE, REST_POSITION_TOLERANCE, _viewSize.height) &&
                                     _zoomDynamics.isAtRest(REST_VELOCITY_TOLERANCE, REST_ZOOM_TOLERANCE, 1);
 
