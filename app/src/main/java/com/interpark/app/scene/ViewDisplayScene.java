@@ -438,7 +438,7 @@ public class ViewDisplayScene extends SMMenuTransitionScene implements SMView.On
 
         SMButton btn = SMButton.create(getDirector(), 0, SMButton.STYLE.SOLID_ROUNDRECT, _buttunRect.origin.x, _buttunRect.origin.y, _buttunRect.size.width, _buttunRect.size.height);
         btn.setShapeCornerRadius((AppConst.SIZE.MENUBAR_HEIGHT-40)/2);
-        btn.setOutlieWidth(ShaderNode.DEFAULT_ANTI_ALIAS_WIDTH*2);
+        btn.setOutlineWidth(ShaderNode.DEFAULT_ANTI_ALIAS_WIDTH*2);
         btn.setButtonColor(STATE.NORMAL, Color4F.WHITE);
         btn.setButtonColor(STATE.PRESSED, Color4F.XEEEFF1);
         btn.setOutlineColor(STATE.NORMAL, Color4F.XDBDCDF);
@@ -1114,7 +1114,7 @@ public class ViewDisplayScene extends SMMenuTransitionScene implements SMView.On
             btn.setOutlineColor(STATE.NORMAL, Color4F.XADAFB3);
             btn.setOutlineColor(STATE.PRESSED, Color4F.WHITE);
 
-            btn.setOutlieWidth(ShaderNode.DEFAULT_ANTI_ALIAS_WIDTH);
+            btn.setOutlineWidth(ShaderNode.DEFAULT_ANTI_ALIAS_WIDTH);
             btn.setShapeCornerRadius(buttonSize/2);
 
             btn.setTextColor(STATE.NORMAL, Color4F.XADAFB3);
@@ -1181,7 +1181,7 @@ public class ViewDisplayScene extends SMMenuTransitionScene implements SMView.On
             btn.setOutlineColor(STATE.NORMAL, Color4F.XADAFB3);
             btn.setOutlineColor(STATE.PRESSED, Color4F.WHITE);
 
-            btn.setOutlieWidth(ShaderNode.DEFAULT_ANTI_ALIAS_WIDTH);
+            btn.setOutlineWidth(ShaderNode.DEFAULT_ANTI_ALIAS_WIDTH);
             btn.setShapeCornerRadius(buttonSize/2);
 
             btn.setTextColor(STATE.NORMAL, Color4F.XADAFB3);

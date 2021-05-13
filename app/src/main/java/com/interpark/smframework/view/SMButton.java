@@ -556,7 +556,7 @@ public class SMButton extends UIContainerView {
         setButton(state, imageView);
     }
 
-    public void setOutlieWidth(final float lineWidth) {
+    public void setOutlineWidth(final float lineWidth) {
         if (_shapeOutlineWidth==lineWidth) {
             return;
         }

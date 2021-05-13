@@ -63,7 +63,7 @@ public class StickerItemView extends Sticker implements ImageProcessProtocol {
             super.onImageLoadComplete(sprite, 0, true);
         }
 
-        setBackgroundColor(new Color4F(1, 0, 0, 0.4f));
+//        setBackgroundColor(new Color4F(1, 0, 0, 0.4f));
 
         return true;
     }

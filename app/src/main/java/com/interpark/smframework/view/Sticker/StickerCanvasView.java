@@ -379,7 +379,7 @@ public class StickerCanvasView extends SMView implements MultiTouchController.Mu
             Vec2 nodePoint = convertToNodeSpace(worldPoint);
             Size size = child.getContentSize();
             if (!(nodePoint.x<0 || nodePoint.y<0 || nodePoint.x>size.width-1 || nodePoint.y>size.height-1)) {
-                if (child.getActionByTag(AppConst.TAG.ACTION_STICKER_REMOVE)!=null) {
+                if (child.getActionByTag(AppConst.TAG.ACTION_STICKER_REMOVE)==null) {
                     return child;
                 }
             }

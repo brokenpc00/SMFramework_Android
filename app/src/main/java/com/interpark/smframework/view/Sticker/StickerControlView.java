@@ -66,7 +66,7 @@ public class StickerControlView extends SMView implements SMView.OnClickListener
         _uiView = SMView.create(getDirector(), 0,0, 0, 10, 10);
         _uiView.setAnchorPoint(Vec2.MIDDLE);
         _uiView.setIgnoreTouchBounds(true);
-        _uiView.setBackgroundColor(new Color4F(0, 1, 0, 0.4f));
+//        _uiView.setBackgroundColor(new Color4F(0, 1, 0, 0.4f));
         addChild(_uiView);
 
         // dashed out line
@@ -81,7 +81,7 @@ public class StickerControlView extends SMView implements SMView.OnClickListener
         _sizeButton.setPadding(30.0f);
         _sizeButton.setButtonColor(STATE.NORMAL, Color4F.WHITE);
         _sizeButton.setButtonColor(STATE.PRESSED, new Color4F(0.9f, 0.9f, 0.9f, 1.0f));
-        _sizeButton.setOutlieWidth(5.0f);
+        _sizeButton.setOutlineWidth(5.0f);
         _sizeButton.setOutlineColor(STATE.NORMAL, MakeColor4F(0xe6e6e9, 1.0f));
         _sizeButton.setIcon(STATE.NORMAL, "images/size_arrow.png");
         _sizeButton.setIconColor(STATE.NORMAL, MakeColor4F(0x222222, 1.0f));
